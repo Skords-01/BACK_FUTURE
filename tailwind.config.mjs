@@ -7,6 +7,7 @@ export default {
         sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
         display: ["Manrope", "Inter", "system-ui", "sans-serif"],
         serif: ["'Source Serif Pro'", "Georgia", "serif"],
+        mono: ["'JetBrains Mono'", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       colors: {
         ink: {
@@ -21,17 +22,35 @@ export default {
           800: "#262624",
           900: "#16161a",
         },
+        // Primary accent — deep schoolbook ink-blue.
         accent: {
-          50: "#fff7ed",
-          100: "#ffedd5",
-          200: "#fed7aa",
-          300: "#fdba74",
-          400: "#fb923c",
-          500: "#f97316",
-          600: "#ea580c",
-          700: "#c2410c",
-          800: "#9a3412",
-          900: "#7c2d12",
+          50: "#eff4ff",
+          100: "#dbe6fe",
+          200: "#bfd1fe",
+          300: "#93b4fd",
+          400: "#608cf9",
+          500: "#3b66f1",
+          600: "#2547dc",
+          700: "#1e3a8a",
+          800: "#1c3270",
+          900: "#1a2c5d",
+        },
+        // Secondary highlight — warm amber for callouts / тонкі акценти.
+        amber: {
+          50: "#fefce8",
+          100: "#fef9c3",
+          200: "#fef08a",
+          300: "#fde047",
+          400: "#facc15",
+          500: "#eab308",
+          600: "#ca8a04",
+          700: "#a16207",
+        },
+        // Light schoolbook-paper tint.
+        paper: {
+          50: "#fcfaf3",
+          100: "#f7f3e6",
+          200: "#ece4cf",
         },
       },
       maxWidth: {
@@ -41,9 +60,21 @@ export default {
         DEFAULT: {
           css: {
             color: "#262624",
-            a: { color: "#c2410c", textDecorationThickness: "2px" },
+            a: { color: "#1e3a8a", textDecorationThickness: "2px" },
           },
         },
+      },
+      backgroundImage: {
+        // Subtle ruled-paper line, every 32px. Used only in hero section.
+        "rule-paper": "linear-gradient(to bottom, transparent 31px, rgba(30, 58, 138, 0.06) 32px)",
+      },
+      backgroundSize: {
+        "rule-32": "100% 32px",
+      },
+      boxShadow: {
+        // Slightly lifted index-card shadow.
+        card: "0 1px 0 rgba(20, 20, 24, 0.04), 0 8px 16px -8px rgba(20, 20, 24, 0.08)",
+        "card-hover": "0 1px 0 rgba(20, 20, 24, 0.04), 0 12px 24px -10px rgba(20, 20, 24, 0.14)",
       },
     },
   },

@@ -33,28 +33,37 @@ const description = `Якщо ти випустився ${year}-го — ось 
 ---
 
 <Base title={`Випуск ${year}`} description={description}>
-  <section class="container-prose pt-12 sm:pt-16">
-    <a
-      href="/"
-      class="inline-flex items-center gap-1 text-sm text-ink-500 hover:text-ink-900"
-      aria-label="Назад на головну"
-    >
-      ← Інший рік
-    </a>
+  <section class="ruled-hero">
+    <div class="container-prose pb-12 pt-12 sm:pt-16">
+      <a
+        href="/"
+        class="inline-flex items-center gap-1 text-sm text-ink-500 hover:text-ink-900"
+        aria-label="Назад на головну"
+      >
+        ← Інший рік
+      </a>
 
-    <p class="mt-4 text-sm font-medium uppercase tracking-widest text-accent-700">
-      Випуск {year} · {era.label}
-    </p>
-    <h1
-      class="mt-2 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-900 sm:text-5xl"
-    >
-      {
-        totalCount > 0
-          ? `Ти пропустив ${totalCount} ${totalCount === 1 ? "оновлення" : "оновлень"}`
-          : "Тут поки тихо"
-      }
-    </h1>
-    <p class="mt-4 max-w-prose text-lg text-ink-700">{era.summary}</p>
+      <p
+        class="mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest text-accent-700"
+      >
+        <span
+          class="rounded-full bg-accent-50 px-3 py-1 font-mono text-xs tabular-nums text-accent-700"
+          >ВИПУСК {year}</span
+        >
+        <span class="font-sans text-xs uppercase text-ink-500">·</span>
+        <span class="text-xs uppercase text-ink-600">{era.label}</span>
+      </p>
+      <h1
+        class="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-900 sm:text-5xl"
+      >
+        {
+          totalCount > 0
+            ? `Ти пропустив ${totalCount} ${totalCount === 1 ? "оновлення" : "оновлень"}`
+            : "Тут поки тихо"
+        }
+      </h1>
+      <p class="mt-4 max-w-prose text-lg text-ink-700">{era.summary}</p>
+    </div>
   </section>
 
   {

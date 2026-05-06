@@ -1,0 +1,496 @@
+---
+import "../styles/global.css";
+
+const teasers = [
+  {
+    subject: "🪐 Астрономія",
+    title: "Плутон більше не планета",
+    short:
+      "У 2006 році Міжнародний астрономічний союз перекласифікував Плутон у карликову планету. Тепер у Сонячній системі офіційно 8 планет.",
+    year: 2006,
+  },
+  {
+    subject: "🧬 Біологія",
+    title: "CRISPR/Cas9: редагування генів стало рутиною",
+    short:
+      "Технологія, яку відкрили в 2012-му, у 2020-му отримала Нобелівську премію, у 2023-му — перший FDA-схвалений препарат.",
+    year: 2020,
+  },
+];
+---
+
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Дизайн-варіанти — BACK_FUTURE</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,700;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style is:global>
+      .v-mineral {
+        background: #fafaf7;
+        color: #16161a;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .v-mineral .display {
+        font-family: Manrope, Inter, system-ui, sans-serif;
+        letter-spacing: -0.025em;
+      }
+      .v-mineral .accent {
+        color: #c2410c;
+      }
+      .v-mineral .btn {
+        background: #16161a;
+        color: #fff;
+        border-radius: 9999px;
+        padding: 0.75rem 1.75rem;
+        font-weight: 500;
+      }
+      .v-mineral .input {
+        background: #fff;
+        border: 1px solid #d6d6d2;
+        border-radius: 1.5rem;
+      }
+      .v-mineral .card {
+        background: #fff;
+        border: 1px solid #ececea;
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+      }
+      .v-mineral .pill {
+        background: #f7f7f5;
+        color: #4d4d47;
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+      }
+      .v-mineral .eyebrow {
+        color: #c2410c;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 0.75rem;
+      }
+
+      .v-editorial {
+        background: #f6f3ec;
+        color: #16161a;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .v-editorial .display {
+        font-family: "Newsreader", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: -0.015em;
+      }
+      .v-editorial h1.display,
+      .v-editorial h2.display {
+        font-weight: 600;
+      }
+      .v-editorial .accent {
+        color: #8b1a1a;
+      }
+      .v-editorial .btn {
+        background: #16161a;
+        color: #fff;
+        border-radius: 0.25rem;
+        padding: 0.85rem 1.5rem;
+        font-weight: 500;
+        font-family: "Newsreader", Georgia, serif;
+      }
+      .v-editorial .input {
+        background: #fff;
+        border-bottom: 2px solid #16161a;
+        border-radius: 0;
+        font-family: "Newsreader", Georgia, serif;
+        font-weight: 600;
+      }
+      .v-editorial .card {
+        background: #fff;
+        border-top: 3px solid #16161a;
+        border-bottom: 1px solid #d6d3c5;
+        padding: 1.5rem;
+      }
+      .v-editorial .card-first-letter::first-letter {
+        float: left;
+        font-family: "Newsreader", Georgia, serif;
+        font-weight: 700;
+        font-size: 3.4rem;
+        line-height: 1;
+        margin-right: 0.5rem;
+        margin-top: 0.15rem;
+        color: #8b1a1a;
+      }
+      .v-editorial .pill {
+        background: transparent;
+        color: #8b1a1a;
+        border: 1px solid #c0a0a0;
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        font-family: "Newsreader", Georgia, serif;
+        font-style: italic;
+        font-size: 0.85rem;
+      }
+      .v-editorial .eyebrow {
+        font-family: "Newsreader", Georgia, serif;
+        font-style: italic;
+        color: #8b1a1a;
+        font-size: 0.95rem;
+      }
+
+      .v-schoolbook {
+        background-color: #fcfaf3;
+        background-image: linear-gradient(to bottom, transparent 31px, #e6dfca 32px);
+        background-size: 100% 32px;
+        color: #1f1d18;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .v-schoolbook .display {
+        font-family: Manrope, Inter, system-ui, sans-serif;
+        letter-spacing: -0.02em;
+      }
+      .v-schoolbook .accent {
+        color: #1e3a8a;
+      }
+      .v-schoolbook .btn {
+        background: #1e3a8a;
+        color: #fff;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.75rem;
+        font-weight: 600;
+        box-shadow: 3px 3px 0 #1f1d18;
+      }
+      .v-schoolbook .input {
+        background: #fff;
+        border: 2px solid #1f1d18;
+        border-radius: 0.5rem;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+      .v-schoolbook .card {
+        background: #fff;
+        border: 1.5px solid #d8d2bd;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 4px 4px 0 #ece6cf;
+      }
+      .v-schoolbook .pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        background: #1e3a8a;
+        color: #fff;
+        border-radius: 0.25rem;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.75rem;
+      }
+      .v-schoolbook .eyebrow {
+        color: #b91c1c;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.7rem;
+      }
+      .v-schoolbook .hero-year {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      .v-ukrainian {
+        background: #faf6ee;
+        color: #1a1a1a;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      .v-ukrainian .display {
+        font-family: "Newsreader", Georgia, serif;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+      }
+      .v-ukrainian h1.display {
+        font-weight: 600;
+      }
+      .v-ukrainian .accent {
+        color: #1d4ed8;
+      }
+      .v-ukrainian .accent-2 {
+        color: #b08000;
+      }
+      .v-ukrainian .btn {
+        background: #1d4ed8;
+        color: #fff;
+        border-radius: 9999px;
+        padding: 0.85rem 2rem;
+        font-weight: 600;
+      }
+      .v-ukrainian .input {
+        background: #fff;
+        border: 1px solid #d8cfb8;
+        border-radius: 9999px;
+      }
+      .v-ukrainian .card {
+        background: #fffaf0;
+        border: 1px solid #e8dcc1;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        position: relative;
+      }
+      .v-ukrainian .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 1.5rem;
+        right: 1.5rem;
+        height: 3px;
+        background: linear-gradient(to right, #1d4ed8 50%, #facc15 50%);
+      }
+      .v-ukrainian .pill {
+        background: rgba(29, 78, 216, 0.08);
+        color: #1d4ed8;
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      .v-ukrainian .eyebrow {
+        color: #1d4ed8;
+        font-family: "Newsreader", Georgia, serif;
+        font-style: italic;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        font-size: 0.95rem;
+      }
+      .v-ukrainian .hero-frame {
+        border-left: 3px solid #facc15;
+        padding-left: 1.5rem;
+      }
+
+      .variant-section + .variant-section {
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+      }
+    </style>
+  </head>
+  <body class="bg-ink-100">
+    <div class="sticky top-0 z-30 border-b border-ink-200 bg-white/95 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-3 text-sm">
+        <span class="font-bold tracking-tight">BACK_FUTURE · Дизайн-лабораторія</span>
+        <nav class="ml-auto flex flex-wrap gap-1 text-xs sm:gap-2">
+          <a href="#mineral" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+            >1. Mineral</a
+          >
+          <a href="#editorial" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+            >2. Editorial</a
+          >
+          <a href="#schoolbook" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+            >3. Schoolbook</a
+          >
+          <a href="#ukrainian" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+            >4. Ukrainian</a
+          >
+          <a href="/" class="ml-2 rounded-full border border-ink-300 px-3 py-1.5 hover:bg-ink-50"
+            >На сайт →</a
+          >
+        </nav>
+      </div>
+    </div>
+
+    {/* === Variant 1: Mineral === */}
+    <section id="mineral" class="variant-section v-mineral">
+      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+        <div class="mb-6 flex items-center gap-3 text-xs">
+          <span class="rounded-full bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+            >ВАРІАНТ 01</span
+          >
+          <span class="accent font-bold uppercase tracking-widest">Mineral · поточний</span>
+          <span class="text-ink-500"
+            >Сучасна редакторська мінімал-естетика. Кремовий папір, помаранчевий акцент.</span
+          >
+        </div>
+
+        <p class="eyebrow">Українською. Без підписки.</p>
+        <h1 class="display mt-3 max-w-3xl text-5xl font-extrabold leading-[1.05] sm:text-6xl">
+          Що ти пропустив після випускного?
+        </h1>
+        <p class="mt-5 max-w-2xl text-lg text-ink-700">
+          Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
+          науково-популярно, з джерелами.
+        </p>
+
+        <div class="mt-10 flex flex-col gap-3 sm:max-w-xl sm:flex-row">
+          <input
+            class="input display flex-1 px-6 py-5 text-center text-5xl font-extrabold tabular-nums focus:border-orange-500 focus:outline-none"
+            value="2003"
+          />
+          <button class="btn">Подивитись</button>
+        </div>
+
+        <div class="mt-10 grid gap-4 sm:grid-cols-2">
+          {
+            teasers.map((t) => (
+              <div class="card">
+                <div class="flex items-start justify-between gap-3">
+                  <h3 class="display text-xl font-bold">{t.title}</h3>
+                  <span class="pill tabular-nums">{t.year}</span>
+                </div>
+                <p class="mt-2 text-xs uppercase tracking-widest text-ink-500">{t.subject}</p>
+                <p class="mt-3 text-ink-700">{t.short}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* === Variant 2: Editorial === */}
+    <section id="editorial" class="variant-section v-editorial">
+      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+        <div class="mb-6 flex items-center gap-3 text-xs">
+          <span class="rounded bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+            >ВАРІАНТ 02</span
+          >
+          <span class="accent font-bold uppercase tracking-widest">Editorial · журнальний</span>
+          <span class="text-ink-500"
+            >Серіф-заголовки, drop-cap у картках, вайб «Куншт» / The New Yorker.</span
+          >
+        </div>
+
+        <p class="eyebrow">Українською — без підписки</p>
+        <h1 class="display mt-3 max-w-3xl text-5xl leading-[1.02] tracking-tight sm:text-6xl">
+          Що ти <em class="accent">пропустив</em> після випускного?
+        </h1>
+        <p class="display mt-5 max-w-2xl text-xl leading-relaxed text-ink-700">
+          Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів.
+        </p>
+
+        <div class="mt-10 flex flex-col gap-3 sm:max-w-xl sm:flex-row sm:items-end">
+          <input
+            class="input display flex-1 px-3 py-4 text-center text-5xl tabular-nums focus:outline-none"
+            value="2003"
+          />
+          <button class="btn">Подивитись →</button>
+        </div>
+
+        <div class="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2">
+          {
+            teasers.map((t) => (
+              <article class="card">
+                <p class="eyebrow">{t.subject}</p>
+                <h3 class="display mt-2 text-2xl leading-snug">{t.title}</h3>
+                <p class="card-first-letter mt-3 text-ink-800">{t.short}</p>
+                <p class="mt-3 flex items-center gap-2">
+                  <span class="pill tabular-nums">№ {t.year}</span>
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* === Variant 3: Schoolbook === */}
+    <section id="schoolbook" class="variant-section v-schoolbook">
+      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+        <div class="mb-6 flex items-center gap-3 text-xs">
+          <span class="rounded bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+            >ВАРІАНТ 03</span
+          >
+          <span class="accent font-bold uppercase tracking-widest">Schoolbook · ностальгія</span>
+          <span class="text-ink-500"
+            >Лінований папір, mono для років, картки як індекс-картки на парті.</span
+          >
+        </div>
+
+        <p class="eyebrow">Українською · без підписки</p>
+        <h1 class="display mt-3 max-w-3xl text-5xl font-extrabold leading-[1.05] sm:text-6xl">
+          Що ти пропустив <span class="accent">після випускного</span>?
+        </h1>
+        <p class="mt-5 max-w-2xl text-lg text-ink-700">
+          Перегорни сторінку до теми "Що нового з {new Date().getFullYear()}" — твій підручник до
+          неї не дійшов.
+        </p>
+
+        <div class="mt-10 flex flex-col gap-3 sm:max-w-xl sm:flex-row">
+          <input
+            class="input hero-year flex-1 px-6 py-5 text-center text-5xl font-bold tabular-nums focus:outline-none"
+            value="2003"
+          />
+          <button class="btn">Подивитись →</button>
+        </div>
+
+        <div class="mt-12 grid gap-5 sm:grid-cols-2">
+          {
+            teasers.map((t) => (
+              <div class="card">
+                <div class="flex items-start justify-between gap-3">
+                  <p class="eyebrow">{t.subject}</p>
+                  <span class="pill">УРОК {t.year}</span>
+                </div>
+                <h3 class="display mt-2 text-xl font-bold">{t.title}</h3>
+                <p class="mt-3 text-ink-700">{t.short}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* === Variant 4: Ukrainian === */}
+    <section id="ukrainian" class="variant-section v-ukrainian">
+      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+        <div class="mb-6 flex items-center gap-3 text-xs">
+          <span class="rounded-full bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+            >ВАРІАНТ 04</span
+          >
+          <span class="accent font-bold uppercase tracking-widest">Ukrainian · музейний</span>
+          <span class="text-ink-500"
+            >Iv ory-фон, темно-синій + теплий жовтий як стрічка. Серіф-заголовки.</span
+          >
+        </div>
+
+        <div class="hero-frame">
+          <p class="eyebrow">Українською · без підписки</p>
+          <h1 class="display mt-3 max-w-3xl text-5xl leading-[1.05] tracking-tight sm:text-6xl">
+            Що ти пропустив <span class="accent">після випускного</span>?
+          </h1>
+          <p class="display mt-5 max-w-2xl text-xl leading-relaxed text-ink-800">
+            Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів.
+            Українською мовою, з джерелами.
+          </p>
+        </div>
+
+        <div class="mt-10 flex flex-col gap-3 sm:max-w-xl sm:flex-row">
+          <input
+            class="input display flex-1 px-6 py-5 text-center text-5xl font-bold tabular-nums focus:outline-none"
+            value="2003"
+          />
+          <button class="btn">Подивитись →</button>
+        </div>
+
+        <div class="mt-12 grid gap-5 sm:grid-cols-2">
+          {
+            teasers.map((t) => (
+              <article class="card">
+                <div class="flex items-start justify-between gap-3 pt-2">
+                  <p class="eyebrow">{t.subject}</p>
+                  <span class="pill tabular-nums">{t.year}</span>
+                </div>
+                <h3 class="display mt-2 text-2xl leading-snug">{t.title}</h3>
+                <p class="mt-3 text-ink-700">{t.short}</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <footer class="border-t border-ink-200 bg-white">
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <span>BACK_FUTURE · дизайн-лабораторія</span>
+        <span>Прокрути вгору, щоб переключитись між варіантами →</span>
+      </div>
+    </footer>
+  </body>
+</html>
