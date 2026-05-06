@@ -9,25 +9,27 @@ const totalFacts = allFacts.length;
 ---
 
 <Base>
-  <section class="container-prose pt-16 sm:pt-24">
-    <p class="mb-3 text-sm font-medium uppercase tracking-widest text-accent-700">
-      Українською. Без підписки.
-    </p>
-    <h1
-      class="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-900 sm:text-6xl"
-    >
-      Що ти пропустив після випускного?
-    </h1>
-    <p class="mt-5 max-w-prose text-lg leading-relaxed text-ink-700 sm:text-xl">
-      Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
-      науково-популярно, з джерелами.
-    </p>
-
-    <div class="mt-10">
-      <YearInput defaultYear={2003} />
-      <p class="mt-3 text-sm text-ink-500">
-        Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
+  <section class="ruled-hero">
+    <div class="container-prose pt-16 sm:pt-24">
+      <p class="mb-3 text-sm font-medium uppercase tracking-widest text-accent-700">
+        Українською. Без підписки.
       </p>
+      <h1
+        class="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-900 sm:text-6xl"
+      >
+        Що ти пропустив після випускного?
+      </h1>
+      <p class="mt-5 max-w-prose text-lg leading-relaxed text-ink-700 sm:text-xl">
+        Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
+        науково-популярно, з джерелами.
+      </p>
+
+      <div class="mt-10 pb-16">
+        <YearInput defaultYear={2003} />
+        <p class="mt-3 text-sm text-ink-500">
+          Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
+        </p>
+      </div>
     </div>
   </section>
 
