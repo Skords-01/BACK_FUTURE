@@ -1,0 +1,72 @@
+---
+import { SITE } from "../config/site";
+
+interface Props {
+  defaultYear?: number;
+  size?: "lg" | "md";
+}
+
+const { defaultYear, size = "lg" } = Astro.props;
+const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 text-2xl";
+---
+
+<form
+  id="year-form"
+  data-min={SITE.yearMin}
+  data-max={SITE.yearMax}
+  class="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+>
+  <label class="sr-only" for="year-input">Рік випуску</label>
+  <input
+    id="year-input"
+    name="year"
+    type="number"
+    inputmode="numeric"
+    pattern="[0-9]*"
+    min={SITE.yearMin}
+    max={SITE.yearMax}
+    placeholder="2003"
+    value={defaultYear}
+    required
+    class={`flex-1 rounded-3xl border border-ink-200 bg-white px-6 text-center font-display font-bold tabular-nums tracking-tight text-ink-900 outline-none transition focus:border-accent-500 focus:ring-2 focus:ring-accent-200 ${inputClass}`}
+  />
+  <button type="submit" class="btn h-14 px-8 sm:h-auto"> Подивитись </button>
+</form>
+
+<p id="year-error" class="mt-2 hidden text-sm text-red-600"></p>
+
+<script is:inline>
+  (function () {
+    const form = document.getElementById("year-form");
+    if (!(form instanceof HTMLFormElement)) return;
+    const input = form.querySelector("#year-input");
+    const err = document.getElementById("year-error");
+    const min = Number(form.dataset.min);
+    const max = Number(form.dataset.max);
+
+    function showError(msg) {
+      if (!err) return;
+      err.textContent = msg;
+      err.classList.remove("hidden");
+    }
+    function clearError() {
+      if (!err) return;
+      err.textContent = "";
+      err.classList.add("hidden");
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      clearError();
+      if (!(input instanceof HTMLInputElement)) return;
+      const raw = input.value.trim();
+      const n = Number(raw);
+      if (!Number.isInteger(n) || n < min || n > max) {
+        showError(`Введи рік від ${min} до ${max}.`);
+        input.focus();
+        return;
+      }
+      window.location.href = `/${n}.html`;
+    });
+  })();
+</script>

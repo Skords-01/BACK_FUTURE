@@ -1,0 +1,84 @@
+---
+import Base from "../layouts/Base.astro";
+import SubjectSection from "../components/SubjectSection.astro";
+import SupportBlock from "../components/SupportBlock.astro";
+import YearInput from "../components/YearInput.astro";
+import { getCollection } from "astro:content";
+import { factsForYear, groupBySubject } from "../lib/filterFacts";
+import { eraForGraduationYear, eraById } from "../lib/eras";
+import { SITE } from "../config/site";
+
+export async function getStaticPaths() {
+  const years: { params: { year: string } }[] = [];
+  for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
+    years.push({ params: { year: String(y) } });
+  }
+  return years;
+}
+
+const { year: yearStr } = Astro.params;
+const year = Number(yearStr);
+if (!Number.isInteger(year) || year < SITE.yearMin || year > SITE.yearMax) {
+  return Astro.redirect("/");
+}
+
+const allFacts = await getCollection("facts");
+const matched = factsForYear(allFacts, year);
+const groups = groupBySubject(matched);
+const era = eraById(eraForGraduationYear(year));
+
+const totalCount = matched.length;
+
+const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
+---
+
+<Base title={`Випуск ${year}`} description={description}>
+  <section class="container-prose pt-12 sm:pt-16">
+    <a
+      href="/"
+      class="inline-flex items-center gap-1 text-sm text-ink-500 hover:text-ink-900"
+      aria-label="Назад на головну"
+    >
+      ← Інший рік
+    </a>
+
+    <p class="mt-4 text-sm font-medium uppercase tracking-widest text-accent-700">
+      Випуск {year} · {era.label}
+    </p>
+    <h1
+      class="mt-2 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-900 sm:text-5xl"
+    >
+      {
+        totalCount > 0
+          ? `Ти пропустив ${totalCount} ${totalCount === 1 ? "оновлення" : "оновлень"}`
+          : "Тут поки тихо"
+      }
+    </h1>
+    <p class="mt-4 max-w-prose text-lg text-ink-700">{era.summary}</p>
+  </section>
+
+  {
+    groups.length > 0 ? (
+      <section class="container-prose">
+        {groups.map((g) => (
+          <SubjectSection emoji={g.emoji} label={g.label} items={g.items} />
+        ))}
+      </section>
+    ) : (
+      <section class="container-prose mt-12">
+        <div class="rounded-3xl border border-dashed border-ink-200 bg-white p-8 text-center text-ink-600">
+          Поки що для цього року немає підтверджених фактів у базі. Ми постійно додаємо нові.
+        </div>
+      </section>
+    )
+  }
+
+  <SupportBlock />
+
+  <section class="container-prose mt-16">
+    <h2 class="font-display text-xl font-bold text-ink-900">Спробуй інший рік</h2>
+    <div class="mt-4">
+      <YearInput defaultYear={year} size="md" />
+    </div>
+  </section>
+</Base>

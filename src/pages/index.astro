@@ -1,0 +1,69 @@
+---
+import Base from "../layouts/Base.astro";
+import YearInput from "../components/YearInput.astro";
+import { SITE, SUBJECTS } from "../config/site";
+import { getCollection } from "astro:content";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const totalFacts = allFacts.length;
+---
+
+<Base>
+  <section class="container-prose pt-16 sm:pt-24">
+    <p class="mb-3 text-sm font-medium uppercase tracking-widest text-accent-700">
+      Українською. Без підписки.
+    </p>
+    <h1
+      class="font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-900 sm:text-6xl"
+    >
+      Що ти пропустив після випускного?
+    </h1>
+    <p class="mt-5 max-w-prose text-lg leading-relaxed text-ink-700 sm:text-xl">
+      Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
+      науково-популярно, з джерелами.
+    </p>
+
+    <div class="mt-10">
+      <YearInput defaultYear={2003} />
+      <p class="mt-3 text-sm text-ink-500">
+        Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
+      </p>
+    </div>
+  </section>
+
+  <section class="container-prose mt-20">
+    <h2 class="font-display text-xl font-bold text-ink-900">Як це працює</h2>
+    <ol class="mt-4 space-y-3 text-ink-700">
+      <li>
+        <span class="font-semibold text-ink-900">1. Введи рік випуску.</span> Від 1991 до сьогодні.
+      </li>
+      <li>
+        <span class="font-semibold text-ink-900">2. Отримаєш стрічку оновлень</span> по 5 предметах:
+        астрономія, біологія, географія, історія, фізика. Те, що змінилось у науці й світі від твого
+        випускного року.
+      </li>
+      <li>
+        <span class="font-semibold text-ink-900">3. Кожен факт — з джерелом.</span> Можна розгорнути
+        деталі в науково-популярному форматі.
+      </li>
+    </ol>
+  </section>
+
+  <section class="container-prose mt-16">
+    <h2 class="font-display text-xl font-bold text-ink-900">Тематичні блоки</h2>
+    <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
+      {
+        SUBJECTS.map((s) => (
+          <li class="flex flex-col items-start rounded-2xl border border-ink-100 bg-white p-4">
+            <span class="text-2xl">{s.emoji}</span>
+            <span class="mt-2 font-medium text-ink-900">{s.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-4 text-sm text-ink-500">
+      Зараз у базі: <span class="font-semibold text-ink-700">{totalFacts}</span>{" "}
+      {totalFacts === 1 ? "факт" : "фактів"}. Поповнюємо постійно.
+    </p>
+  </section>
+</Base>

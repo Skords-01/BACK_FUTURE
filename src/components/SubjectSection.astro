@@ -1,0 +1,28 @@
+---
+import FactCard from "./FactCard.astro";
+import type { Fact } from "../lib/filterFacts";
+
+interface Props {
+  emoji: string;
+  label: string;
+  items: Fact[];
+}
+
+const { emoji, label, items } = Astro.props;
+---
+
+<section class="mt-12">
+  <header class="mb-5 flex items-baseline gap-3">
+    <span class="text-3xl" aria-hidden="true">{emoji}</span>
+    <h2 class="font-display text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
+      {label}
+    </h2>
+    <span class="ml-auto text-sm tabular-nums text-ink-500">
+      {items.length}
+      {items.length === 1 ? "оновлення" : "оновлень"}
+    </span>
+  </header>
+  <div class="grid gap-4">
+    {items.map((f) => <FactCard fact={f} />)}
+  </div>
+</section>
