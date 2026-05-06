@@ -14,10 +14,10 @@ const { emoji, label, items } = Astro.props;
 <section class="mt-12">
   <header class="mb-5 flex items-baseline gap-3">
     <span class="text-3xl" aria-hidden="true">{emoji}</span>
-    <h2 class="font-display text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">
+    <h2 class="font-display text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
       {label}
     </h2>
-    <span class="ml-auto font-mono text-xs tabular-nums text-ink-500">
+    <span class="text-ink-500 ml-auto font-mono text-xs tabular-nums">
       {items.length}
       {items.length === 1 ? "оновлення" : "оновлень"}
     </span>

@@ -1,8 +1,12 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 
 const SUBJECT = z.enum(["astronomy", "biology", "geography", "history", "physics"]);
 const ERA = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
+const SOURCE_URL = z.string().refine((value) => URL.canParse(value), {
+  message: "Invalid URL",
+});
 
 const facts = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./content/facts" }),
@@ -20,7 +24,7 @@ const facts = defineCollection({
       .array(
         z.object({
           title: z.string(),
-          url: z.string().url(),
+          url: SOURCE_URL,
         }),
       )
       .min(1),

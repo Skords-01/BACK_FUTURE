@@ -272,23 +272,23 @@ const teasers = [
     </style>
   </head>
   <body class="bg-ink-100">
-    <div class="sticky top-0 z-30 border-b border-ink-200 bg-white/95 backdrop-blur">
+    <div class="border-ink-200 sticky top-0 z-30 border-b bg-white/95 backdrop-blur">
       <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-3 text-sm">
         <span class="font-bold tracking-tight">BACK_FUTURE · Дизайн-лабораторія</span>
         <nav class="ml-auto flex flex-wrap gap-1 text-xs sm:gap-2">
-          <a href="#mineral" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+          <a href="#mineral" class="bg-ink-50 hover:bg-ink-100 rounded-full px-3 py-1.5"
             >1. Mineral</a
           >
-          <a href="#editorial" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+          <a href="#editorial" class="bg-ink-50 hover:bg-ink-100 rounded-full px-3 py-1.5"
             >2. Editorial</a
           >
-          <a href="#schoolbook" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+          <a href="#schoolbook" class="bg-ink-50 hover:bg-ink-100 rounded-full px-3 py-1.5"
             >3. Schoolbook</a
           >
-          <a href="#ukrainian" class="rounded-full bg-ink-50 px-3 py-1.5 hover:bg-ink-100"
+          <a href="#ukrainian" class="bg-ink-50 hover:bg-ink-100 rounded-full px-3 py-1.5"
             >4. Ukrainian</a
           >
-          <a href="/" class="ml-2 rounded-full border border-ink-300 px-3 py-1.5 hover:bg-ink-50"
+          <a href="/" class="border-ink-300 hover:bg-ink-50 ml-2 rounded-full border px-3 py-1.5"
             >На сайт →</a
           >
         </nav>
@@ -297,22 +297,22 @@ const teasers = [
 
     {/* === Variant 1: Mineral === */}
     <section id="mineral" class="variant-section v-mineral">
-      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+      <div class="mx-auto max-w-6xl px-5 pt-12 pb-20 sm:px-8">
         <div class="mb-6 flex items-center gap-3 text-xs">
-          <span class="rounded-full bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+          <span class="text-ink-700 rounded-full bg-white px-3 py-1 font-bold tracking-wider"
             >ВАРІАНТ 01</span
           >
-          <span class="accent font-bold uppercase tracking-widest">Mineral · поточний</span>
+          <span class="accent font-bold tracking-widest uppercase">Mineral · поточний</span>
           <span class="text-ink-500"
             >Сучасна редакторська мінімал-естетика. Кремовий папір, помаранчевий акцент.</span
           >
         </div>
 
         <p class="eyebrow">Українською. Без підписки.</p>
-        <h1 class="display mt-3 max-w-3xl text-5xl font-extrabold leading-[1.05] sm:text-6xl">
+        <h1 class="display mt-3 max-w-3xl text-5xl leading-[1.05] font-extrabold sm:text-6xl">
           Що ти пропустив після випускного?
         </h1>
-        <p class="mt-5 max-w-2xl text-lg text-ink-700">
+        <p class="text-ink-700 mt-5 max-w-2xl text-lg">
           Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
           науково-популярно, з джерелами.
         </p>
@@ -333,8 +333,8 @@ const teasers = [
                   <h3 class="display text-xl font-bold">{t.title}</h3>
                   <span class="pill tabular-nums">{t.year}</span>
                 </div>
-                <p class="mt-2 text-xs uppercase tracking-widest text-ink-500">{t.subject}</p>
-                <p class="mt-3 text-ink-700">{t.short}</p>
+                <p class="text-ink-500 mt-2 text-xs tracking-widest uppercase">{t.subject}</p>
+                <p class="text-ink-700 mt-3">{t.short}</p>
               </div>
             ))
           }
@@ -344,12 +344,12 @@ const teasers = [
 
     {/* === Variant 2: Editorial === */}
     <section id="editorial" class="variant-section v-editorial">
-      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+      <div class="mx-auto max-w-6xl px-5 pt-12 pb-20 sm:px-8">
         <div class="mb-6 flex items-center gap-3 text-xs">
-          <span class="rounded bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+          <span class="text-ink-700 rounded bg-white px-3 py-1 font-bold tracking-wider"
             >ВАРІАНТ 02</span
           >
-          <span class="accent font-bold uppercase tracking-widest">Editorial · журнальний</span>
+          <span class="accent font-bold tracking-widest uppercase">Editorial · журнальний</span>
           <span class="text-ink-500"
             >Серіф-заголовки, drop-cap у картках, вайб «Куншт» / The New Yorker.</span
           >
@@ -359,7 +359,7 @@ const teasers = [
         <h1 class="display mt-3 max-w-3xl text-5xl leading-[1.02] tracking-tight sm:text-6xl">
           Що ти <em class="accent">пропустив</em> після випускного?
         </h1>
-        <p class="display mt-5 max-w-2xl text-xl leading-relaxed text-ink-700">
+        <p class="display text-ink-700 mt-5 max-w-2xl text-xl leading-relaxed">
           Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів.
         </p>
 
@@ -377,7 +377,7 @@ const teasers = [
               <article class="card">
                 <p class="eyebrow">{t.subject}</p>
                 <h3 class="display mt-2 text-2xl leading-snug">{t.title}</h3>
-                <p class="card-first-letter mt-3 text-ink-800">{t.short}</p>
+                <p class="card-first-letter text-ink-800 mt-3">{t.short}</p>
                 <p class="mt-3 flex items-center gap-2">
                   <span class="pill tabular-nums">№ {t.year}</span>
                 </p>
@@ -390,22 +390,22 @@ const teasers = [
 
     {/* === Variant 3: Schoolbook === */}
     <section id="schoolbook" class="variant-section v-schoolbook">
-      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+      <div class="mx-auto max-w-6xl px-5 pt-12 pb-20 sm:px-8">
         <div class="mb-6 flex items-center gap-3 text-xs">
-          <span class="rounded bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+          <span class="text-ink-700 rounded bg-white px-3 py-1 font-bold tracking-wider"
             >ВАРІАНТ 03</span
           >
-          <span class="accent font-bold uppercase tracking-widest">Schoolbook · ностальгія</span>
+          <span class="accent font-bold tracking-widest uppercase">Schoolbook · ностальгія</span>
           <span class="text-ink-500"
             >Лінований папір, mono для років, картки як індекс-картки на парті.</span
           >
         </div>
 
         <p class="eyebrow">Українською · без підписки</p>
-        <h1 class="display mt-3 max-w-3xl text-5xl font-extrabold leading-[1.05] sm:text-6xl">
+        <h1 class="display mt-3 max-w-3xl text-5xl leading-[1.05] font-extrabold sm:text-6xl">
           Що ти пропустив <span class="accent">після випускного</span>?
         </h1>
-        <p class="mt-5 max-w-2xl text-lg text-ink-700">
+        <p class="text-ink-700 mt-5 max-w-2xl text-lg">
           Перегорни сторінку до теми "Що нового з {new Date().getFullYear()}" — твій підручник до
           неї не дійшов.
         </p>
@@ -427,7 +427,7 @@ const teasers = [
                   <span class="pill">УРОК {t.year}</span>
                 </div>
                 <h3 class="display mt-2 text-xl font-bold">{t.title}</h3>
-                <p class="mt-3 text-ink-700">{t.short}</p>
+                <p class="text-ink-700 mt-3">{t.short}</p>
               </div>
             ))
           }
@@ -437,12 +437,12 @@ const teasers = [
 
     {/* === Variant 4: Ukrainian === */}
     <section id="ukrainian" class="variant-section v-ukrainian">
-      <div class="mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-8">
+      <div class="mx-auto max-w-6xl px-5 pt-12 pb-20 sm:px-8">
         <div class="mb-6 flex items-center gap-3 text-xs">
-          <span class="rounded-full bg-white px-3 py-1 font-bold tracking-wider text-ink-700"
+          <span class="text-ink-700 rounded-full bg-white px-3 py-1 font-bold tracking-wider"
             >ВАРІАНТ 04</span
           >
-          <span class="accent font-bold uppercase tracking-widest">Ukrainian · музейний</span>
+          <span class="accent font-bold tracking-widest uppercase">Ukrainian · музейний</span>
           <span class="text-ink-500"
             >Iv ory-фон, темно-синій + теплий жовтий як стрічка. Серіф-заголовки.</span
           >
@@ -453,7 +453,7 @@ const teasers = [
           <h1 class="display mt-3 max-w-3xl text-5xl leading-[1.05] tracking-tight sm:text-6xl">
             Що ти пропустив <span class="accent">після випускного</span>?
           </h1>
-          <p class="display mt-5 max-w-2xl text-xl leading-relaxed text-ink-800">
+          <p class="display text-ink-800 mt-5 max-w-2xl text-xl leading-relaxed">
             Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів.
             Українською мовою, з джерелами.
           </p>
@@ -476,7 +476,7 @@ const teasers = [
                   <span class="pill tabular-nums">{t.year}</span>
                 </div>
                 <h3 class="display mt-2 text-2xl leading-snug">{t.title}</h3>
-                <p class="mt-3 text-ink-700">{t.short}</p>
+                <p class="text-ink-700 mt-3">{t.short}</p>
               </article>
             ))
           }
@@ -484,9 +484,9 @@ const teasers = [
       </div>
     </section>
 
-    <footer class="border-t border-ink-200 bg-white">
+    <footer class="border-ink-200 border-t bg-white">
       <div
-        class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between"
+        class="text-ink-500 mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 text-sm sm:flex-row sm:items-center sm:justify-between"
       >
         <span>BACK_FUTURE · дизайн-лабораторія</span>
         <span>Прокрути вгору, щоб переключитись між варіантами →</span>

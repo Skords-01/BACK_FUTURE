@@ -4,7 +4,7 @@
 
 ## Стек
 
-- [Astro](https://astro.build) 5 + TypeScript (strict)
+- [Astro](https://astro.build) 6 + TypeScript (strict)
 - [Tailwind CSS](https://tailwindcss.com)
 - Контент — Markdown з frontmatter, типобезпечно валідований через Zod
 - Статичний білд → деплой на будь-який static host (Vercel/Netlify/Cloudflare Pages)
@@ -12,11 +12,12 @@
 ## Швидкий старт
 
 ```bash
-nvm use            # Node 20+
+nvm use            # Node 22.13+
 npm install
 npm run dev        # http://localhost:4321
 npm run build      # проганяє astro check + білд
 npm run preview    # переглянути білд локально
+npm run test       # Playwright smoke tests
 npm run lint       # ESLint + Prettier
 npm run format     # Prettier --write
 ```

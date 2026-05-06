@@ -11,24 +11,24 @@ const { Content } = await render(fact);
 ---
 
 <article
-  class="group rounded-3xl border border-ink-100 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:border-ink-200 hover:shadow-card-hover sm:p-7"
+  class="group border-ink-100 shadow-card hover:border-ink-200 hover:shadow-card-hover rounded-3xl border bg-white p-5 transition hover:-translate-y-0.5 sm:p-7"
 >
   <div class="flex items-start justify-between gap-4">
-    <h3 class="font-display text-xl font-bold leading-snug text-ink-900 sm:text-2xl">
+    <h3 class="font-display text-ink-900 text-xl leading-snug font-bold sm:text-2xl">
       {fact.data.title}
     </h3>
     <span
-      class="shrink-0 rounded-full bg-accent-50 px-3 py-1 font-mono text-xs font-medium tabular-nums text-accent-700"
+      class="bg-accent-50 text-accent-700 shrink-0 rounded-full px-3 py-1 font-mono text-xs font-medium tabular-nums"
     >
       {fact.data.yearOfEvent}
     </span>
   </div>
 
-  <p class="mt-3 text-base leading-relaxed text-ink-700">{fact.data.short}</p>
+  <p class="text-ink-700 mt-3 text-base leading-relaxed">{fact.data.short}</p>
 
   <details class="group/details mt-4">
     <summary
-      class="inline-flex cursor-pointer select-none items-center gap-1 text-sm font-medium text-accent-700 hover:text-accent-800 [&::-webkit-details-marker]:hidden"
+      class="text-accent-700 hover:text-accent-800 inline-flex cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"
     >
       <span class="group-open/details:hidden">Докладніше</span>
       <span class="hidden group-open/details:inline">Згорнути</span>
@@ -46,15 +46,15 @@ const { Content } = await render(fact);
     </summary>
 
     <div
-      class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 mt-4 max-w-none text-ink-800"
+      class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 text-ink-800 mt-4 max-w-none"
     >
       <Content />
     </div>
 
     {
       fact.data.sources.length > 0 && (
-        <div class="mt-4 border-t border-ink-100 pt-3 text-xs text-ink-500">
-          <div class="mb-1 font-medium uppercase tracking-wider text-ink-400">Джерела</div>
+        <div class="border-ink-100 text-ink-500 mt-4 border-t pt-3 text-xs">
+          <div class="text-ink-400 mb-1 font-medium tracking-wider uppercase">Джерела</div>
           <ul class="space-y-1">
             {fact.data.sources.map((s) => (
               <li>

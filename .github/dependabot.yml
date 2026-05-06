@@ -1,0 +1,31 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 5
+    groups:
+      astro:
+        patterns:
+          - "astro"
+          - "@astrojs/*"
+      linting:
+        patterns:
+          - "eslint*"
+          - "@typescript-eslint/*"
+          - "prettier*"
+      testing:
+        patterns:
+          - "@playwright/*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:15"
+      timezone: Europe/Kyiv

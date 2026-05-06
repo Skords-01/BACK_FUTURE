@@ -10,7 +10,7 @@ export const SITE = {
   description:
     "Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів — українською мовою.",
   locale: "uk-UA",
-  defaultUrl: "https://back-future.example.com",
+  defaultUrl: import.meta.env.PUBLIC_SITE_URL ?? "https://back-future.example.com",
   author: "BACK_FUTURE team",
   twitter: "",
   yearMin: 1991,

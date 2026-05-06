@@ -1,0 +1,46 @@
+name: Link check
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "23 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check Markdown and built HTML links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --root-dir "$GITHUB_WORKSPACE/dist"
+            --exclude "https://back-future.example.com/.*"
+            --exclude "https://www.fda.gov/news-events/press-announcements/fda-approves-first-gene-therapies-treat-patients-sickle-cell-disease"
+            --exclude "https://www.iau.org/news/pressreleases/detail/iau0603/"
+            --exclude "https://uinp.gov.ua/temy/holodomor-genotsyd-1932-1933-rokiv"
+            './README.md'
+            './docs/**/*.md'
+            './content/**/*.md'
+            './dist/**/*.html'

@@ -1,0 +1,46 @@
+name: Новий факт
+description: Запропонувати факт для BACK_FUTURE
+title: "Факт: "
+labels: ["content"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Заголовок
+      description: Коротко сформулюй факт.
+    validations:
+      required: true
+  - type: dropdown
+    id: subject
+    attributes:
+      label: Предмет
+      options:
+        - astronomy
+        - biology
+        - geography
+        - history
+        - physics
+    validations:
+      required: true
+  - type: input
+    id: year
+    attributes:
+      label: Рік події
+      placeholder: "2012"
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Чому це важливо
+      description: 2–5 речень у науково-популярному стилі.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Джерела
+      description: Додай першоджерела або офіційні посилання.
+      placeholder: "- https://..."
+    validations:
+      required: true
