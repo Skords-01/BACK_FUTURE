@@ -1,0 +1,17 @@
+name: Технічна задача
+description: Запропонувати зміну в коді, інфраструктурі або дизайні
+title: "Tech: "
+labels: ["chore"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Мета
+      description: Що треба змінити і навіщо?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Критерії готовності
+      placeholder: "- npm run build проходить\n- ..."

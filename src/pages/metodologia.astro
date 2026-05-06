@@ -5,11 +5,11 @@ import { ERAS } from "../lib/eras";
 
 <Base title="Методологія">
   <section class="container-prose pt-16">
-    <h1 class="font-display text-4xl font-extrabold tracking-tight text-ink-900 sm:text-5xl">
+    <h1 class="font-display text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
       Методологія
     </h1>
 
-    <div class="prose prose-ink prose-headings:font-display mt-8 max-w-none text-ink-800">
+    <div class="prose prose-ink prose-headings:font-display text-ink-800 mt-8 max-w-none">
       <h2>Як ми обираємо факти</h2>
       <ol>
         <li>
@@ -21,8 +21,8 @@ import { ERAS } from "../lib/eras";
           з підручника відповідної ери.
         </li>
         <li>
-          <strong>Стійкість.</strong> Уникаємо «гарячих» новин — тільки те, що ввійшло в науковий чи
-          юридичний консенсус.
+          <strong>Стійкість.</strong> Уникаємо «гарячих» новин — тільки те, що ввійшло в науковий чи юридичний
+          консенсус.
         </li>
       </ol>
 
@@ -34,9 +34,9 @@ import { ERAS } from "../lib/eras";
       <ul class="not-prose mt-4 space-y-3">
         {
           ERAS.map((e) => (
-            <li class="rounded-2xl border border-ink-100 bg-white p-4">
-              <div class="font-display font-bold text-ink-900">{e.label}</div>
-              <div class="mt-1 text-sm text-ink-600">{e.summary}</div>
+            <li class="border-ink-100 rounded-2xl border bg-white p-4">
+              <div class="font-display text-ink-900 font-bold">{e.label}</div>
+              <div class="text-ink-600 mt-1 text-sm">{e.summary}</div>
             </li>
           ))
         }

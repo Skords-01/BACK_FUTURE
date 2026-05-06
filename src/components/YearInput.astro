@@ -14,6 +14,7 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
   id="year-form"
   data-min={SITE.yearMin}
   data-max={SITE.yearMax}
+  novalidate
   class="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center"
 >
   <label class="sr-only" for="year-input">Рік випуску</label>
@@ -27,6 +28,7 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     max={SITE.yearMax}
     placeholder="2003"
     value={defaultYear}
+    aria-describedby="year-error"
     required
     class={`flex-1 rounded-3xl border border-ink-200 bg-white px-6 text-center font-mono font-bold tabular-nums tracking-tight text-ink-900 shadow-card outline-none transition focus:border-accent-700 focus:ring-2 focus:ring-accent-200 ${inputClass}`}
   />
@@ -45,14 +47,18 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     const max = Number(form.dataset.max);
 
     function showError(msg) {
+      if (!(input instanceof HTMLInputElement)) return;
       if (!err) return;
       err.textContent = msg;
       err.classList.remove("hidden");
+      input.setAttribute("aria-invalid", "true");
     }
     function clearError() {
+      if (!(input instanceof HTMLInputElement)) return;
       if (!err) return;
       err.textContent = "";
       err.classList.add("hidden");
+      input.removeAttribute("aria-invalid");
     }
 
     form.addEventListener("submit", function (e) {

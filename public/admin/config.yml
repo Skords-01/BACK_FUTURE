@@ -1,0 +1,77 @@
+backend:
+  name: github
+  repo: Skords-01/BACK_FUTURE
+  branch: main
+
+locale: uk
+media_folder: public/uploads
+public_folder: /uploads
+
+collections:
+  - name: facts
+    label: Факти
+    folder: content/facts
+    create: true
+    path: "{{subject}}/{{slug}}"
+    extension: md
+    format: frontmatter
+    nested:
+      depth: 2
+    fields:
+      - label: Заголовок
+        name: title
+        widget: string
+        hint: До 80–140 символів, без крапки в кінці.
+      - label: Предмет
+        name: subject
+        widget: select
+        options:
+          - { label: Астрономія, value: astronomy }
+          - { label: Біологія, value: biology }
+          - { label: Географія, value: geography }
+          - { label: Історія, value: history }
+          - { label: Фізика, value: physics }
+      - label: Короткий опис
+        name: short
+        widget: text
+        hint: 1–2 речення, 20–280 символів.
+      - label: Рік події
+        name: yearOfEvent
+        widget: number
+        value_type: int
+        min: 1900
+      - label: Релевантно для ер
+        name: relevantForEras
+        widget: list
+        field:
+          label: Ера
+          name: era
+          widget: number
+          value_type: int
+          min: 1
+          max: 5
+      - label: Джерела
+        name: sources
+        widget: list
+        min: 1
+        fields:
+          - { label: Назва, name: title, widget: string }
+          - { label: URL, name: url, widget: string }
+      - label: Теги
+        name: tags
+        widget: list
+        required: false
+      - label: Зображення
+        name: image
+        widget: object
+        required: false
+        fields:
+          - { label: Шлях, name: src, widget: image }
+          - { label: Alt-текст, name: alt, widget: string }
+      - label: Чернетка
+        name: draft
+        widget: boolean
+        default: false
+      - label: Текст
+        name: body
+        widget: markdown
