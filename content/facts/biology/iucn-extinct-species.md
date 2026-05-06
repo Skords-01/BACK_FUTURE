@@ -2,8 +2,8 @@
 title: "Деяких тварин з підручника вже не існує"
 subject: "biology"
 short: "За останні 30 років МСОП (IUCN) офіційно визнав вимерлими понад 160 видів тварин, частина з яких була в шкільних підручниках. Серед них — баїджи, золота жаба, тасманійський тигр (підтверджено в 2023-му), західний чорний носоріг."
-yearOfEvent: 2010
-relevantForEras: [1, 2, 3, 4]
+yearOfEvent: 2023
+relevantForEras: [1, 2, 3, 4, 5]
 sources:
   - title: "IUCN Red List of Threatened Species"
     url: "https://www.iucnredlist.org/"
