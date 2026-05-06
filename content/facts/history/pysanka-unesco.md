@@ -7,8 +7,8 @@ relevantForEras: [1, 2, 3, 4, 5]
 sources:
   - title: "UNESCO Intangible Cultural Heritage: Pysanka, Ukrainian tradition and art of decorating eggs"
     url: "https://ich.unesco.org/en/RL/pysanka-ukrainian-tradition-and-art-of-decorating-eggs-02134"
-  - title: "UNESCO Decision 19.COM 7.b.14 on Pysanka"
-    url: "https://ich.unesco.org/en/Decisions/19.COM/7.b.14"
+  - title: "UNESCO Decision 19.COM 7.B.14 on Pysanka"
+    url: "https://ich.unesco.org/en/decisions/19.COM/7.B.14"
 tags: ["україна", "ukrainian-contribution", "юнеско", "писанка", "культура"]
 draft: false
 ---

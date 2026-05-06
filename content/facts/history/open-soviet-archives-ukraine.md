@@ -7,8 +7,8 @@ relevantForEras: [1, 2, 3]
 sources:
   - title: "Закон України № 316-VIII про доступ до архівів репресивних органів"
     url: "https://zakon.rada.gov.ua/laws/show/316-19"
-  - title: "Український інститут національної пам'яті: архіви КГБ онлайн"
-    url: "https://uinp.gov.ua/elektronni-vydannya/arhivy-kgb-online"
+  - title: "УІНП: Доступ до архівів КГБ в українських архівах"
+    url: "https://uinp.gov.ua/dostup-do-arhivnoyi-informaciyi-represyvnyh-organiv/multymediyni-prezentaciyi/dostup-do-arhiviv-kgb-v-ukrayinskyh-arhivah"
 tags: ["україна", "ukrainian-contribution", "архіви", "репресії", "ссср"]
 draft: false
 ---

@@ -6,7 +6,7 @@ yearOfEvent: 2002
 relevantForEras: [1]
 sources:
   - title: "International Criminal Court: Rome Statute"
-    url: "https://www.icc-cpi.int/publications/core-legal-texts/rome-statute-international-criminal-court"
+    url: "https://www.icc-cpi.int/sites/default/files/2024-05/Rome-Statute-eng.pdf"
   - title: "ICC Assembly of States Parties: Ukraine"
     url: "https://asp.icc-cpi.int/states-parties/eastern-european-states/ukraine"
 tags: ["міжнародне-право", "суди", "воєнні-злочини"]
