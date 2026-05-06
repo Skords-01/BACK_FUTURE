@@ -6,7 +6,7 @@ yearOfEvent: 2016
 relevantForEras: [1, 2, 3, 4]
 sources:
   - title: "CERN: Ukraine becomes an associate member"
-    url: "https://home.cern/news/news/cern/ukraine-becomes-associate-member-cern"
+    url: "https://home.cern/news/press-release/cern/ukraine-become-associate-member-state-cern"
 tags: ["україна", "ukrainian-contribution", "CERN", "фізика-високих-енергій"]
 draft: false
 ---
