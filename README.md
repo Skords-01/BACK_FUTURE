@@ -19,6 +19,8 @@ npm run build      # проганяє astro check + білд
 npm run preview    # переглянути білд локально
 npm run test       # Playwright smoke tests
 npm run lint       # ESLint + Prettier
+npm run validate:content  # quality gate для facts/*.md
+npm run coverage:content  # coverage report за предметами й ерами
 npm run format     # Prettier --write
 ```
 
@@ -37,7 +39,7 @@ npm run format     # Prettier --write
 ├── src/
 │   ├── components/        # FactCard, YearInput, ...
 │   ├── config/site.ts     # назва, ЦА, домен, монобанка — single source of truth
-│   ├── content/config.ts  # Zod-схеми колекцій
+│   ├── content.config.ts  # Zod-схеми колекцій
 │   ├── layouts/           # Base, ...
 │   ├── lib/               # eras.ts, filterFacts.ts
 │   ├── pages/             # index, [year], about, metodologia
@@ -65,8 +67,9 @@ draft: false
 ---
 ```
 
-3. Тіло — науково-популярний текст (3–5 абзаців), markdown.
-4. `npm run build` — schema-валідація автоматично перевірить frontmatter.
+1. Тіло — науково-популярний текст (3–5 абзаців), markdown.
+2. `npm run build` — schema-валідація автоматично перевірить frontmatter.
+3. `npm run validate:content` — додаткові правила якості: джерела, чернетки, tone guardrails.
 
 Детальніше в [`docs/content-guidelines.md`](docs/content-guidelines.md).
 

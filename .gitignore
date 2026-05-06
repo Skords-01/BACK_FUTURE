@@ -31,3 +31,7 @@ Thumbs.db
 
 # misc
 *.tsbuildinfo
+.lighthouseci/
+playwright-report/
+reports/
+test-results/

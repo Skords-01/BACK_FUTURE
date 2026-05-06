@@ -35,3 +35,22 @@ test("renders methodology page", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Методологія" })).toBeVisible();
   await expect(page.getByText("Ери шкільних програм")).toBeVisible();
 });
+
+test("supports keyboard navigation and core landmarks", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("banner")).toBeVisible();
+  await expect(page.getByRole("main")).toBeVisible();
+  await expect(page.getByRole("contentinfo")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Основна навігація" })).toBeVisible();
+
+  const mainNav = page.getByRole("navigation", { name: "Основна навігація" });
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "BACK_FUTURE" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(mainNav.getByRole("link", { name: "Методологія" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(mainNav.getByRole("link", { name: "Про проєкт" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/about\.html$/);
+});

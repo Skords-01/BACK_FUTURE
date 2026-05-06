@@ -6,7 +6,7 @@ yearOfEvent: 2006
 relevantForEras: [1, 2, 3]
 sources:
   - title: "IAU 2006 General Assembly: Resolutions"
-    url: "https://www.iau.org/news/pressreleases/detail/iau0603/"
+    url: "https://iauarchive.eso.org/news/pressreleases/detail/iau0603/"
 tags: ["сонячна-система", "планети", "класифікація"]
 draft: false
 ---

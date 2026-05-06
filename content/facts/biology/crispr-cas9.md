@@ -8,7 +8,7 @@ sources:
   - title: "Nobel Prize in Chemistry 2020"
     url: "https://www.nobelprize.org/prizes/chemistry/2020/summary/"
   - title: "FDA approves first CRISPR therapy (Casgevy, 2023)"
-    url: "https://www.fda.gov/news-events/press-announcements/fda-approves-first-gene-therapies-treat-patients-sickle-cell-disease"
+    url: "https://www.fda.gov/vaccines-blood-biologics/cber-2023-orphan-approvals-new-blas"
 tags: ["генетика", "біотехнології", "нобелівська-премія"]
 draft: false
 ---
