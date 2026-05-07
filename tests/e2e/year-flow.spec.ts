@@ -46,6 +46,8 @@ test("supports keyboard navigation and core landmarks", async ({ page }) => {
 
   const mainNav = page.getByRole("navigation", { name: "Основна навігація" });
   await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Перейти до контенту" })).toBeFocused();
+  await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "BACK_FUTURE" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(mainNav.getByRole("link", { name: "Методологія" })).toBeFocused();
