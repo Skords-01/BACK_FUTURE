@@ -4,10 +4,11 @@ import SubjectSection from "../components/SubjectSection.astro";
 import SupportBlock from "../components/SupportBlock.astro";
 import ShareBlock from "../components/ShareBlock.astro";
 import YearInput from "../components/YearInput.astro";
+import FactCard from "../components/FactCard.astro";
 import { getCollection } from "astro:content";
-import { factsForYear, groupBySubject } from "../lib/filterFacts";
+import { factsForYear, groupBySubject, pickFallbackYears, sampleFacts } from "../lib/filterFacts";
 import { eraForGraduationYear, eraById } from "../lib/eras";
-import { SITE } from "../config/site";
+import { SITE, SUBJECTS } from "../config/site";
 
 export async function getStaticPaths() {
   const years: { params: { year: string } }[] = [];
@@ -33,9 +34,14 @@ const totalCount = matched.length;
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
 const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
 
-const neighborYears = [year - 5, year - 1, year + 1, year + 5].filter(
-  (y) => y >= SITE.yearMin && y <= SITE.yearMax && y !== year,
-);
+const fallbackYears =
+  totalCount === 0
+    ? pickFallbackYears(year, allFacts)
+        .filter((f) => f.year !== year)
+        .slice(0, 4)
+    : [];
+const teaserFacts = totalCount === 0 ? sampleFacts(allFacts, 2) : [];
+const subjectMeta = new Map(SUBJECTS.map((s) => [s.id, s] as const));
 const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Факт під випуск ${year}`)}`;
 
 // Усі year-сторінки регенеряться разом при кожному build — використовуємо
@@ -182,25 +188,62 @@ const breadcrumbsLd: Record<string, unknown> = {
       </section>
     ) : (
       <section class="container-prose mt-12">
-        <div class="border-ink-200 text-ink-700 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-200 rounded-3xl border border-dashed bg-white p-8 text-center">
+        <div class="border-ink-200 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border border-dashed bg-white p-8">
           <p class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">
             Поки що для цього року тихо.
           </p>
           <p class="text-ink-600 dark:text-ink-300 mt-2 text-base">
-            Ми постійно додаємо факти. Спробуй сусідній рік — ера програм та сама, контент скоріш за
-            все підходить:
+            Ми постійно додаємо факти. Поки що — спробуй ери, де у нас точно є про що розказати:
           </p>
-          <div class="mt-5 flex flex-wrap justify-center gap-2">
-            {neighborYears.map((y) => (
-              <a
-                href={`/${y}.html`}
-                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center rounded-full border bg-white px-4 py-1.5 font-mono text-sm font-medium tabular-nums transition"
-              >
-                {y}
-              </a>
-            ))}
-          </div>
-          <p class="text-ink-500 dark:text-ink-400 mt-5 text-sm">
+
+          {fallbackYears.length > 0 && (
+            <ul class="mt-5 grid gap-2 sm:grid-cols-2">
+              {fallbackYears.map((f) => (
+                <li>
+                  <a
+                    href={`/${f.year}.html`}
+                    class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:border-ink-700 dark:bg-ink-900 dark:hover:border-accent-400 dark:hover:bg-ink-800 group flex items-center justify-between gap-3 rounded-2xl border bg-white px-4 py-2.5 transition"
+                  >
+                    <span class="flex flex-col">
+                      <span class="text-ink-900 dark:text-ink-50 font-mono text-base font-semibold tabular-nums">
+                        {f.year}
+                      </span>
+                      <span class="text-ink-500 dark:text-ink-400 text-xs">{f.eraLabel}</span>
+                    </span>
+                    <span class="text-ink-500 group-hover:text-accent-700 dark:text-ink-400 dark:group-hover:text-accent-300 font-mono text-xs tabular-nums">
+                      {f.count} {f.count === 1 ? "факт" : "фактів"}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {teaserFacts.length > 0 && (
+            <div class="mt-8">
+              <p class="text-ink-500 dark:text-ink-400 mb-3 text-xs tracking-wider uppercase">
+                Щоб ти не йшов з порожніми руками — ось що в нас уже є:
+              </p>
+              <div class="grid gap-4">
+                {teaserFacts.map((f) => {
+                  const meta = subjectMeta.get(f.data.subject);
+                  return (
+                    <div>
+                      {meta && (
+                        <p class="text-ink-500 dark:text-ink-400 mb-1.5 flex items-center gap-1.5 text-xs">
+                          <span aria-hidden="true">{meta.emoji}</span>
+                          <span>{meta.label}</span>
+                        </p>
+                      )}
+                      <FactCard fact={f} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <p class="text-ink-500 dark:text-ink-400 mt-6 text-sm">
             Хочеш, щоб ми додали факт під цей рік?{" "}
             <a
               href={issueUrl}
