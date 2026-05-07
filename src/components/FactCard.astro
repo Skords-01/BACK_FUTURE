@@ -26,6 +26,25 @@ const { Content } = await render(fact);
 
   <p class="text-ink-700 mt-3 text-base leading-relaxed">{fact.data.short}</p>
 
+  {
+    (fact.data.before || fact.data.after) && (
+      <dl class="border-ink-100 bg-ink-50/40 mt-4 grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 sm:gap-4">
+        {fact.data.before && (
+          <div>
+            <dt class="text-ink-400 text-xs font-medium tracking-wider uppercase">Було</dt>
+            <dd class="text-ink-700 mt-1 text-sm leading-relaxed">{fact.data.before}</dd>
+          </div>
+        )}
+        {fact.data.after && (
+          <div>
+            <dt class="text-accent-700 text-xs font-medium tracking-wider uppercase">Стало</dt>
+            <dd class="text-ink-800 mt-1 text-sm leading-relaxed">{fact.data.after}</dd>
+          </div>
+        )}
+      </dl>
+    )
+  }
+
   <details class="group/details mt-4">
     <summary
       class="text-accent-700 hover:text-accent-800 inline-flex cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"

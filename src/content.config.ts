@@ -14,6 +14,8 @@ const facts = defineCollection({
     title: z.string().min(3).max(140),
     subject: SUBJECT,
     short: z.string().min(20).max(280),
+    before: z.string().min(10).max(280).optional(),
+    after: z.string().min(10).max(280).optional(),
     yearOfEvent: z
       .number()
       .int()
