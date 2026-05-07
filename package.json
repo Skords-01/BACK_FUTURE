@@ -21,7 +21,17 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "coverage:content": "tsx scripts/content-coverage.ts",
     "audit:lighthouse": "CHROME_PATH=$(tsx scripts/find-chrome.ts) lhci autorun --config=./lighthouserc.cjs",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,astro,json,jsonc,yml,yaml,css}": [
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write",
+      "markdownlint-cli2"
+    ]
   },
   "engines": {
     "node": ">=22.13.0"
@@ -45,6 +55,8 @@
     "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^10.3.0",
     "eslint-plugin-astro": "^1.7.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "markdownlint-cli2": "^0.18.1",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "0.14.1",
