@@ -182,24 +182,30 @@ const mark = subject?.mark ?? "—";
 </article>
 
 <style>
-  /* Subtle paper-card tilt — без сторонніх анімацій.
-     На мобільних rotate вимкнено: трансформований блок виходить за межі контейнера
-     і викликає горизонтальний scroll на iOS Safari. */
+  /* Subtle paper-card tilt — чергується між парними/непарними картками,
+     як справжній стос паперів. На мобільних вимкнено: iOS Safari horizontal scroll. */
   @media (min-width: 640px) {
-    .fact-card {
-      transform: rotate(-0.4deg);
+    .fact-card:nth-of-type(odd) {
+      transform: rotate(-0.35deg);
+      transform-origin: 50% 50%;
+    }
+    .fact-card:nth-of-type(even) {
+      transform: rotate(0.3deg);
       transform-origin: 50% 50%;
     }
     .fact-card:hover {
-      transform: rotate(-0.2deg) translateY(-2px);
+      transform: rotate(0deg) translateY(-2px);
     }
   }
   @media (min-width: 640px) and (prefers-reduced-motion: reduce) {
     .fact-card {
       transition: none;
     }
-    .fact-card:hover {
-      transform: rotate(-0.4deg);
+    .fact-card:nth-of-type(odd):hover {
+      transform: rotate(-0.35deg);
+    }
+    .fact-card:nth-of-type(even):hover {
+      transform: rotate(0.3deg);
     }
   }
 </style>
