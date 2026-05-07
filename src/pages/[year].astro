@@ -37,9 +37,66 @@ const neighborYears = [year - 5, year - 1, year + 1, year + 5].filter(
   (y) => y >= SITE.yearMin && y <= SITE.yearMax && y !== year,
 );
 const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Факт під випуск ${year}`)}`;
+
+// Усі year-сторінки регенеряться разом при кожному build — використовуємо
+// build-time дату як `datePublished`/`dateModified`. Для трекінгу свіжості
+// окремих фактів на сторінці буде поле `updatedAt` (PR #2.3).
+const buildDate = new Date().toISOString();
+const homeUrl = `${SITE.defaultUrl}/`;
+const yearCanonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+const articleHeadline =
+  totalCount > 0
+    ? `Випуск ${year}: ${totalCount} ${totalCount === 1 ? "оновлення" : "оновлень"} після випускного`
+    : `Випуск ${year}: ${era.label}`;
+
+const articleLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: articleHeadline,
+  description,
+  image: ogImage,
+  datePublished: buildDate,
+  dateModified: buildDate,
+  inLanguage: "uk",
+  author: {
+    "@type": "Organization",
+    name: SITE.author,
+    url: SITE.defaultUrl,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.defaultUrl,
+  },
+  mainEntityOfPage: yearCanonical,
+};
+
+const breadcrumbsLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Головна",
+      item: homeUrl,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: `Випуск ${year}`,
+      item: yearCanonical,
+    },
+  ],
+};
 ---
 
-<Base title={`Випуск ${year}`} description={description} ogImage={ogImage}>
+<Base
+  title={`Випуск ${year}`}
+  description={description}
+  ogImage={ogImage}
+  jsonLd={[articleLd, breadcrumbsLd]}
+>
   <section class="ruled-hero">
     <div class="container-prose pt-12 pb-12 sm:pt-16">
       <nav aria-label="Хлібні крихти" class="text-ink-500 text-sm">
