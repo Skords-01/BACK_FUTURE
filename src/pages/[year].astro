@@ -4,8 +4,16 @@ import SupportBlock from "../components/SupportBlock.astro";
 import ShareBlock from "../components/ShareBlock.astro";
 import YearInput from "../components/YearInput.astro";
 import FactCard from "../components/FactCard.astro";
+import FeatureFactCard from "../components/FeatureFactCard.astro";
+import LowFactRow from "../components/LowFactRow.astro";
 import { getCollection } from "astro:content";
-import { factsForYear, groupBySubject, pickFallbackYears, sampleFacts } from "../lib/filterFacts";
+import {
+  factsForYear,
+  groupBySubject,
+  pickFallbackYears,
+  sampleFacts,
+  type Fact,
+} from "../lib/filterFacts";
 import { ERAS, eraForGraduationYear, eraById } from "../lib/eras";
 import { SITE, SUBJECTS } from "../config/site";
 import { eraUrl } from "../lib/url";
@@ -26,7 +34,14 @@ if (!Number.isInteger(year) || year < SITE.yearMin || year > SITE.yearMax) {
 
 const allFacts = await getCollection("facts");
 const matched = factsForYear(allFacts, year);
-const groups = groupBySubject(matched);
+
+// Розкидуємо за impact: high/medium залишаються в subject-групах і рендеряться
+// як FeatureFactCard / FactCard відповідно. Усі low-факти зливаються в один
+// плаский список, який ми рендеримо в кінці сторінки секцією «Решта подій».
+const isLow = (f: Fact) => (f.data.impact ?? "medium") === "low";
+const featuredAndMedium = matched.filter((f) => !isLow(f));
+const lowFacts = matched.filter(isLow);
+const groups = groupBySubject(featuredAndMedium);
 const era = eraById(eraForGraduationYear(year));
 
 const totalCount = matched.length;
@@ -171,7 +186,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   </section>
 
   {
-    groups.length > 0 && (
+    totalCount > 0 && (
       <section class="container-prose mt-10" aria-labelledby="filters-heading">
         <div class="border-ink-100 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border p-5 sm:p-6">
           <div class="flex flex-wrap items-end justify-between gap-3">
@@ -288,7 +303,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   }
 
   {
-    groups.length > 0 ? (
+    totalCount > 0 ? (
       <section class="container-prose">
         {groups.map((g) => (
           <section id={`subject-${g.subject}`} data-subject-section class="mt-12 scroll-mt-20">
@@ -301,10 +316,10 @@ const breadcrumbsLd: Record<string, unknown> = {
               </h2>
               <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
                 <span data-filter-count>{g.items.length}</span>
-                {g.items.length === 1 ? "оновлення" : "оновлень"}
+                {g.items.length === 1 ? " оновлення" : " оновлень"}
               </span>
             </header>
-            <div class="grid gap-4">
+            <div class="grid gap-6">
               {g.items.map((f) => (
                 <div
                   data-fact-card
@@ -313,12 +328,39 @@ const breadcrumbsLd: Record<string, unknown> = {
                   data-subject={f.data.subject}
                   data-impact={f.data.impact ?? "medium"}
                 >
-                  <FactCard fact={f} />
+                  {f.data.impact === "high" ? <FeatureFactCard fact={f} /> : <FactCard fact={f} />}
                 </div>
               ))}
             </div>
           </section>
         ))}
+
+        {lowFacts.length > 0 && (
+          <section
+            id="low-facts"
+            data-subject-section
+            class="mt-16 scroll-mt-20"
+            aria-labelledby="low-facts-heading"
+          >
+            <header class="mb-5 flex items-baseline gap-3">
+              <h2
+                id="low-facts-heading"
+                class="font-display text-ink-900 dark:text-ink-50 text-2xl font-extrabold tracking-tight sm:text-3xl"
+              >
+                Решта подій
+              </h2>
+              <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
+                <span data-filter-count>{lowFacts.length}</span>
+                {lowFacts.length === 1 ? " подія" : " подій"}
+              </span>
+            </header>
+            <ul class="border-t border-[color:var(--card-edge)]">
+              {lowFacts.map((f) => (
+                <LowFactRow fact={f} />
+              ))}
+            </ul>
+          </section>
+        )}
       </section>
     ) : (
       <section class="container-prose mt-12">
