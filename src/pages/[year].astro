@@ -259,7 +259,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="subject"
-                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі предмети</option>
                 {SUBJECTS.map((s) => (
@@ -273,7 +273,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="era"
-                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі ери</option>
                 {ERAS.map((e) => (
@@ -287,7 +287,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="region"
-                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі регіони</option>
                 {regionOptions.map((option) => (
@@ -301,7 +301,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="impact"
-                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-100 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі рівні</option>
                 {impactOptions.map((option) => (
@@ -321,7 +321,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   {
     groups.length > 1 && (
       <nav
-        class="border-ink-100 bg-paper-50/85 sticky top-0 z-30 border-b backdrop-blur"
+        class="border-ink-100 bg-paper-50/90 dark:border-ink-700 dark:bg-paper-100/90 sticky top-0 z-30 border-b backdrop-blur"
         aria-label="Розділи цього року"
       >
         <div class="container-prose flex flex-nowrap items-center gap-1.5 overflow-x-auto py-2.5 sm:flex-wrap sm:overflow-visible">
@@ -329,7 +329,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <a
               href={`#subject-${g.subject}`}
               data-subject-nav={g.subject}
-              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex shrink-0 items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap transition"
+              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition"
             >
               <span
                 class="text-accent-700 font-display text-[11px] font-bold tracking-[0.18em] uppercase"
@@ -352,7 +352,7 @@ const breadcrumbsLd: Record<string, unknown> = {
     totalCount > 0 ? (
       <section class="container-prose">
         {groups.map((g) => (
-          <section id={`subject-${g.subject}`} data-subject-section class="mt-12 scroll-mt-20">
+          <section id={`subject-${g.subject}`} data-subject-section class="mt-12 scroll-mt-28">
             <header class="mb-5 flex items-baseline gap-3">
               <span
                 class="text-accent-700 font-display text-base font-bold tracking-[0.18em] uppercase sm:text-lg"
@@ -388,7 +388,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           <section
             id="low-facts"
             data-subject-section
-            class="mt-16 scroll-mt-20"
+            class="mt-16 scroll-mt-28"
             aria-labelledby="low-facts-heading"
           >
             <header class="mb-5 flex items-baseline gap-3">
