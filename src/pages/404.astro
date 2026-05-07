@@ -13,26 +13,27 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
   <section class="ruled-hero">
     <div class="container-prose pt-16 pb-12 sm:pt-24">
       <p
-        class="text-accent-700 mb-3 inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase"
+        class="text-accent-700 dark:text-accent-300 mb-3 inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase"
       >
-        <span class="bg-accent-50 text-accent-700 rounded-full px-3 py-1 font-mono text-xs"
+        <span
+          class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs"
           >404</span
         >
         <span>Помилка адреси</span>
       </p>
       <h1
-        class="font-display text-ink-900 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+        class="font-display text-ink-900 dark:text-ink-50 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
       >
         Тут поки нічого немає.
       </h1>
-      <p class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
+      <p class="text-ink-700 dark:text-ink-200 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
         Можливо, посилання застаріле, або ти набрав адресу руками. Спробуй з року випуску — це
         головний шлях у {SITE.name}.
       </p>
 
       <div class="mt-10 pb-4">
         <YearInput defaultYear={2003} size="md" />
-        <p class="text-ink-500 mt-3 text-sm">
+        <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
           Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
         </p>
       </div>
@@ -40,14 +41,16 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
   </section>
 
   <section class="container-prose mt-12">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Або одразу подивись популярні</h2>
+    <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">
+      Або одразу подивись популярні
+    </h2>
     <ul class="-mx-1 mt-4 flex flex-wrap items-center gap-1.5">
       {
         popularYears.map((y) => (
           <li>
             <a
               href={`/${y}.html`}
-              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex items-center rounded-full border bg-white px-3 py-1.5 font-mono text-sm font-medium tabular-nums transition"
+              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center rounded-full border bg-white px-3 py-1.5 font-mono text-sm font-medium tabular-nums transition"
             >
               {y}
             </a>
@@ -55,10 +58,10 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
         ))
       }
     </ul>
-    <p class="text-ink-500 mt-6 text-sm">
+    <p class="text-ink-500 dark:text-ink-400 mt-6 text-sm">
       Якщо ти потрапив сюди з нашого ж посилання — <a
         href={`${SITE.repoUrl}/issues/new?title=${encodeURIComponent("Биті посилання")}`}
-        class="text-accent-700 hover:text-accent-800 underline-offset-2 hover:underline"
+        class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
         target="_blank"
         rel="noopener noreferrer">розкажи</a
       >, де саме.
@@ -68,7 +71,7 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
   <section class="container-prose mt-12 mb-8">
     <a
       href="/"
-      class="text-ink-500 hover:text-ink-900 inline-flex items-center gap-1 text-sm underline-offset-2 hover:underline"
+      class="text-ink-500 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100 inline-flex items-center gap-1 text-sm underline-offset-2 hover:underline"
     >
       ← На головну
     </a>

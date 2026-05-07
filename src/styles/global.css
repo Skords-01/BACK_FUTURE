@@ -1,10 +1,19 @@
 @import "tailwindcss";
 @config "../../tailwind.config.mjs";
 
+/* Class-based dark mode (override Tailwind 4 default `prefers-color-scheme`).
+   Активується коли `.dark` стоїть на <html> або вище в дереві. */
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --color-bg: #fafaf7;
     --color-fg: #16161a;
+  }
+  html.dark {
+    --color-bg: #0f1014;
+    --color-fg: #e8e8e6;
+    color-scheme: dark;
   }
   html {
     font-family: theme("fontFamily.sans");
@@ -20,6 +29,10 @@
     background: theme("colors.accent.200");
     color: theme("colors.ink.900");
   }
+  html.dark ::selection {
+    background: theme("colors.accent.700");
+    color: theme("colors.ink.50");
+  }
 }
 
 @layer components {
@@ -33,12 +46,15 @@
     @apply border-accent-700 bg-accent-700 shadow-card hover:bg-accent-800 focus-visible:outline-accent-500 inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
   }
   .btn-ghost {
-    @apply border-ink-200 text-ink-800 hover:border-ink-400 inline-flex items-center justify-center gap-2 rounded-full border bg-white px-5 py-2.5 text-sm font-medium transition;
+    @apply border-ink-200 text-ink-800 hover:border-ink-400 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-100 dark:hover:border-ink-500 inline-flex items-center justify-center gap-2 rounded-full border bg-white px-5 py-2.5 text-sm font-medium transition;
   }
   /* Subtle ruled-paper background — only on hero section. */
   .ruled-hero {
     background-image: linear-gradient(to bottom, transparent 31px, rgba(30, 58, 138, 0.07) 32px);
     background-size: 100% 32px;
     background-position: 0 0;
+  }
+  html.dark .ruled-hero {
+    background-image: linear-gradient(to bottom, transparent 31px, rgba(147, 180, 253, 0.08) 32px);
   }
 }

@@ -38,14 +38,16 @@ const targets = [
 ---
 
 <section class="container-prose mt-12" aria-labelledby="share-heading">
-  <div class="border-ink-100 bg-paper-50 rounded-3xl border p-6 sm:p-8">
+  <div
+    class="border-ink-100 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border p-6 sm:p-8"
+  >
     <h2
       id="share-heading"
-      class="font-display text-ink-900 text-lg font-bold tracking-tight sm:text-xl"
+      class="font-display text-ink-900 dark:text-ink-50 text-lg font-bold tracking-tight sm:text-xl"
     >
       Поділись цим випуском
     </h2>
-    <p class="text-ink-600 mt-2 text-sm">
+    <p class="text-ink-600 dark:text-ink-300 mt-2 text-sm">
       Хтось зі знайомих теж 19{year.toString().slice(2)}-го? Надішли їм цей рік.
     </p>
 
@@ -61,7 +63,7 @@ const targets = [
             href={t.href}
             target="_blank"
             rel="noopener noreferrer"
-            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
           >
             <span aria-hidden="true">↗</span>
             {t.label}
@@ -71,7 +73,7 @@ const targets = [
       <button
         id="share-copy-btn"
         type="button"
-        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
       >
         <span aria-hidden="true">⎘</span>
         <span data-state="idle">Скопіювати посилання</span>
@@ -80,14 +82,19 @@ const targets = [
         id="share-native-btn"
         type="button"
         hidden
-        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
       >
         <span aria-hidden="true">↗</span>
         Поділитись…
       </button>
     </div>
 
-    <p id="share-status" class="text-ink-500 mt-3 hidden text-sm" role="status" aria-live="polite">
+    <p
+      id="share-status"
+      class="text-ink-500 dark:text-ink-400 mt-3 hidden text-sm"
+      role="status"
+      aria-live="polite"
+    >
     </p>
   </div>
 </section>

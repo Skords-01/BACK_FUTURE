@@ -28,6 +28,21 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    {/* prettier-ignore */}
+    <script is:inline>
+      // Pre-paint: вирішуємо тему до першого рендеру щоб не мерехтіло.
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("theme");
+          var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var isDark = stored === "dark" || (stored !== "light" && prefersDark);
+          if (isDark) document.documentElement.classList.add("dark");
+        } catch {
+          // localStorage / matchMedia недоступні — нічого не робимо.
+        }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
