@@ -1,0 +1,50 @@
+---
+/**
+ * Compact `<li>` row for `impact: low` facts.
+ * 3-column grid: рік / заголовок / предмет.
+ *
+ * Used inside an outer `<ul>` in `[year].astro` ("Решта подій"). Keeps the
+ * cream-paper feel but reads as a quiet typographic list, not a card.
+ */
+import type { Fact } from "../lib/filterFacts";
+import { factUrl } from "../lib/url";
+import { SUBJECTS } from "../config/site";
+
+interface Props {
+  fact: Fact;
+}
+
+const { fact } = Astro.props;
+const detailUrl = factUrl(fact.id);
+const subject = SUBJECTS.find((s) => s.id === fact.data.subject);
+const mark = subject?.mark ?? "—";
+---
+
+<li
+  class="low-fact-row hover:bg-paper-100 dark:hover:bg-ink-100 group grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-[color:var(--card-edge)] px-1 py-3 transition sm:gap-5 sm:px-2"
+  data-fact-card
+  data-region={fact.data.region ?? "world"}
+  data-era={fact.data.relevantForEras.join(" ")}
+  data-subject={fact.data.subject}
+  data-impact={fact.data.impact ?? "low"}
+>
+  <span
+    class="text-ink-700 dark:text-ink-200 w-14 shrink-0 font-mono text-sm font-medium tabular-nums sm:w-16 sm:text-base"
+  >
+    {fact.data.yearOfEvent}
+  </span>
+  <a
+    href={detailUrl}
+    class="text-ink-800 hover:text-accent-700 dark:text-ink-100 dark:hover:text-accent-300 font-display min-w-0 truncate text-base font-medium underline-offset-2 group-hover:underline sm:text-lg"
+    aria-label={`Відкрити постійну сторінку факту: ${fact.data.title}`}
+    title={fact.data.title}
+  >
+    {fact.data.title}
+  </a>
+  <span
+    class="text-accent-700 dark:text-accent-300 shrink-0 font-mono text-[11px] font-semibold tracking-[0.18em] uppercase"
+    title={subject?.label ?? "Предмет"}
+  >
+    {mark}
+  </span>
+</li>

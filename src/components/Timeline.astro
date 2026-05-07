@@ -1,0 +1,205 @@
+---
+/**
+ * Horizontal cream-paper timeline 1991 → SITE.yearMax (2026 by build).
+ *
+ * - Renders five era bands as backdrop "tape", labelled discreetly above.
+ * - Plots fact dots over their `yearOfEvent`. `impact:high` dots are larger
+ *   and tomato-coloured; the rest are quiet ink ticks.
+ * - When `selectedYear` is provided, draws an emphatic vertical marker
+ *   labelled "ВИПУСК {year}".
+ * - On phones the band scrolls horizontally with `min-width: 760px`,
+ *   keeping the layout legible without cramming.
+ *
+ * Props:
+ *   - selectedYear?: number — graduation year highlighted with marker.
+ *   - facts?: Fact[] — fact entries used to plot dots.
+ *
+ * No client-side JS required: everything is layout-only.
+ */
+import { ERAS } from "../lib/eras";
+import { SITE } from "../config/site";
+import type { Fact } from "../lib/filterFacts";
+
+interface Props {
+  selectedYear?: number;
+  facts?: readonly Fact[];
+  /** Hide era labels above bands (compact mode for small embeds). */
+  compact?: boolean;
+}
+
+const { selectedYear, facts = [], compact = false } = Astro.props;
+
+const yearMin = SITE.yearMin;
+const yearMax = SITE.yearMax;
+const span = Math.max(1, yearMax - yearMin);
+
+// Generic position-as-percent helper. We add a half-year shift so each
+// year-cell visually sits on its own slot rather than at the seam.
+const pct = (y: number): number => ((y - yearMin + 0.5) / (span + 1)) * 100;
+
+// Year ticks — every 5 years for legibility, plus first and last.
+const tickYears: number[] = [];
+for (let y = yearMin; y <= yearMax; y++) {
+  if (y === yearMin || y === yearMax || y % 5 === 0) tickYears.push(y);
+}
+
+// Plot fact dots. Only published, non-draft facts contribute.
+type Dot = {
+  year: number;
+  left: number;
+  high: boolean;
+  title: string;
+  href: string;
+};
+const dots: Dot[] = facts
+  .filter((f) => !f.data.draft)
+  .map((f) => ({
+    year: f.data.yearOfEvent,
+    left: pct(f.data.yearOfEvent),
+    high: f.data.impact === "high",
+    title: `${f.data.yearOfEvent}: ${f.data.title}`,
+    href: `/${f.data.yearOfEvent}.html`,
+  }));
+
+const markerLeft = selectedYear ? pct(selectedYear) : null;
+---
+
+<figure
+  class="timeline-figure not-prose mt-6 mb-2 sm:mt-8"
+  aria-label={`Шкала років від ${yearMin} до ${yearMax}`}
+>
+  <div class="timeline-scroll relative overflow-x-auto pb-3" tabindex="0">
+    <div class="timeline relative" style={`min-width: 760px; --span: ${span + 1};`}>
+      {
+        !compact && (
+          <ol class="era-labels relative mb-2 grid h-5 select-none">
+            {ERAS.map((e) => {
+              const start = ((e.yearStart - yearMin) / (span + 1)) * 100;
+              const end = ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100;
+              const width = Math.max(0, end - start);
+              return (
+                <li
+                  class="era-label text-ink-500 dark:text-ink-300 absolute top-0 truncate font-mono text-[10px] tracking-wider uppercase"
+                  style={`left: ${start}%; width: ${width}%;`}
+                  title={`${e.label} (${e.yearStart}–${e.yearEnd})`}
+                >
+                  Ера {e.id}
+                </li>
+              );
+            })}
+          </ol>
+        )
+      }
+
+      <!-- Era bands (cream-tape backdrop). -->
+      <div class="bands relative h-9 rounded-md">
+        {
+          ERAS.map((e) => {
+            const start = ((e.yearStart - yearMin) / (span + 1)) * 100;
+            const end = ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100;
+            const width = Math.max(0, end - start);
+            return (
+              <div
+                class={`band absolute top-0 bottom-0 era-band-${e.id}`}
+                style={`left: ${start}%; width: ${width}%;`}
+                aria-hidden="true"
+              />
+            );
+          })
+        }
+      </div>
+
+      <!-- Year ruler (ticks + numbers). -->
+      <div class="ruler relative mt-1 h-7" aria-hidden="true">
+        {
+          tickYears.map((y) => (
+            <div class="tick absolute top-0 bottom-0" style={`left: ${pct(y)}%;`}>
+              <span class="tick-line bg-ink-300 dark:bg-ink-600 absolute top-0 left-0 h-2 w-px" />
+              <span class="text-ink-500 dark:text-ink-300 absolute top-3 left-0 -translate-x-1/2 font-mono text-[11px] whitespace-nowrap tabular-nums">
+                {y}
+              </span>
+            </div>
+          ))
+        }
+      </div>
+
+      <!-- Fact dots layered above the ruler. -->
+      {
+        dots.length > 0 && (
+          <div class="dots pointer-events-none absolute top-0 right-0 left-0 h-9">
+            {dots.map((d) => (
+              <a
+                href={d.href}
+                title={d.title}
+                aria-label={d.title}
+                class={`dot pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 ${d.high ? "bg-accent-500 dot-high ring-paper-50 dark:ring-paper-50 size-2.5 ring-2" : "bg-ink-700 dark:bg-ink-300 size-1.5"}`}
+                style={`left: ${d.left}%; top: 50%;`}
+              >
+                <span class="sr-only">{d.title}</span>
+              </a>
+            ))}
+          </div>
+        )
+      }
+
+      <!-- Selected-year marker. -->
+      {
+        markerLeft !== null && (
+          <div
+            class="marker absolute top-0 bottom-0"
+            style={`left: ${markerLeft}%;`}
+            aria-hidden="true"
+          >
+            <span class="marker-line bg-accent-500 absolute top-0 bottom-7 left-1/2 w-0.5 -translate-x-1/2 rounded-full" />
+            <span class="marker-flag bg-accent-500 absolute -top-6 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider whitespace-nowrap text-white uppercase">
+              ВИПУСК {selectedYear}
+            </span>
+          </div>
+        )
+      }
+    </div>
+  </div>
+  <figcaption
+    class="text-ink-500 dark:text-ink-300 mt-3 px-1 font-mono text-[11px] tracking-wider uppercase"
+  >
+    {yearMin} → {yearMax} ·
+    <span class="bg-accent-500 mx-1 inline-block size-2 rounded-full align-middle"></span>
+    переломні факти
+  </figcaption>
+</figure>
+
+<style>
+  /* Era band tints — five subtle warm shades layered on cream paper. */
+  .era-band-1 {
+    background: color-mix(in srgb, var(--paper-3) 65%, transparent);
+  }
+  .era-band-2 {
+    background: color-mix(in srgb, var(--paper-2) 85%, transparent);
+  }
+  .era-band-3 {
+    background: color-mix(in srgb, var(--paper-3) 80%, transparent);
+  }
+  .era-band-4 {
+    background: color-mix(in srgb, var(--paper-2) 70%, transparent);
+  }
+  .era-band-5 {
+    background: color-mix(in srgb, var(--accent-100) 55%, transparent);
+  }
+  .bands {
+    box-shadow: inset 0 0 0 1px var(--card-edge);
+  }
+  /* Smooth scroll affordance on touch. */
+  .timeline-scroll {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .timeline-scroll:focus-visible {
+    outline: 2px solid var(--accent-500);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  /* Hover bumps for high-impact dots — quiet, no animation thrash. */
+  .dot.dot-high:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+</style>

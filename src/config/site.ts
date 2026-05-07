@@ -21,17 +21,17 @@ export const SITE = {
 } as const;
 
 export const SUBJECTS = [
-  { id: "astronomy", label: "Астрономія", emoji: "🪐" },
-  { id: "biology", label: "Біологія", emoji: "🧬" },
-  { id: "geography", label: "Географія", emoji: "🌍" },
-  { id: "history", label: "Історія", emoji: "📜" },
-  { id: "physics", label: "Фізика", emoji: "⚛️" },
-  { id: "tech", label: "Технологія", emoji: "💻" },
-  { id: "medicine", label: "Медицина", emoji: "🏥" },
-  { id: "economy", label: "Економіка", emoji: "💰" },
-  { id: "culture", label: "Культура", emoji: "🎭" },
-  { id: "sport", label: "Спорт", emoji: "⚽" },
-  { id: "ecology", label: "Екологія", emoji: "🌱" },
+  { id: "astronomy", label: "Астрономія", emoji: "🪐", mark: "АСТ" },
+  { id: "biology", label: "Біологія", emoji: "🧬", mark: "БІО" },
+  { id: "geography", label: "Географія", emoji: "🌍", mark: "ГЕО" },
+  { id: "history", label: "Історія", emoji: "📜", mark: "ІСТ" },
+  { id: "physics", label: "Фізика", emoji: "⚛️", mark: "ФІЗ" },
+  { id: "tech", label: "Технологія", emoji: "💻", mark: "ТЕХ" },
+  { id: "medicine", label: "Медицина", emoji: "🏥", mark: "МЕД" },
+  { id: "economy", label: "Економіка", emoji: "💰", mark: "ЕКН" },
+  { id: "culture", label: "Культура", emoji: "🎭", mark: "КУЛ" },
+  { id: "sport", label: "Спорт", emoji: "⚽", mark: "СПР" },
+  { id: "ecology", label: "Екологія", emoji: "🌱", mark: "ЕКЛ" },
 ] as const;
 
 export type SubjectId = (typeof SUBJECTS)[number]["id"];
