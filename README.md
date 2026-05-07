@@ -14,13 +14,15 @@
 ```bash
 nvm use            # Node 22.13+
 npm install
+npx playwright install chromium # браузер для e2e-тестів
 npm run dev        # http://localhost:4321
 npm run build      # проганяє astro check + білд
 npm run preview    # переглянути білд локально
-npm run test       # Playwright smoke tests
+npm run test       # unit + Playwright e2e tests
 npm run lint       # ESLint + Prettier
 npm run validate:content  # quality gate для facts/*.md
 npm run coverage:content  # coverage report за предметами й ерами
+npm run dump:source-urls  # список зовнішніх джерел для link-check
 npm run format     # Prettier --write
 ```
 
@@ -41,8 +43,8 @@ npm run format     # Prettier --write
 │   ├── config/site.ts     # назва, ЦА, домен, монобанка — single source of truth
 │   ├── content.config.ts  # Zod-схеми колекцій
 │   ├── layouts/           # Base, ...
-│   ├── lib/               # eras.ts, filterFacts.ts
-│   ├── pages/             # index, [year], about, metodologia
+│   ├── lib/               # eras.ts, filterFacts.ts, url.ts
+│   ├── pages/             # index, [year], subject/[id], era/[slug], fact/[slug]
 │   └── styles/global.css
 └── ...
 ```
@@ -55,7 +57,7 @@ npm run format     # Prettier --write
 ```yaml
 ---
 title: "Заголовок факту"
-subject: "physics" # astronomy | biology | geography | history | physics
+subject: "physics" # astronomy | biology | geography | history | physics | tech | medicine | economy | culture | sport | ecology
 short: "1–2 речення (20–280 символів)."
 yearOfEvent: 2012
 relevantForEras: [1, 2, 3, 4] # для яких ер це новина
@@ -70,6 +72,7 @@ draft: false
 1. Тіло — науково-популярний текст (3–5 абзаців), markdown.
 2. `npm run build` — schema-валідація автоматично перевірить frontmatter.
 3. `npm run validate:content` — додаткові правила якості: джерела, чернетки, tone guardrails.
+4. `npm run dump:source-urls` — згенерує `dist/.fact-source-urls.md` для CI-перевірки зовнішніх джерел.
 
 Детальніше в [`docs/content-guidelines.md`](docs/content-guidelines.md).
 

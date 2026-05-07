@@ -4,7 +4,7 @@
 > Цей документ описує **технічні** PR-и (інфра, контент-схема, UX, фічі) — як їх логічно розбити, у якій послідовності й з якими залежностями.
 > Список ідей-першоджерел: [`ideas.md`](./ideas.md).
 
-Останнє оновлення: травень 2026 (після закриття фаз 0–1 — PR-и #41, #42, #43, #44 — і початку фази 2 link-check для sources).
+Останнє оновлення: травень 2026 (після PR #51: `/era/[slug]`, `/fact/[slug]`, фільтри року, розширення `SUBJECTS`, link-check для source URL).
 
 ---
 
@@ -16,48 +16,52 @@
 - **Контент-валідація:** `npm run validate:content` (tone, sources, draft guard); `npm run coverage:content` (звіт по предметах і ерах).
 - **Дизайн:** «3+1» (Mineral + Schoolbook акценти), токени в `tailwind.config.mjs`, глобальний `Header`/`Footer`, `/themes.astro` як лабораторія тем.
 - **SEO:** RSS (`src/pages/rss.xml.ts`), sitemap (`@astrojs/sitemap`), robots.txt, canonical/OG/Twitter мета у `Base.astro`.
+- **Сторінки:** `/[year]` з фільтрами, `/subject/[id]`, `/era/[slug]`, `/fact/[slug]`, `/about`, `/metodologia`, `/themes`.
 - **OG-зображення:** SVG + PNG ендпоінти `/og/[year].{svg,png}` і `/og/default.{svg,png}` (PR #43; PNG через `@resvg/resvg-js`).
 - **Аналітика:** опціональний Plausible / Umami через env-змінні (PR #44). За замовчуванням нічого не вантажиться.
 - **GitHub-операційка:** `CODEOWNERS`, `dependabot.yml` (з груповими правилами після PR #41), шаблони issues, `PULL_REQUEST_TEMPLATE.md`.
 - **Pre-commit:** Husky + lint-staged → Prettier + markdownlint (PR #42).
-- **Контент:** 5 предметів × 15 фактів = 75 фактів (всі предмети закриті, див. `project-memory.md`).
+- **Контент:** 11 предметів підтримуються в схемі/CMS/UI; стартова база — 75 фактів у перших 5 предметах, нові 6 предметів заповнюються окремими PR-ами.
 
 ### Лишилось зробити (узагальнено)
 
-| Напрям        | Що бракує                                                                                                      |
-| ------------- | -------------------------------------------------------------------------------------------------------------- |
-| Контент-схема | Розширення `SUBJECTS` (tech, medicine, economy, culture, sport, ecology). Лінт MD-фактів окремим набором.      |
-| Сторінки      | `/era/[slug]`, `/fact/[slug]`, `/timeline`, `/compare?a=…&b=…`, `/quiz`.                                       |
-| Пошук         | Pagefind (build-time index, без беку).                                                                         |
-| PWA / a11y    | Manifest + сервіс-воркер (офлайн перегляд), audit через axe.                                                   |
-| Спільнота     | Action: issue з шаблону «Запропонувати факт» → draft PR. Сторінки `/contributors`, `/support`. Email-дайджест. |
-| Бренд         | SVG-іконки замість emoji (опційно), офіційний шрифтовий пакет.                                                 |
-| i18n          | Routing (`/en/[year]`), ICU plurals у форматерах кількості.                                                    |
+| Напрям     | Що бракує                                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------------------------- |
+| Контент    | Наповнити нові предмети `tech`, `medicine`, `economy`, `culture`, `sport`, `ecology`.                          |
+| Сторінки   | `/timeline`, `/compare?a=…&b=…`, `/quiz`.                                                                      |
+| Пошук      | Pagefind (build-time index, без беку).                                                                         |
+| PWA / a11y | Manifest + сервіс-воркер (офлайн перегляд), audit через axe.                                                   |
+| Спільнота  | Action: issue з шаблону «Запропонувати факт» → draft PR. Сторінки `/contributors`, `/support`. Email-дайджест. |
+| Бренд      | SVG-іконки замість emoji (опційно), офіційний шрифтовий пакет.                                                 |
+| i18n       | Routing (`/en/[year]`), ICU plurals у форматерах кількості.                                                    |
 
 ### Нещодавно виконано (фази 0–3)
 
-| #   | PR                                                      | Що                                                                           |
-| --- | ------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| 0.1 | [#26](https://github.com/Skords-01/BACK_FUTURE/pull/26) | Прибрано `docs/proposed-ci/`, фікс Prettier на `roadmap.md`.                 |
-| 0.2 | [#27](https://github.com/Skords-01/BACK_FUTURE/pull/27) | Vitest + 25 юніт-тестів для `src/lib/`.                                      |
-| 1.1 | [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22) | Header: лічильник «N фактів» + breadcrumb (разом із #1.5).                   |
-| 1.2 | [#33](https://github.com/Skords-01/BACK_FUTURE/pull/33) | Темна тема (class-based, ThemeToggle, pre-paint script).                     |
-| 1.4 | [#31](https://github.com/Skords-01/BACK_FUTURE/pull/31) | JSON-LD `Article` + `BreadcrumbList` на `/[year]`.                           |
-| 1.5 | [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22) | Хлібні крихти (об'єднано з #1.1).                                            |
-| 1.6 | [#32](https://github.com/Skords-01/BACK_FUTURE/pull/32) | Sticky-підсумок з якорями-чіпами на предмети.                                |
-| 1.7 | [#29](https://github.com/Skords-01/BACK_FUTURE/pull/29) | Кастомний 404.                                                               |
-| 1.8 | [#30](https://github.com/Skords-01/BACK_FUTURE/pull/30) | Кнопка «Сюрприз» (рандомний рік).                                            |
-| 2.1 | [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28) | Поля `before` / `after` у схемі + рендер у FactCard.                         |
-| 2.2 | [#36](https://github.com/Skords-01/BACK_FUTURE/pull/36) | Поле `region` (world / ukraine) + бейдж 🇺🇦 на FactCard.                      |
-| 2.3 | [#37](https://github.com/Skords-01/BACK_FUTURE/pull/37) | Поле `updatedAt` (ISO дата) + підпис «оновл. DD.MM.YYYY» на FactCard.        |
-| 2.4 | [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38) | Поле `impact` (low/medium/high) + бейдж «★ Веха» для high.                   |
-| 3.1 | [#39](https://github.com/Skords-01/BACK_FUTURE/pull/39) | `/subject/[id]` — окрема стрічка по кожному предмету (5 сторінок).           |
-| 3.3 | [#35](https://github.com/Skords-01/BACK_FUTURE/pull/35) | Розширений fallback на `[year]` — теги фактів-«сусідів» з ери.               |
-| 6.1 | [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21) | Шер-кнопки (Telegram, X, FB, copy, native share) — раніше за залежність 3.4. |
-| 0.3 | [#41](https://github.com/Skords-01/BACK_FUTURE/pull/41) | Розширене групування Dependabot (astro/tailwind/lint/test/types/utils).      |
-| 0.4 | [#42](https://github.com/Skords-01/BACK_FUTURE/pull/42) | Husky + lint-staged → Prettier + markdownlint на pre-commit.                 |
-| 1.3 | [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) | OG як PNG (`/og/[year].png`, `/og/default.png`) через `@resvg/resvg-js`.     |
-| 1.9 | [#44](https://github.com/Skords-01/BACK_FUTURE/pull/44) | Plausible / Umami як опція через env (без cookies, без default).             |
+| #                           | PR                                                      | Що                                                                                        |
+| --------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 0.1                         | [#26](https://github.com/Skords-01/BACK_FUTURE/pull/26) | Прибрано `docs/proposed-ci/`, фікс Prettier на `roadmap.md`.                              |
+| 0.2                         | [#27](https://github.com/Skords-01/BACK_FUTURE/pull/27) | Vitest + 25 юніт-тестів для `src/lib/`.                                                   |
+| 1.1                         | [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22) | Header: лічильник «N фактів» + breadcrumb (разом із #1.5).                                |
+| 1.2                         | [#33](https://github.com/Skords-01/BACK_FUTURE/pull/33) | Темна тема (class-based, ThemeToggle, pre-paint script).                                  |
+| 1.4                         | [#31](https://github.com/Skords-01/BACK_FUTURE/pull/31) | JSON-LD `Article` + `BreadcrumbList` на `/[year]`.                                        |
+| 1.5                         | [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22) | Хлібні крихти (об'єднано з #1.1).                                                         |
+| 1.6                         | [#32](https://github.com/Skords-01/BACK_FUTURE/pull/32) | Sticky-підсумок з якорями-чіпами на предмети.                                             |
+| 1.7                         | [#29](https://github.com/Skords-01/BACK_FUTURE/pull/29) | Кастомний 404.                                                                            |
+| 1.8                         | [#30](https://github.com/Skords-01/BACK_FUTURE/pull/30) | Кнопка «Сюрприз» (рандомний рік).                                                         |
+| 2.1                         | [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28) | Поля `before` / `after` у схемі + рендер у FactCard.                                      |
+| 2.2                         | [#36](https://github.com/Skords-01/BACK_FUTURE/pull/36) | Поле `region` (world / ukraine) + бейдж 🇺🇦 на FactCard.                                   |
+| 2.3                         | [#37](https://github.com/Skords-01/BACK_FUTURE/pull/37) | Поле `updatedAt` (ISO дата) + підпис «оновл. DD.MM.YYYY» на FactCard.                     |
+| 2.4                         | [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38) | Поле `impact` (low/medium/high) + бейдж «★ Веха» для high.                                |
+| 3.1                         | [#39](https://github.com/Skords-01/BACK_FUTURE/pull/39) | `/subject/[id]` — окрема стрічка по кожному предмету (5 сторінок).                        |
+| 3.3                         | [#35](https://github.com/Skords-01/BACK_FUTURE/pull/35) | Розширений fallback на `[year]` — теги фактів-«сусідів» з ери.                            |
+| 6.1                         | [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21) | Шер-кнопки (Telegram, X, FB, copy, native share) — раніше за залежність 3.4.              |
+| 0.3                         | [#41](https://github.com/Skords-01/BACK_FUTURE/pull/41) | Розширене групування Dependabot (astro/tailwind/lint/test/types/utils).                   |
+| 0.4                         | [#42](https://github.com/Skords-01/BACK_FUTURE/pull/42) | Husky + lint-staged → Prettier + markdownlint на pre-commit.                              |
+| 1.3                         | [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) | OG як PNG (`/og/[year].png`, `/og/default.png`) через `@resvg/resvg-js`.                  |
+| 1.9                         | [#44](https://github.com/Skords-01/BACK_FUTURE/pull/44) | Plausible / Umami як опція через env (без cookies, без default).                          |
+| 2.6                         | [#49](https://github.com/Skords-01/BACK_FUTURE/pull/49) | `dump-source-urls.ts` для експорту `sources[].url` у markdown-файл.                       |
+| 2.7                         | [#50](https://github.com/Skords-01/BACK_FUTURE/pull/50) | Окремий markdownlint для `content/facts/`.                                                |
+| 2.5 / 2.6 / 3.2 / 3.4 / 4.2 | [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) | Перші 5 задач: 11 subjects, warning-only source URL check, `/era`, `/fact`, фільтри року. |
 
 ---
 
@@ -101,33 +105,33 @@
 
 ## Фаза 2 — Контент-схема (підсилює цінність)
 
-| #   | PR                                                                      | Розмір | Залежить | Опис                                                                                                                                                                                                    |
-| --- | ----------------------------------------------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2.1 | Поля `before` / `after` у `content.config.ts` + рендер у FactCard       | M      | —        | Опційні; коли є — показуємо блок «Тоді / Зараз». (Item #12.)                                                                                                                                            |
-| 2.2 | Поле `region` (країна / світ / Україна)                                 | S      | —        | Для фільтра «тільки про Україну».                                                                                                                                                                       |
-| 2.3 | Поле `updatedAt` + бейдж «Оновлено YYYY»                                | S      | —        | Для трекінгу свіжості факту.                                                                                                                                                                            |
-| 2.4 | Поле `impact` (low / medium / high)                                     | S      | —        | Для сортування fallback, коли року не вистачає.                                                                                                                                                         |
-| 2.5 | Розширення `SUBJECTS`: tech, medicine, economy, culture, sport, ecology | M      | —        | Тільки список + emoji + label у `site.ts`. Контент додається окремими PR-ами.                                                                                                                           |
-| 2.6 | CI-перевірка: `sources[].url` віддає 200 (link-check уже є — розширити) | S      | —        | Додати в існуючий `link-check.yml` крок із пошуку битих посилань у фактах. **Скрипт-частина смерджена в #49**; ще лишається ручний workflow-патч (див. опис #49).                                       |
-| 2.7 | Lint MD-фактів (markdownlint правила окремо для `content/facts/`)       | S      | —        | Окрема `.markdownlint-cli2.jsonc` секція або glob. **In progress** (цей PR — `content/facts/.markdownlint-cli2.jsonc` зі стрічкими правилами; підхоплюється `npm run lint:md` через walk-up discovery). |
+| #   | PR                                                                      | Розмір | Залежить | Опис                                                                                                                                                                                        |
+| --- | ----------------------------------------------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1 | Поля `before` / `after` у `content.config.ts` + рендер у FactCard       | M      | —        | Опційні; коли є — показуємо блок «Тоді / Зараз». (Item #12.)                                                                                                                                |
+| 2.2 | Поле `region` (країна / світ / Україна)                                 | S      | —        | Для фільтра «тільки про Україну».                                                                                                                                                           |
+| 2.3 | Поле `updatedAt` + бейдж «Оновлено YYYY»                                | S      | —        | Для трекінгу свіжості факту.                                                                                                                                                                |
+| 2.4 | Поле `impact` (low / medium / high)                                     | S      | —        | Для сортування fallback, коли року не вистачає.                                                                                                                                             |
+| 2.5 | Розширення `SUBJECTS`: tech, medicine, economy, culture, sport, ecology | M      | —        | Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): схема, CMS, docs, subject routes, валідація й coverage підтримують 11 предметів; контент додається окремо.                  |
+| 2.6 | CI-перевірка: `sources[].url` віддає 200 (link-check уже є — розширити) | S      | —        | Done у [#49](https://github.com/Skords-01/BACK_FUTURE/pull/49) + [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): dump source URLs і warning-only Lychee step для зовнішніх джерел. |
+| 2.7 | Lint MD-фактів (markdownlint правила окремо для `content/facts/`)       | S      | —        | Done у [#50](https://github.com/Skords-01/BACK_FUTURE/pull/50): `content/facts/.markdownlint-cli2.jsonc` підхоплюється `npm run lint:md` через walk-up discovery.                           |
 
 ## Фаза 3 — Нові сторінки
 
-| #   | PR                                    | Розмір | Залежить | Опис                                                       |
-| --- | ------------------------------------- | ------ | -------- | ---------------------------------------------------------- |
-| 3.1 | `/subject/[id]` — стрічка по предмету | M      | —        | Усі факти предмета, сортовані по року події.               |
-| 3.2 | `/era/[slug]` — стрічка по ері        | M      | —        | Усі факти, що `relevantForEras` містить ID ери.            |
-| 3.3 | Fallback-блок для років без фактів    | S      | —        | На `[year].astro` («Тут поки тихо» уже є — розширити CTA). |
-| 3.4 | Сторінка одного факту `/fact/[slug]`  | M      | 1.4      | Окрема URL для шерингу, JSON-LD `Article`.                 |
+| #   | PR                                    | Розмір | Залежить | Опис                                                                                                                                     |
+| --- | ------------------------------------- | ------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 3.1 | `/subject/[id]` — стрічка по предмету | M      | —        | Усі факти предмета, сортовані по року події.                                                                                             |
+| 3.2 | `/era/[slug]` — стрічка по ері        | M      | —        | Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): усі факти, що `relevantForEras` містить ID ери, з групуванням і JSON-LD. |
+| 3.3 | Fallback-блок для років без фактів    | S      | —        | На `[year].astro` («Тут поки тихо» уже є — розширити CTA).                                                                               |
+| 3.4 | Сторінка одного факту `/fact/[slug]`  | M      | 1.4      | Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): канонічний URL, джерела, breadcrumbs, JSON-LD `Article`, share/copy.     |
 
 ## Фаза 4 — Пошук і персоналізація
 
-| #   | PR                                 | Розмір | Залежить | Опис                                                            |
-| --- | ---------------------------------- | ------ | -------- | --------------------------------------------------------------- |
-| 4.1 | Pagefind (build-time)              | M      | —        | Без серверної залежності, повнотекстовий пошук по фактах.       |
-| 4.2 | Фільтри на сторінці року           | M      | 2.2, 2.4 | По регіону, ері, предмету.                                      |
-| 4.3 | «Мій рік» (persist у localStorage) | S      | —        | Кнопка швидкого повернення; запам'ятовуємо вибір з `YearInput`. |
-| 4.4 | Збережені факти (bookmark)         | M      | —        | LocalStorage; невелика сторінка `/saved`.                       |
+| #   | PR                                 | Розмір | Залежить | Опис                                                                                                                                 |
+| --- | ---------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 4.1 | Pagefind (build-time)              | M      | —        | Без серверної залежності, повнотекстовий пошук по фактах.                                                                            |
+| 4.2 | Фільтри на сторінці року           | M      | 2.2, 2.4 | Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): `subject`, `era`, `region`, `impact`, live counts і query-параметри. |
+| 4.3 | «Мій рік» (persist у localStorage) | S      | —        | Кнопка швидкого повернення; запам'ятовуємо вибір з `YearInput`.                                                                      |
+| 4.4 | Збережені факти (bookmark)         | M      | —        | LocalStorage; невелика сторінка `/saved`.                                                                                            |
 
 ## Фаза 5 — PWA / a11y / asset-pipeline
 
@@ -174,17 +178,17 @@
 
 ---
 
-## Перші 5 PR на черзі
+## Перші 5 задач виконано в PR #51
 
-Згідно з пріоритетами (швидкий impact + low risk), після закриття фаз 0–1:
+PR [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) закриває попередній top-5:
 
-1. **#3.2** — `/era/[slug]` стрічка (M). Парний до #3.1, переюзає `eraCountsForSubject` патерн.
-2. **#3.4** — `/fact/[slug]` (M). Розблоковує власний JSON-LD `Article`, шер-кнопки на сам факт, `/share/[year]`.
-3. **#4.2** — фільтри на сторінці року (M). Тепер є чим фільтрувати: `region` + `impact` уже у схемі.
-4. **#2.5** — розширення `SUBJECTS` (tech, medicine, economy, culture, sport, ecology) (M). Список + emoji + label у `site.ts`; контент додається окремо.
-5. **#2.6 (workflow-патч)** — застосувати ручний крок до `link-check.yml` (Devin OAuth не має `workflow` scope; патч у описі PR #49). Без цього скрипт `dump-source-urls.ts` не виконується в CI.
+1. **#3.2** — `/era/[slug]` стрічка.
+2. **#3.4** — `/fact/[slug]` канонічна сторінка факту.
+3. **#4.2** — фільтри на сторінці року.
+4. **#2.5** — розширення `SUBJECTS` до 11 предметів.
+5. **#2.6** — workflow-патч для `sources[].url`.
 
-Залежності: #4.2 спирається на 2.2 і 2.4 (вже в main). Решту можна паралелити.
+Наступні найпрактичніші задачі: Pagefind-пошук, `/timeline`, `/quiz`, issue `new-fact.yml` → draft PR, `/contributors` + `/support`.
 
 ---
 
