@@ -183,13 +183,13 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### 🔧 Інфраструктура
 
-| #   | Пункт                                 | Згода | Статус                                                                                                                              |
-| --- | ------------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 18  | Реальний домен + Vercel/Cloudflare    | ✓     | Pending — після контенту                                                                                                            |
-| 19  | Plausible / simpleanalytics           | ✓     | Pending                                                                                                                             |
-| 20  | Decap / Sveltia CMS поверх `content/` | ✓     | Pending                                                                                                                             |
-| 21  | GitHub Actions: link checker і ширше  | ✓     | Pending. Workflow YAML лежить у `docs/proposed-ci/ci.yml` — токен сесії не має `workflow`-скоупу, треба `git mv` локально власником |
-| 22  | i18n-ready (`content/uk/`)            | ✓     | Pending — структурно, без перекладів                                                                                                |
+| #   | Пункт                                 | Згода | Статус                                                                                                                                  |
+| --- | ------------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 18  | Реальний домен + Vercel/Cloudflare    | ✓     | Pending — після контенту                                                                                                                |
+| 19  | Plausible / simpleanalytics           | ✓     | Pending                                                                                                                                 |
+| 20  | Decap / Sveltia CMS поверх `content/` | ✓     | Pending                                                                                                                                 |
+| 21  | GitHub Actions: link checker і ширше  | ✓     | Done. CI у `.github/workflows/ci.yml` (lint, typecheck, validate-content, build, Playwright, Lighthouse) + окремий link-check workflow. |
+| 22  | i18n-ready (`content/uk/`)            | ✓     | Pending — структурно, без перекладів                                                                                                    |
 
 ### 🚀 Масштаб
 
@@ -208,7 +208,7 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 - 5 sample-фактів для перевірки логіки.
 - 39 сторінок (1991–2026 + index, about, metodologia).
 - **Багфікс:** на статичному хостингу devinapps (S3) роути `/2007/` не резолвились → перейшли на формат `.html` (`/2007.html`). На реальному прод-хосту (Vercel/Netlify/Cloudflare Pages) `.html` ховається в clean URL автоматично.
-- CI workflow в `docs/proposed-ci/` (токен сесії не має `workflow`-скоупу).
+- CI workflow початково в `docs/proposed-ci/` (токен сесії не мав `workflow`-скоупу). Пізніше мігрований у `.github/workflows/ci.yml`.
 
 ### Сесія 2 (PR #2) — Дизайн
 
@@ -302,8 +302,9 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### Workflow GitHub
 
-- CI YAML лежить у `docs/proposed-ci/ci.yml` (тимчасово, бо токен сесії без `workflow`-скоупу).
-- Користувачу запропоновано: `git mv docs/proposed-ci/ci.yml .github/workflows/ci.yml` локально й push.
+- CI YAML у `.github/workflows/ci.yml` (lint, typecheck, validate-content, build, Playwright, Lighthouse).
+- Окремий workflow для link-check (`.github/workflows/link-check.yml`).
+- `docs/proposed-ci/` видалено після міграції.
 
 ### Token-handling
 
