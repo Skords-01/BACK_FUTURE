@@ -209,10 +209,12 @@ const markerLeft = selectedYear ? pct(selectedYear) : null;
   .marker {
     z-index: 3;
   }
-  /* Smooth scroll affordance on touch. */
+  /* Smooth scroll affordance on touch.
+     overscroll-behavior-x: contain — тягнення таймлайну не скролює сторінку. */
   .timeline-scroll {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
+    overscroll-behavior-x: contain;
   }
   .timeline-scroll:focus-visible {
     outline: 2px solid var(--accent-500);

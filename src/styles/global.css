@@ -247,6 +247,48 @@
     background-size: 100% 32px;
     background-position: 0 0;
   }
+  /* -----------------------------------------------------------------------
+     Smooth details/summary open animation via CSS grid trick.
+     No JS needed — works in all modern browsers.
+     Respects prefers-reduced-motion via the global rule above.
+     ----------------------------------------------------------------------- */
+  details > :not(summary) {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 0.25s ease;
+  }
+  details > :not(summary) > * {
+    min-height: 0;
+  }
+  details[open] > :not(summary) {
+    grid-template-rows: 1fr;
+  }
+
+  /* -----------------------------------------------------------------------
+     Scroll-triggered fade-in for [data-reveal] elements.
+     JS adds .is-visible via IntersectionObserver.
+     Reduced-motion: skip animation entirely (elements start visible).
+     ----------------------------------------------------------------------- */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.45s ease,
+      transform 0.45s ease;
+  }
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
   /* Typographic helpers exposed for component templates. */
   .font-display {
     font-family: var(--font-display);

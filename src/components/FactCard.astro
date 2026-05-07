@@ -104,11 +104,9 @@ const mark = subject?.mark ?? "—";
         ) : (
           <div />
         )}
-        <div
-          aria-hidden="true"
-          class="text-accent-500 dark:text-accent-400 hidden self-center text-2xl font-bold sm:block"
-        >
-          →
+        <div aria-hidden="true" class="text-accent-500 dark:text-accent-400 font-bold">
+          <span class="block text-center text-lg sm:hidden">↓</span>
+          <span class="hidden self-center text-2xl sm:block">→</span>
         </div>
         {fact.data.after ? (
           <div class="text-center">
@@ -134,7 +132,7 @@ const mark = subject?.mark ?? "—";
 
   <details class="group/details mt-5">
     <summary
-      class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 inline-flex cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"
+      class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 inline-flex min-h-[44px] cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"
     >
       <span class="group-open/details:hidden">Докладніше</span>
       <span class="hidden group-open/details:inline">Згорнути</span>
@@ -184,20 +182,24 @@ const mark = subject?.mark ?? "—";
 </article>
 
 <style>
-  /* Subtle paper-card tilt — без сторонніх анімацій. */
-  .fact-card {
-    transform: rotate(-0.4deg);
-    transform-origin: 50% 50%;
+  /* Subtle paper-card tilt — без сторонніх анімацій.
+     На мобільних rotate вимкнено: трансформований блок виходить за межі контейнера
+     і викликає горизонтальний scroll на iOS Safari. */
+  @media (min-width: 640px) {
+    .fact-card {
+      transform: rotate(-0.4deg);
+      transform-origin: 50% 50%;
+    }
+    .fact-card:hover {
+      transform: rotate(-0.2deg) translateY(-2px);
+    }
   }
-  .fact-card:hover {
-    transform: rotate(-0.2deg) translateY(-2px);
-  }
-  @media (prefers-reduced-motion: reduce) {
+  @media (min-width: 640px) and (prefers-reduced-motion: reduce) {
     .fact-card {
       transition: none;
     }
     .fact-card:hover {
-      transform: rotate(-0.4deg); /* лишаємо нахил, лише знімаємо translateY */
+      transform: rotate(-0.4deg);
     }
   }
 </style>
