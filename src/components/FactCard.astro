@@ -196,9 +196,11 @@ const mark = subject?.mark ?? "—";
     transform: rotate(-0.2deg) translateY(-2px);
   }
   @media (prefers-reduced-motion: reduce) {
-    .fact-card,
+    .fact-card {
+      transition: none;
+    }
     .fact-card:hover {
-      transform: none;
+      transform: rotate(-0.4deg); /* лишаємо нахил, лише знімаємо translateY */
     }
   }
 </style>
