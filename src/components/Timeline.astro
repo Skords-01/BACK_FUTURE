@@ -29,7 +29,8 @@ const yearMin = SITE.yearMin;
 const yearMax = SITE.yearMax;
 const span = Math.max(1, yearMax - yearMin);
 
-const pct = (y: number): number => ((y - yearMin + 0.5) / (span + 1)) * 100;
+// Simple linear percent — no extra buffer, 0% = yearMin, 100% = yearMax
+const pct = (y: number): number => ((y - yearMin) / span) * 100;
 
 // Ticks: major every 5 years, minor every year
 const allYears: number[] = [];
@@ -40,18 +41,21 @@ type Dot = {
   year: number;
   left: number;
   high: boolean;
-  title: string;
+  // Keep tooltip short — just the year
+  tip: string;
   href: string;
 };
-const dots: Dot[] = facts
-  .filter((f) => !f.data.draft)
-  .map((f) => ({
-    year: f.data.yearOfEvent,
-    left: pct(f.data.yearOfEvent),
-    high: f.data.impact === "high",
-    title: `${f.data.yearOfEvent}: ${f.data.title}`,
-    href: `/${f.data.yearOfEvent}/`,
-  }));
+
+// Only show facts whose yearOfEvent is >= selectedYear (graduated-view)
+// On the index page selectedYear is the default year, so show all facts.
+const dotsRaw = facts.filter((f) => !f.data.draft);
+const dots: Dot[] = dotsRaw.map((f) => ({
+  year: f.data.yearOfEvent,
+  left: pct(f.data.yearOfEvent),
+  high: f.data.impact === "high",
+  tip: String(f.data.yearOfEvent),
+  href: `/${f.data.yearOfEvent}/`,
+}));
 
 const markerLeft = selectedYear ? pct(selectedYear) : null;
 
@@ -130,8 +134,8 @@ const activeEraId = selectedYear
                 href={d.href}
                 class={`tl-dot${d.high ? " tl-dot--high" : ""}`}
                 style={`left: ${d.left}%;`}
-                data-tip={d.title}
-                aria-label={d.title}
+                data-tip={d.tip}
+                aria-label={`Перейти до ${d.year}`}
               >
                 <span class="sr-only">{d.title}</span>
               </a>
@@ -205,9 +209,9 @@ const activeEraId = selectedYear
   .tl-inner {
     position: relative;
     min-width: 760px;
-    /* top space: era labels (24px) + gap (8px) = 32px
-       bottom space: axis (2px) + ticks (16px) + labels (18px) = 36px */
-    padding: 32px 0 36px;
+    /* Horizontal padding so leftmost/rightmost dots aren't clipped */
+    padding: 32px 12px 36px;
+    box-sizing: border-box;
   }
 
   /* ---- Era labels (above bands) ---- */
@@ -342,27 +346,25 @@ const activeEraId = selectedYear
     transform: translate(-50%, -50%) scale(1.35);
   }
 
-  /* Tooltip via CSS ::after — hidden on touch */
+  /* Tooltip via CSS ::after — compact year-only pill, hidden on touch */
   .tl-dot[data-tip]::after {
     content: attr(data-tip);
     position: absolute;
-    bottom: calc(100% + 10px);
+    bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: var(--ink-900, #1a1813);
+    background: var(--ink-700, #3c3021);
     color: var(--paper, #f3ecdc);
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-family: var(--font-body);
-    font-size: 11px;
-    line-height: 1.4;
-    white-space: normal;
-    text-align: center;
-    max-width: 240px;
-    min-width: 120px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.6;
+    white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.12s;
+    transition: opacity 0.1s;
     z-index: 10;
   }
   .tl-dot:hover[data-tip]::after,
@@ -476,8 +478,8 @@ const activeEraId = selectedYear
     border-color: var(--paper, #2a2218);
   }
   :global(html.dark) .tl-dot[data-tip]::after {
-    background: var(--ink-900, #f0e8d2);
-    color: var(--paper, #2a2218);
+    background: #4e3f2a;
+    color: #f0e8d2;
   }
 
   /* ---- Mobile sizing ---- */
@@ -499,3 +501,17 @@ const activeEraId = selectedYear
     }
   }
 </style>
+
+<script is:inline>
+  (function () {
+    var scroll = document.querySelector(".tl-scroll");
+    var marker = document.querySelector(".tl-marker");
+    if (!scroll || !marker) return;
+
+    // Centre the marker inside the scroll container
+    var markerLeft = marker.offsetLeft;
+    var scrollWidth = scroll.clientWidth;
+    var targetScroll = markerLeft - scrollWidth / 2;
+    scroll.scrollLeft = Math.max(0, targetScroll);
+  })();
+</script>
