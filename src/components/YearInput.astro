@@ -33,7 +33,20 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     required
     class={`flex-1 rounded-3xl border border-ink-200 bg-white px-6 text-center font-mono font-bold tabular-nums tracking-tight text-ink-900 shadow-card outline-none transition focus:border-accent-700 focus:ring-2 focus:ring-accent-200 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-50 dark:focus:border-accent-400 dark:focus:ring-accent-700/40 ${inputClass}`}
   />
-  <button type="submit" class="btn h-14 px-8 sm:h-auto"> Подивитись </button>
+  <button type="submit" class="btn relative h-14 overflow-hidden px-8 sm:h-auto" aria-live="polite">
+    <span data-btn-label>Подивитись</span>
+    <svg
+      data-btn-spinner
+      class="absolute inset-0 m-auto hidden h-5 w-5 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
+      ></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+  </button>
 </form>
 
 <p id="year-error" class="mt-2 hidden text-sm text-red-600 dark:text-red-400"></p>
@@ -44,6 +57,9 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     if (!(form instanceof HTMLFormElement)) return;
     const input = form.querySelector("#year-input");
     const err = document.getElementById("year-error");
+    const submitBtn = form.querySelector('[type="submit"]');
+    const btnLabel = submitBtn && submitBtn.querySelector("[data-btn-label]");
+    const btnSpinner = submitBtn && submitBtn.querySelector("[data-btn-spinner]");
     const min = Number(form.dataset.min);
     const max = Number(form.dataset.max);
 
@@ -61,6 +77,13 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
       err.classList.add("hidden");
       input.removeAttribute("aria-invalid");
     }
+    function setLoading(loading) {
+      if (!(submitBtn instanceof HTMLButtonElement)) return;
+      submitBtn.disabled = loading;
+      submitBtn.setAttribute("aria-busy", String(loading));
+      if (btnLabel) btnLabel.textContent = loading ? "Завантаження…" : "Подивитись";
+      if (btnSpinner) btnSpinner.classList.toggle("hidden", !loading);
+    }
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -73,6 +96,7 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
         input.focus();
         return;
       }
+      setLoading(true);
       window.location.href = `/${n}/`;
     });
   })();
