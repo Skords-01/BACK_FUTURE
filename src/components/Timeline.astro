@@ -83,7 +83,8 @@ const activeEraId = selectedYear
           <ol class="tl-era-labels" aria-hidden="true">
             {ERAS.map((e) => {
               const start = ((e.yearStart - yearMin) / (span + 1)) * 100;
-              const width = Math.max(0, ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100 - start);
+              const effectiveEnd = Math.min(e.yearEnd, yearMax);
+              const width = Math.max(0, ((effectiveEnd + 1 - yearMin) / (span + 1)) * 100 - start);
               return (
                 <li
                   class={`tl-era-label${e.id === activeEraId ? " is-active" : ""}`}
@@ -103,7 +104,8 @@ const activeEraId = selectedYear
         {
           ERAS.map((e) => {
             const start = ((e.yearStart - yearMin) / (span + 1)) * 100;
-            const width = Math.max(0, ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100 - start);
+            const effectiveEnd = Math.min(e.yearEnd, yearMax);
+            const width = Math.max(0, ((effectiveEnd + 1 - yearMin) / (span + 1)) * 100 - start);
             return (
               <div
                 class={`tl-band era-${e.id}${e.id === activeEraId ? " is-active" : ""}`}
@@ -154,7 +156,11 @@ const activeEraId = selectedYear
           <!-- Selected year marker -->
           {
             markerLeft !== null && (
-              <div class="tl-marker" style={`left: ${markerLeft}%;`} aria-hidden="true">
+              <div
+                class={`tl-marker${selectedYear === yearMin ? " tl-marker--at-start" : ""}${selectedYear === yearMax ? " tl-marker--at-end" : ""}`}
+                style={`left: ${markerLeft}%;`}
+                aria-hidden="true"
+              >
                 <span class="tl-marker-line" />
                 <span class="tl-marker-cap" />
                 <span class="tl-marker-label">ВИПУСК {selectedYear}</span>
@@ -460,6 +466,18 @@ const activeEraId = selectedYear
     padding: 2px 8px;
     border-radius: 999px;
     white-space: nowrap;
+  }
+  /* На yearMin/yearMax якоримо бейдж до краю маркера (жодного translateX(-50%)),
+     інакше половина «BИПУСК 1991/2026» виходить за межі .tl-inner і
+     scrollWidth роздувається на ~40px «пустого» хвоста. */
+  .tl-marker--at-start .tl-marker-label {
+    left: 0;
+    transform: translateX(0);
+  }
+  .tl-marker--at-end .tl-marker-label {
+    left: auto;
+    right: 0;
+    transform: translateX(0);
   }
 
   /* ---- Legend ---- */
