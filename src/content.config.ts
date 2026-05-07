@@ -40,6 +40,12 @@ const facts = defineCollection({
       })
       .optional(),
     draft: z.boolean().default(false),
+    updatedAt: z.coerce
+      .date()
+      .refine((d) => d.getTime() <= Date.now(), {
+        message: "updatedAt cannot be in the future",
+      })
+      .optional(),
   }),
 });
 

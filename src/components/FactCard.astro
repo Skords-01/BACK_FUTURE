@@ -1,6 +1,8 @@
 ---
 import { render } from "astro:content";
+
 import type { Fact } from "../lib/filterFacts";
+import { formatUkShortDate, isoDate } from "../lib/format";
 
 interface Props {
   fact: Fact;
@@ -8,6 +10,7 @@ interface Props {
 
 const { fact } = Astro.props;
 const { Content } = await render(fact);
+const updatedAt = fact.data.updatedAt;
 ---
 
 <article
@@ -19,23 +22,43 @@ const { Content } = await render(fact);
     >
       {fact.data.title}
     </h3>
-    <div class="flex shrink-0 items-center gap-1.5">
+    <div class="flex shrink-0 flex-col items-end gap-1">
+      <div class="flex items-center gap-1.5">
+        {
+          fact.data.region === "ukraine" && (
+            <span
+              class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium"
+              title="Український внесок"
+            >
+              <span aria-hidden="true">🇺🇦</span>
+              <span>Україна</span>
+            </span>
+          )
+        }
+        <span
+          class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs font-medium tabular-nums"
+        >
+          {fact.data.yearOfEvent}
+        </span>
+      </div>
       {
-        fact.data.region === "ukraine" && (
-          <span
-            class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium"
-            title="Український внесок"
+        updatedAt && (
+          <time
+            datetime={isoDate(updatedAt)}
+            class="text-ink-400 dark:text-ink-500 inline-flex items-center gap-1 text-[11px] font-medium tabular-nums"
+            title="Дата останнього оновлення цього факту"
           >
-            <span aria-hidden="true">🇺🇦</span>
-            <span>Україна</span>
-          </span>
+            <svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                fill-rule="evenodd"
+                d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span>оновл. {formatUkShortDate(updatedAt)}</span>
+          </time>
         )
       }
-      <span
-        class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs font-medium tabular-nums"
-      >
-        {fact.data.yearOfEvent}
-      </span>
     </div>
   </div>
 
