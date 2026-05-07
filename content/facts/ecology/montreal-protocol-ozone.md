@@ -15,6 +15,9 @@ sources:
     url: "https://www.nature.com/articles/315207a0"
   - title: "NASA Ozone Watch — 2024 Status"
     url: "https://ozonewatch.gsfc.nasa.gov/"
+quote:
+  text: "Монреальський протокол — єдина історія успіху на рівні всієї планети. Якщо ми зробили це з озоновим шаром, ми можемо зробити це з кліматом"
+  author: "Кофі Аннан, Генсек ООН (2003)"
 tags: ["клімат", "озон", "ООН", "хімія атмосфери", "протокол"]
 draft: false
 ---

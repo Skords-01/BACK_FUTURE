@@ -15,6 +15,9 @@ sources:
     url: "https://www.bfi.org.uk/features/lord-of-the-rings-trilogy-20-years-on"
   - title: "Tourism New Zealand: Middle-earth economic impact"
     url: "https://www.newzealand.com/int/feature/about-middle-earth/"
+quote:
+  text: "Я хотів довести, що фентезі може бути дорослим жанром, а не тільки дитячою казкою"
+  author: "Пітер Джексон в інтерв'ю Variety"
 tags: ["кіно", "Джексон", "фентезі", "Толкін"]
 draft: false
 ---

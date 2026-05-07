@@ -15,6 +15,9 @@ sources:
     url: "https://variety.com/2018/tv/features/house-of-cards-netflix-changed-tv-1203030392/"
   - title: "Pew Research: TV streaming overtakes cable (2023)"
     url: "https://www.pewresearch.org/short-reads/2023/09/13/cable-and-satellite-tv-use-has-dropped-dramatically-in-the-u-s-since-2015/"
+quote:
+  text: "Ми не хотіли, щоб глядач дивився, коли йому скаже мережа. Ми хотіли, щоб дивився, коли захоче сам"
+  author: "Тед Сарандос в інтерв'ю New York Times"
 tags: ["стримінг", "Netflix", "серіали", "телебачення"]
 draft: false
 ---

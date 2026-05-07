@@ -15,6 +15,9 @@ sources:
     url: "https://www.bfi.org.uk/sight-and-sound/features/pulp-fiction-25-review-quentin-tarantino"
   - title: "Library of Congress: National Film Registry 2013"
     url: "https://www.loc.gov/item/prn-13-203/"
+quote:
+  text: "Я не намагався зробити арт-хаус. Я намагався зняти фільм, який сам хотів би подивитися"
+  author: "Квентін Тарантіно про підхід до сценарію"
 tags: ["кіно", "Тарантіно", "інді", "1990-ті"]
 draft: false
 ---

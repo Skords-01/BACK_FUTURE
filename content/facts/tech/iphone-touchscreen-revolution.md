@@ -15,6 +15,9 @@ sources:
     url: "https://www.youtube.com/watch?v=VQKMoT-6XSg"
   - title: "Pew Research: U.S. smartphone use over time"
     url: "https://www.pewresearch.org/internet/fact-sheet/mobile/"
+quote:
+  text: "Сьогодні Apple переосмислює телефон. І нам не доведеться навіть продавати його — він продасть себе сам"
+  author: "Стів Джобс, Macworld 2007"
 tags: ["смартфон", "Apple", "iPhone", "мобільний-інтернет"]
 draft: false
 ---

@@ -15,6 +15,9 @@ sources:
     url: "https://en.unesco.org/biosphere/eu-na/chernobyl-radiation-and-ecological"
   - title: "Current Biology 2015: Long-term census data reveal abundant wildlife populations at Chernobyl"
     url: "https://www.cell.com/current-biology/fulltext/S0960-9822(15)00988-4"
+quote:
+  text: "Чорнобильський заповідник — це парадокс: найрадіоактивніша земля Європи стала найдинамічнішою екосистемою. Природа показала: людина — головний фактор, що знищує дику природу, навіть більший за радіацію"
+  author: "Сергій Ґащак, керівник Чорнобильського центру з ядерної безпеки, 2019"
 tags: ["Чорнобиль", "заповідник", "rewilding", "зона відчуження", "біорізноманіття"]
 draft: false
 ---

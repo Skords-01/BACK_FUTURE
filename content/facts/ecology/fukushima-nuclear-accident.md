@@ -15,6 +15,9 @@ sources:
     url: "https://www.nature.com/articles/471550a"
   - title: "World Nuclear Association: Fukushima Daiichi Accident"
     url: "https://world-nuclear.org/information-library/safety-and-security/safety-of-plants/fukushima-daiichi-accident.aspx"
+quote:
+  text: "Це не природна катастрофа. Це “Made in Japan” — наслідок японської культури згоди, рефлексу-ні-сумніву і груповізму, що вкоренилися в TEPCO"
+  author: "Кіоси Куросава, голова парламентської слідчої комісії NAIIC, липень 2012"
 tags: ["атомна енергетика", "ядерна аварія", "Японія", "цунамі", "Energiewende"]
 draft: false
 ---

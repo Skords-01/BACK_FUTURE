@@ -15,6 +15,9 @@ sources:
     url: "https://www.justice.gov/opa/pr/six-russian-gru-officers-charged-connection-worldwide-deployment-destructive-malware-and"
   - title: "ENISA Threat Landscape: NotPetya analysis"
     url: "https://www.enisa.europa.eu/topics/incident-response/glossary/notpetya"
+quote:
+  text: "Це була не атака. Це був акт війни"
+  author: "Том Боссерт, радник Білого дому з кібербезпеки, у заяві 2018-го"
 tags: ["кібербезпека", "україна", "гібридна-війна", "supply-chain"]
 draft: false
 ---

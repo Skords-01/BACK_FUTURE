@@ -15,6 +15,9 @@ sources:
     url: "https://www.linuxfoundation.org/blog/blog/30-years-of-linux"
   - title: "TOP500: Operating systems share"
     url: "https://www.top500.org/statistics/list/"
+quote:
+  text: "Я зробив це, бо мені було нудно. А виявилось — змінив, як побудована половина IT-планети"
+  author: "Лінус Торвальдс, 30 років по тому"
 tags: ["linux", "open-source", "ОС", "ядро"]
 draft: false
 ---

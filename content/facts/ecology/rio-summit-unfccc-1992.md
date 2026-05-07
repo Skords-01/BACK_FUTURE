@@ -15,6 +15,9 @@ sources:
     url: "https://www.un.org/en/conferences/environment/rio1992"
   - title: "IPCC: First Assessment Report (1990)"
     url: "https://www.ipcc.ch/report/ar1/wg1/"
+quote:
+  text: "Ми, делегати 172 країн, заявляємо: розвиток ХХІ століття мусить бути сталим, або не буде взагалі. Земля не має другого шансу"
+  author: "Джил Карловські, Генсекретар Ріо-92"
 tags: ["клімат", "ООН", "UNFCCC", "Ріо", "конвенція"]
 draft: false
 ---
