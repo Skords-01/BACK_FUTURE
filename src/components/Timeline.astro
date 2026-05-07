@@ -181,6 +181,23 @@ const markerLeft = selectedYear ? pct(selectedYear) : null;
   .era-band-5 {
     background: color-mix(in srgb, var(--accent-100) 55%, transparent);
   }
+  /* Dark mode: paper tokens are darker than background, so use light cream
+     tints instead to keep era bands subtly distinguishable. */
+  :global(html.dark) .era-band-1 {
+    background: color-mix(in srgb, var(--ink-900) 4%, transparent);
+  }
+  :global(html.dark) .era-band-2 {
+    background: color-mix(in srgb, var(--ink-900) 7%, transparent);
+  }
+  :global(html.dark) .era-band-3 {
+    background: color-mix(in srgb, var(--ink-900) 5%, transparent);
+  }
+  :global(html.dark) .era-band-4 {
+    background: color-mix(in srgb, var(--ink-900) 9%, transparent);
+  }
+  :global(html.dark) .era-band-5 {
+    background: color-mix(in srgb, var(--accent-500) 13%, transparent);
+  }
   .bands {
     box-shadow: inset 0 0 0 1px var(--card-edge);
     overflow: visible; /* щоб dots/marker не обрізались */
