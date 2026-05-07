@@ -16,6 +16,7 @@
 import { ERAS } from "../lib/eras";
 import { SITE } from "../config/site";
 import type { Fact } from "../lib/filterFacts";
+import { planMajorTicks } from "../lib/timelineTicks";
 import { yearUrl } from "../lib/url";
 
 interface Props {
@@ -33,10 +34,13 @@ const span = Math.max(1, yearMax - yearMin);
 // Simple linear percent — no extra buffer, 0% = yearMin, 100% = yearMax
 const pct = (y: number): number => ((y - yearMin) / span) * 100;
 
-// Ticks: major every 5 years, minor every year
+// Ticks: major every 5 years, minor every year. Хитрість для міток: коли
+// yearMax не на 5-річній мітці (як 2026), 5-річний підпис поряд (2025)
+// зливається з підписом yearMax. planMajorTicks ховає такий сусідський підпис,
+// але саму риску лишає.
 const allYears: number[] = [];
 for (let y = yearMin; y <= yearMax; y++) allYears.push(y);
-const majorTicks = allYears.filter((y) => y === yearMin || y === yearMax || y % 5 === 0);
+const { ticks: majorTicks, labeled: labeledTicks } = planMajorTicks(yearMin, yearMax);
 
 type Dot = {
   year: number;
@@ -119,11 +123,11 @@ const activeEraId = selectedYear
               (y) => !majorTicks.includes(y) && <div class="tl-tick" style={`left: ${pct(y)}%;`} />,
             )
           }
-          <!-- Major ticks (every 5y, with label) -->
+          <!-- Major ticks (every 5y, label only when not colliding with endpoints) -->
           {
             majorTicks.map((y) => (
               <div class="tl-tick tl-tick--major" style={`left: ${pct(y)}%;`}>
-                <span class="tl-tick-label">{y}</span>
+                {labeledTicks.has(y) && <span class="tl-tick-label">{y}</span>}
               </div>
             ))
           }
@@ -217,10 +221,19 @@ const activeEraId = selectedYear
   /* ---- Inner sizing ---- */
   .tl-inner {
     position: relative;
-    min-width: 760px;
+    /* Mobile-first: пасує під ширину контейнера, без зайвого скролу праворуч.
+       На вузьких екранах (~360–390px) 35 років комфортно живуть у ~330px. */
+    min-width: 100%;
     /* Horizontal padding so leftmost/rightmost dots aren't clipped */
     padding: 32px 12px 36px;
     box-sizing: border-box;
+  }
+  @media (min-width: 768px) {
+    .tl-inner {
+      /* На десктопі лишаємо «розгорнутий» вигляд із горизонтальним скролом
+         усередині контейнера, щоб точки не зливались. */
+      min-width: 760px;
+    }
   }
 
   /* ---- Era labels (above bands) ---- */
@@ -318,6 +331,18 @@ const activeEraId = selectedYear
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     user-select: none;
+  }
+  /* Кінцеві мітки (yearMin / yearMax) тиснуться до межі axis, інакше їхня
+     половина випадає за паддінг inner і створює хвостовий «порожній» простір
+     при горизонтальному скролі. */
+  .tl-tick--major:first-of-type .tl-tick-label {
+    left: 0;
+    transform: translateX(0);
+  }
+  .tl-tick--major:last-of-type .tl-tick-label {
+    left: auto;
+    right: 0;
+    transform: translateX(0);
   }
 
   /* ---- Fact dots ---- */
@@ -517,10 +542,16 @@ const activeEraId = selectedYear
     var marker = document.querySelector(".tl-marker");
     if (!scroll || !marker) return;
 
-    // Centre the marker inside the scroll container
-    var markerLeft = marker.offsetLeft;
-    var scrollWidth = scroll.clientWidth;
-    var targetScroll = markerLeft - scrollWidth / 2;
-    scroll.scrollLeft = Math.max(0, targetScroll);
+    // offsetLeft рахує від найближчого позиційованого предка (.tl-axis), а не
+    // від .tl-scroll, тож пропускає 12px горизонтального паддінгу .tl-inner.
+    // getBoundingClientRect не залежить від offsetParent, тому центрування
+    // спрацьовує однаково й коли inner = 100% (мобілка, без скролу), і коли
+    // 760px (десктоп).
+    var sRect = scroll.getBoundingClientRect();
+    var mRect = marker.getBoundingClientRect();
+    var markerLeftInScroll = mRect.left - sRect.left + scroll.scrollLeft;
+    var target = markerLeftInScroll - scroll.clientWidth / 2;
+    var max = Math.max(0, scroll.scrollWidth - scroll.clientWidth);
+    scroll.scrollLeft = Math.max(0, Math.min(max, target));
   })();
 </script>
