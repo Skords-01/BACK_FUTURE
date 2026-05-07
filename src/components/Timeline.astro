@@ -137,7 +137,7 @@ const activeEraId = selectedYear
                 data-tip={d.tip}
                 aria-label={`Перейти до ${d.year}`}
               >
-                <span class="sr-only">{d.title}</span>
+                <span class="sr-only">Перейти до {d.year}</span>
               </a>
             ))
           }
@@ -183,14 +183,18 @@ const activeEraId = selectedYear
   .tl-scroll {
     position: relative;
     overflow-x: auto;
-    overflow-y: visible;
+    /* overflow-y must be clip (not visible) because mixing visible with
+       auto on the other axis forces both axes to auto, which clips tooltips
+       and era labels. clip allows visual overflow without scrollbar. */
+    overflow-y: clip;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     touch-action: pan-x;
     scrollbar-width: thin;
     scrollbar-color: var(--card-edge) transparent;
-    scroll-snap-type: x proximity;
     padding-bottom: 4px;
+    /* Extra top clearance so era labels and tooltip pills aren't clipped */
+    padding-top: 4px;
   }
   .tl-scroll:focus-visible {
     outline: 2px solid var(--accent-500);
