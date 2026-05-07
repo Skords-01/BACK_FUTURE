@@ -67,12 +67,12 @@ const serial = serialFromId(fact.id);
     </div>
 
     <h3
-      class="font-display text-ink-900 dark:text-ink-50 mt-4 text-3xl leading-[1.05] font-extrabold tracking-tight sm:text-4xl"
+      class="font-display text-ink-900 dark:text-ink-900 mt-4 text-3xl leading-[1.05] font-extrabold tracking-tight sm:text-4xl"
     >
       {fact.data.title}
     </h3>
 
-    <p class="text-ink-700 dark:text-ink-200 mt-4 max-w-prose text-lg leading-relaxed">
+    <p class="text-ink-700 dark:text-ink-700 mt-4 max-w-prose text-lg leading-relaxed">
       {fact.data.short}
     </p>
 
@@ -84,7 +84,7 @@ const serial = serialFromId(fact.id);
               <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
                 Було
               </dt>
-              <dd class="text-ink-700 dark:text-ink-200 text-sm leading-relaxed">
+              <dd class="text-ink-700 dark:text-ink-700 text-sm leading-relaxed">
                 {fact.data.before}
               </dd>
             </div>
@@ -100,7 +100,7 @@ const serial = serialFromId(fact.id);
               <dt class="text-accent-700 dark:text-accent-300 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
                 Стало
               </dt>
-              <dd class="text-ink-900 dark:text-ink-50 text-sm leading-relaxed">
+              <dd class="text-ink-900 dark:text-ink-900 text-sm leading-relaxed">
                 {fact.data.after}
               </dd>
             </div>
@@ -151,7 +151,7 @@ const serial = serialFromId(fact.id);
         </svg>
       </summary>
       <div
-        class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 dark:prose-invert dark:prose-a:text-accent-300 text-ink-800 dark:text-ink-200 mt-4 max-w-none"
+        class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 dark:prose-invert dark:prose-a:text-accent-300 text-ink-800 dark:text-ink-700 mt-4 max-w-none"
       >
         <Content />
       </div>
@@ -206,7 +206,7 @@ const serial = serialFromId(fact.id);
     {
       quote && (
         <blockquote class="border-accent-500 border-l-2 pl-4">
-          <p class="text-ink-800 dark:text-ink-100 font-display text-sm leading-snug italic">
+          <p class="text-ink-800 dark:text-ink-800 font-display text-sm leading-snug italic">
             «{quote.text}»
           </p>
           <footer class="text-ink-500 dark:text-ink-400 mt-1 font-mono text-[10px] tracking-wider uppercase">

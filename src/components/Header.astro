@@ -33,7 +33,7 @@ function isActive(href: string): boolean {
   <div class="container-wide flex items-center justify-between gap-3 py-4">
     <a
       href="/"
-      class="font-display text-ink-900 dark:text-ink-50 flex items-center gap-2 text-lg font-bold tracking-tight"
+      class="font-display text-ink-900 dark:text-ink-900 flex items-center gap-2 text-lg font-bold tracking-tight"
     >
       {SITE.name}
       <span
@@ -53,7 +53,7 @@ function isActive(href: string): boolean {
         class:list={[
           "hover:bg-ink-100 dark:hover:bg-ink-200 rounded-full px-3 py-1.5 transition",
           isActive("/metodologia/") &&
-            "bg-ink-100 text-ink-900 dark:bg-ink-200 dark:text-ink-900 font-medium",
+            "bg-ink-100 text-ink-900 dark:bg-ink-700 dark:text-ink-900 font-medium",
         ]}
         href="/metodologia/"
         aria-current={isActive("/metodologia/") ? "page" : undefined}
@@ -64,7 +64,7 @@ function isActive(href: string): boolean {
         class:list={[
           "hover:bg-ink-100 dark:hover:bg-ink-200 rounded-full px-3 py-1.5 transition",
           isActive("/about/") &&
-            "bg-ink-100 text-ink-900 dark:bg-ink-200 dark:text-ink-900 font-medium",
+            "bg-ink-100 text-ink-900 dark:bg-ink-700 dark:text-ink-900 font-medium",
         ]}
         href="/about/"
         aria-current={isActive("/about/") ? "page" : undefined}

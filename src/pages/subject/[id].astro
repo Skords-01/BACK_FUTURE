@@ -90,7 +90,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           </li>
           <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
           <li>
-            <span class="text-ink-700 dark:text-ink-200 font-medium" aria-current="page"
+            <span class="text-ink-700 dark:text-ink-700 font-medium" aria-current="page"
               >{subject.label}</span
             >
           </li>
@@ -107,17 +107,17 @@ const breadcrumbsLd: Record<string, unknown> = {
           <span>ПРЕДМЕТ</span>
         </span>
         <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
-        <span class="text-ink-600 dark:text-ink-300 font-mono text-xs tabular-nums">
+        <span class="text-ink-600 dark:text-ink-600 font-mono text-xs tabular-nums">
           {totalCount}
           {totalCount === 1 ? "факт" : "фактів"}
         </span>
       </p>
       <h1
-        class="font-display text-ink-900 dark:text-ink-50 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
+        class="font-display text-ink-900 dark:text-ink-900 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
       >
         {subject.label}
       </h1>
-      <p class="text-ink-700 dark:text-ink-200 mt-4 max-w-prose text-lg">
+      <p class="text-ink-700 dark:text-ink-700 mt-4 max-w-prose text-lg">
         Усе, що ми зібрали по предмету «{subject.label.toLowerCase()}», у одній стрічці. Сортовано
         за роком події — від найновішого до найстаршого.
       </p>
@@ -166,7 +166,7 @@ const breadcrumbsLd: Record<string, unknown> = {
     ) : (
       <section class="container-prose mt-12">
         <div class="border-ink-200 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border border-dashed bg-white p-8">
-          <p class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">
+          <p class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">
             Поки що по «{subject.label.toLowerCase()}» нічого немає.
           </p>
           <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
@@ -188,7 +188,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   <SupportBlock />
 
   <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">Інші предмети</h2>
+    <h2 class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">Інші предмети</h2>
     <div class="mt-4 grid gap-2 sm:grid-cols-2">
       {
         otherSubjects.map((s) => (
@@ -199,7 +199,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <span aria-hidden="true" class="text-2xl">
               {s.emoji}
             </span>
-            <span class="text-ink-800 dark:text-ink-100 font-medium">{s.label}</span>
+            <span class="text-ink-800 dark:text-ink-800 font-medium">{s.label}</span>
             <span class="text-ink-400 group-hover:text-accent-700 dark:group-hover:text-accent-300 ml-auto">
               →
             </span>

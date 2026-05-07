@@ -79,7 +79,7 @@ const markerLeft = selectedYear ? pct(selectedYear) : null;
               const width = Math.max(0, end - start);
               return (
                 <li
-                  class="era-label text-ink-500 dark:text-ink-300 absolute top-0 truncate font-mono text-[10px] tracking-wider uppercase"
+                  class="era-label text-ink-500 dark:text-ink-600 absolute top-0 truncate font-mono text-[10px] tracking-wider uppercase"
                   style={`left: ${start}%; width: ${width}%;`}
                   title={`${e.label} (${e.yearStart}–${e.yearEnd})`}
                 >
@@ -115,7 +115,7 @@ const markerLeft = selectedYear ? pct(selectedYear) : null;
               href={d.href}
               title={d.title}
               aria-label={d.title}
-              class={`dot absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 ${d.high ? "bg-accent-500 dot-high ring-paper-50 dark:ring-paper-50 size-2.5 ring-2" : "bg-ink-700 dark:bg-ink-300 size-1.5"}`}
+              class={`dot absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 ${d.high ? "bg-accent-500 dot-high ring-paper-50 dark:ring-paper-100 size-2.5 ring-2" : "bg-ink-700 dark:bg-ink-600 size-1.5"}`}
               style={`left: ${d.left}%; top: 50%;`}
             >
               <span class="sr-only">{d.title}</span>
@@ -146,7 +146,7 @@ const markerLeft = selectedYear ? pct(selectedYear) : null;
           tickYears.map((y) => (
             <div class="tick absolute top-0 bottom-0" style={`left: ${pct(y)}%;`}>
               <span class="tick-line bg-ink-300 dark:bg-ink-600 absolute top-0 left-0 h-2 w-px" />
-              <span class="text-ink-500 dark:text-ink-300 absolute top-3 left-0 -translate-x-1/2 font-mono text-[11px] whitespace-nowrap tabular-nums">
+              <span class="text-ink-500 dark:text-ink-600 absolute top-3 left-0 -translate-x-1/2 font-mono text-[11px] whitespace-nowrap tabular-nums">
                 {y}
               </span>
             </div>
@@ -156,7 +156,7 @@ const markerLeft = selectedYear ? pct(selectedYear) : null;
     </div>
   </div>
   <figcaption
-    class="text-ink-500 dark:text-ink-300 mt-3 px-1 font-mono text-[11px] tracking-wider uppercase"
+    class="text-ink-500 dark:text-ink-600 mt-3 px-1 font-mono text-[11px] tracking-wider uppercase"
   >
     {yearMin} → {yearMax} ·
     <span class="bg-accent-500 mx-1 inline-block size-2 rounded-full align-middle"></span>
