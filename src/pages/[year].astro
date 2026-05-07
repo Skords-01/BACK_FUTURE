@@ -32,6 +32,11 @@ const totalCount = matched.length;
 
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
 const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
+
+const neighborYears = [year - 5, year - 1, year + 1, year + 5].filter(
+  (y) => y >= SITE.yearMin && y <= SITE.yearMax && y !== year,
+);
+const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Факт під випуск ${year}`)}`;
 ---
 
 <Base title={`Випуск ${year}`} description={description} ogImage={ogImage}>
@@ -96,8 +101,33 @@ const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
       </section>
     ) : (
       <section class="container-prose mt-12">
-        <div class="border-ink-200 text-ink-600 rounded-3xl border border-dashed bg-white p-8 text-center">
-          Поки що для цього року немає підтверджених фактів у базі. Ми постійно додаємо нові.
+        <div class="border-ink-200 text-ink-700 rounded-3xl border border-dashed bg-white p-8 text-center">
+          <p class="font-display text-ink-900 text-xl font-bold">Поки що для цього року тихо.</p>
+          <p class="text-ink-600 mt-2 text-base">
+            Ми постійно додаємо факти. Спробуй сусідній рік — ера програм та сама, контент скоріш за
+            все підходить:
+          </p>
+          <div class="mt-5 flex flex-wrap justify-center gap-2">
+            {neighborYears.map((y) => (
+              <a
+                href={`/${y}.html`}
+                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex items-center rounded-full border bg-white px-4 py-1.5 font-mono text-sm font-medium tabular-nums transition"
+              >
+                {y}
+              </a>
+            ))}
+          </div>
+          <p class="text-ink-500 mt-5 text-sm">
+            Хочеш, щоб ми додали факт під цей рік?{" "}
+            <a
+              href={issueUrl}
+              class="text-accent-700 hover:text-accent-800 underline-offset-2 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Запропонуй у GitHub
+            </a>
+          </p>
         </div>
       </section>
     )
