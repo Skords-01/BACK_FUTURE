@@ -11,9 +11,9 @@ export default defineConfig({
   output: "static",
   build: {
     inlineStylesheets: "auto",
-    format: "file",
+    format: "directory",
   },
-  trailingSlash: "never",
+  trailingSlash: "ignore",
   vite: {
     plugins: [tailwindcss()],
   },

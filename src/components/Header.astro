@@ -18,6 +18,9 @@ const factsLabel = pluralizeFacts(factsCount);
 
 const path = Astro.url.pathname;
 function isActive(href: string): boolean {
+  // Normalize both sides so a clean URL `/about/` matches `/about` or
+  // `/about.html`. We strip the optional `.html` extension and then any
+  // trailing slash, leaving a bare path comparable across formats.
   const normalized = href.replace(/\.html$/, "").replace(/\/$/, "");
   const current = path.replace(/\.html$/, "").replace(/\/$/, "");
   return current === normalized;
@@ -49,22 +52,22 @@ function isActive(href: string): boolean {
       <a
         class:list={[
           "hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5",
-          isActive("/metodologia.html") &&
+          isActive("/metodologia/") &&
             "bg-ink-100 text-ink-900 dark:bg-ink-800 dark:text-ink-50 font-medium",
         ]}
-        href="/metodologia.html"
-        aria-current={isActive("/metodologia.html") ? "page" : undefined}
+        href="/metodologia/"
+        aria-current={isActive("/metodologia/") ? "page" : undefined}
       >
         Методологія
       </a>
       <a
         class:list={[
           "hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5",
-          isActive("/about.html") &&
+          isActive("/about/") &&
             "bg-ink-100 text-ink-900 dark:bg-ink-800 dark:text-ink-50 font-medium",
         ]}
-        href="/about.html"
-        aria-current={isActive("/about.html") ? "page" : undefined}
+        href="/about/"
+        aria-current={isActive("/about/") ? "page" : undefined}
       >
         Про проєкт
       </a>

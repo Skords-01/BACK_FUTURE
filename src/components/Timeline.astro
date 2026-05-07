@@ -58,7 +58,7 @@ const dots: Dot[] = facts
     left: pct(f.data.yearOfEvent),
     high: f.data.impact === "high",
     title: `${f.data.yearOfEvent}: ${f.data.title}`,
-    href: `/${f.data.yearOfEvent}.html`,
+    href: `/${f.data.yearOfEvent}/`,
   }));
 
 const markerLeft = selectedYear ? pct(selectedYear) : null;
