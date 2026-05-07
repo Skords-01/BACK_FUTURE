@@ -225,19 +225,16 @@ const activeEraId = selectedYear
   /* ---- Inner sizing ---- */
   .tl-inner {
     position: relative;
-    /* Mobile-first: пасує під ширину контейнера, без зайвого скролу праворуч.
-       На вузьких екранах (~360–390px) 35 років комфортно живуть у ~330px. */
-    min-width: 100%;
-    /* Horizontal padding so leftmost/rightmost dots aren't clipped */
-    padding: 32px 12px 36px;
+    /* Мінімальна ширина шкали «розгорнутої» осі: 35 років × ~21px на рік +
+       паддінги. На мобілці це ввімкне горизонтальний скрол у .tl-scroll, їнакше
+       130 фактів зливаються в суцільну стрічку. Порожній хвіст скролу
+       прибирається фіксом edge-label з PR #79 (якірвання підписів до краю). */
+    min-width: 760px;
+    /* Horizontal padding so leftmost/rightmost dots aren't clipped.
+       padding-top більше за висоту «виліту» tl-marker-label (~28+20px), інакше
+       бейдж «BИПУСК YYYY» обрізається overflow-y: clip на .tl-scroll. */
+    padding: 56px 12px 36px;
     box-sizing: border-box;
-  }
-  @media (min-width: 768px) {
-    .tl-inner {
-      /* На десктопі лишаємо «розгорнутий» вигляд із горизонтальним скролом
-         усередині контейнера, щоб точки не зливались. */
-      min-width: 760px;
-    }
   }
 
   /* ---- Era labels (above bands) ---- */
@@ -246,7 +243,9 @@ const activeEraId = selectedYear
     margin: 0;
     padding: 0;
     position: absolute;
-    top: 0;
+    /* sit нижче за tl-marker-label (~y=8-25 of inner), щоб бейдж «ВИПУСК YYYY»
+       мав чистий ряд згори, а назви ер не клипались за нього. */
+    top: 28px;
     left: 0;
     right: 0;
     height: 24px;
@@ -275,8 +274,8 @@ const activeEraId = selectedYear
   /* ---- Era bands ---- */
   .tl-bands {
     position: absolute;
-    /* align with the axis: top = era-labels-height + gap = 32px, bottom = 36px */
-    top: 32px;
+    /* align with the axis: top = inner padding-top (56px), bottom = 36px */
+    top: 56px;
     bottom: 36px;
     left: 0;
     right: 0;
