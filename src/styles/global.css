@@ -17,9 +17,9 @@
        utility → --color-{name} → --{name} → final hex (in :root / html.dark)
 */
 @theme {
-  --font-display: "Unbounded", "Geist", "Inter", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
   --font-body: "Geist", "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "DM Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   --color-paper-50: var(--paper);
   --color-paper-100: var(--paper-2);

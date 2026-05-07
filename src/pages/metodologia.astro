@@ -6,13 +6,13 @@ import { ERAS } from "../lib/eras";
 <Base title="Методологія">
   <section class="container-prose pt-16">
     <h1
-      class="font-display text-ink-900 dark:text-ink-50 text-4xl font-extrabold tracking-tight sm:text-5xl"
+      class="font-display text-ink-900 dark:text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl"
     >
       Методологія
     </h1>
 
     <div
-      class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-200 mt-8 max-w-none"
+      class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-700 mt-8 max-w-none"
     >
       <h2>Як ми обираємо факти</h2>
       <ol>
@@ -39,8 +39,8 @@ import { ERAS } from "../lib/eras";
         {
           ERAS.map((e) => (
             <li class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4">
-              <div class="font-display text-ink-900 dark:text-ink-50 font-bold">{e.label}</div>
-              <div class="text-ink-600 dark:text-ink-300 mt-1 text-sm">{e.summary}</div>
+              <div class="font-display text-ink-900 dark:text-ink-900 font-bold">{e.label}</div>
+              <div class="text-ink-600 dark:text-ink-600 mt-1 text-sm">{e.summary}</div>
             </li>
           ))
         }

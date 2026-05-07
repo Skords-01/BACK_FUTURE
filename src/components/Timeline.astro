@@ -1,20 +1,17 @@
 ---
 /**
- * Horizontal cream-paper timeline 1991 → SITE.yearMax (2026 by build).
+ * Horizontal cream-paper timeline 1991 → SITE.yearMax.
  *
- * - Renders five era bands as backdrop "tape", labelled discreetly above.
- * - Plots fact dots over their `yearOfEvent`. `impact:high` dots are larger
- *   and tomato-coloured; the rest are quiet ink ticks.
- * - When `selectedYear` is provided, draws an emphatic vertical marker
- *   labelled "ВИПУСК {year}".
- * - On phones the band scrolls horizontally with `min-width: 760px`,
- *   keeping the layout legible without cramming.
- *
- * Props:
- *   - selectedYear?: number — graduation year highlighted with marker.
- *   - facts?: Fact[] — fact entries used to plot dots.
- *
- * No client-side JS required: everything is layout-only.
+ * Redesigned to match the mockup:
+ * - Taller inner padding so dots/marker have breathing room
+ * - Dots: 10px with `border: 2px solid var(--paper)` — look "placed" on the axis
+ * - High-impact dots: 14px, amber/hl glow ring
+ * - Axis: 2px height, rounded, ink-6/card-edge colour
+ * - Major ticks (every 5y) vs minor ticks (every year)
+ * - Marker: vertical line with circle cap + label above
+ * - CSS ::after tooltip on hover (hidden on touch devices)
+ * - Era bands: dashed right-border separators, active band highlights
+ * - Mobile: overflow-x scroll with snap, touch-action: pan-x
  */
 import { ERAS } from "../lib/eras";
 import { SITE } from "../config/site";
@@ -23,7 +20,6 @@ import type { Fact } from "../lib/filterFacts";
 interface Props {
   selectedYear?: number;
   facts?: readonly Fact[];
-  /** Hide era labels above bands (compact mode for small embeds). */
   compact?: boolean;
 }
 
@@ -33,17 +29,13 @@ const yearMin = SITE.yearMin;
 const yearMax = SITE.yearMax;
 const span = Math.max(1, yearMax - yearMin);
 
-// Generic position-as-percent helper. We add a half-year shift so each
-// year-cell visually sits on its own slot rather than at the seam.
 const pct = (y: number): number => ((y - yearMin + 0.5) / (span + 1)) * 100;
 
-// Year ticks — every 5 years for legibility, plus first and last.
-const tickYears: number[] = [];
-for (let y = yearMin; y <= yearMax; y++) {
-  if (y === yearMin || y === yearMax || y % 5 === 0) tickYears.push(y);
-}
+// Ticks: major every 5 years, minor every year
+const allYears: number[] = [];
+for (let y = yearMin; y <= yearMax; y++) allYears.push(y);
+const majorTicks = allYears.filter((y) => y === yearMin || y === yearMax || y % 5 === 0);
 
-// Plot fact dots. Only published, non-draft facts contribute.
 type Dot = {
   year: number;
   left: number;
@@ -62,28 +54,34 @@ const dots: Dot[] = facts
   }));
 
 const markerLeft = selectedYear ? pct(selectedYear) : null;
+
+// Which era is the selected year in?
+const activeEraId = selectedYear
+  ? ERAS.find((e) => selectedYear >= e.yearStart && selectedYear <= e.yearEnd)?.id
+  : null;
 ---
 
 <figure
   class="timeline-figure not-prose mt-6 mb-2 sm:mt-8"
   aria-label={`Шкала років від ${yearMin} до ${yearMax}`}
 >
-  <div class="timeline-scroll relative overflow-x-auto pb-3" tabindex="0">
-    <div class="timeline relative" style={`min-width: 760px; --span: ${span + 1};`}>
+  <!-- Outer scroll wrapper -->
+  <div class="tl-scroll" tabindex="0" role="region" aria-label="Таймлайн (горизонтальний скрол)">
+    <div class="tl-inner" style={`--span: ${span + 1};`}>
+      <!-- Era band labels -->
       {
         !compact && (
-          <ol class="era-labels relative mb-2 grid h-5 select-none">
+          <ol class="tl-era-labels" aria-hidden="true">
             {ERAS.map((e) => {
               const start = ((e.yearStart - yearMin) / (span + 1)) * 100;
-              const end = ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100;
-              const width = Math.max(0, end - start);
+              const width = Math.max(0, ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100 - start);
               return (
                 <li
-                  class="era-label text-ink-500 dark:text-ink-300 absolute top-0 truncate font-mono text-[10px] tracking-wider uppercase"
+                  class={`tl-era-label${e.id === activeEraId ? " is-active" : ""}`}
                   style={`left: ${start}%; width: ${width}%;`}
                   title={`${e.label} (${e.yearStart}–${e.yearEnd})`}
                 >
-                  Ера {e.id}
+                  {e.label.split(" ")[0]}
                 </li>
               );
             })}
@@ -91,138 +89,413 @@ const markerLeft = selectedYear ? pct(selectedYear) : null;
         )
       }
 
-      <!-- Era bands (cream-tape backdrop) + fact dots in the same layer. -->
-      <div class="bands relative h-9 rounded-md">
+      <!-- Era bands: dashed separators -->
+      <div class="tl-bands" aria-hidden="true">
         {
           ERAS.map((e) => {
             const start = ((e.yearStart - yearMin) / (span + 1)) * 100;
-            const end = ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100;
-            const width = Math.max(0, end - start);
+            const width = Math.max(0, ((e.yearEnd + 1 - yearMin) / (span + 1)) * 100 - start);
             return (
               <div
-                class={`band absolute top-0 bottom-0 era-band-${e.id}`}
+                class={`tl-band era-${e.id}${e.id === activeEraId ? " is-active" : ""}`}
                 style={`left: ${start}%; width: ${width}%;`}
-                aria-hidden="true"
               />
             );
           })
         }
-
-        <!-- Fact dots inside bands so they're vertically centred on the stripe. -->
-        {
-          dots.map((d) => (
-            <a
-              href={d.href}
-              title={d.title}
-              aria-label={d.title}
-              class={`dot absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition focus-visible:outline-2 focus-visible:outline-offset-2 ${d.high ? "bg-accent-500 dot-high ring-paper-50 dark:ring-paper-50 size-2.5 ring-2" : "bg-ink-700 dark:bg-ink-300 size-1.5"}`}
-              style={`left: ${d.left}%; top: 50%;`}
-            >
-              <span class="sr-only">{d.title}</span>
-            </a>
-          ))
-        }
-
-        <!-- Selected-year marker inside bands for correct vertical alignment. -->
-        {
-          markerLeft !== null && (
-            <div
-              class="marker absolute top-0 bottom-0"
-              style={`left: ${markerLeft}%;`}
-              aria-hidden="true"
-            >
-              <span class="marker-line bg-accent-500 absolute top-0 bottom-0 left-1/2 w-0.5 -translate-x-1/2 rounded-full" />
-              <span class="marker-flag bg-accent-500 absolute -top-6 left-1/2 -translate-x-1/2 rounded-full px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider whitespace-nowrap text-white uppercase">
-                ВИПУСК {selectedYear}
-              </span>
-            </div>
-          )
-        }
       </div>
 
-      <!-- Year ruler (ticks + numbers). -->
-      <div class="ruler relative mt-1 h-7" aria-hidden="true">
-        {
-          tickYears.map((y) => (
-            <div class="tick absolute top-0 bottom-0" style={`left: ${pct(y)}%;`}>
-              <span class="tick-line bg-ink-300 dark:bg-ink-600 absolute top-0 left-0 h-2 w-px" />
-              <span class="text-ink-500 dark:text-ink-300 absolute top-3 left-0 -translate-x-1/2 font-mono text-[11px] whitespace-nowrap tabular-nums">
-                {y}
-              </span>
-            </div>
-          ))
-        }
+      <!-- Axis -->
+      <div class="tl-axis-wrap" aria-hidden="true">
+        <div class="tl-axis">
+          <!-- Minor ticks (every year, no label) -->
+          {
+            allYears.map(
+              (y) => !majorTicks.includes(y) && <div class="tl-tick" style={`left: ${pct(y)}%;`} />,
+            )
+          }
+          <!-- Major ticks (every 5y, with label) -->
+          {
+            majorTicks.map((y) => (
+              <div class="tl-tick tl-tick--major" style={`left: ${pct(y)}%;`}>
+                <span class="tl-tick-label">{y}</span>
+              </div>
+            ))
+          }
+
+          <!-- Fact dots ON the axis -->
+          {
+            dots.map((d) => (
+              <a
+                href={d.href}
+                class={`tl-dot${d.high ? " tl-dot--high" : ""}`}
+                style={`left: ${d.left}%;`}
+                data-tip={d.title}
+                aria-label={d.title}
+              >
+                <span class="sr-only">{d.title}</span>
+              </a>
+            ))
+          }
+
+          <!-- Selected year marker -->
+          {
+            markerLeft !== null && (
+              <div class="tl-marker" style={`left: ${markerLeft}%;`} aria-hidden="true">
+                <span class="tl-marker-line" />
+                <span class="tl-marker-cap" />
+                <span class="tl-marker-label">ВИПУСК {selectedYear}</span>
+              </div>
+            )
+          }
+        </div>
       </div>
     </div>
   </div>
-  <figcaption
-    class="text-ink-500 dark:text-ink-300 mt-3 px-1 font-mono text-[11px] tracking-wider uppercase"
-  >
-    {yearMin} → {yearMax} ·
-    <span class="bg-accent-500 mx-1 inline-block size-2 rounded-full align-middle"></span>
-    переломні факти
+
+  <!-- Legend -->
+  <figcaption class="tl-legend" aria-hidden="true">
+    <span>
+      <span class="tl-swatch"></span>
+      усі факти
+    </span>
+    <span>
+      <span class="tl-swatch tl-swatch--high"></span>
+      переломні
+    </span>
+    {
+      selectedYear && (
+        <span>
+          <span class="tl-swatch tl-swatch--year" />
+          твій рік
+        </span>
+      )
+    }
   </figcaption>
 </figure>
 
 <style>
-  /* Era band tints — five subtle warm shades layered on cream paper. */
-  .era-band-1 {
-    background: color-mix(in srgb, var(--paper-3) 65%, transparent);
+  /* ---- Scroll container ---- */
+  .tl-scroll {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-edge) transparent;
+    scroll-snap-type: x proximity;
+    padding-bottom: 4px;
   }
-  .era-band-2 {
-    background: color-mix(in srgb, var(--paper-2) 85%, transparent);
+  .tl-scroll:focus-visible {
+    outline: 2px solid var(--accent-500);
+    outline-offset: 3px;
+    border-radius: 10px;
   }
-  .era-band-3 {
-    background: color-mix(in srgb, var(--paper-3) 80%, transparent);
+  .tl-scroll::-webkit-scrollbar {
+    height: 4px;
   }
-  .era-band-4 {
-    background: color-mix(in srgb, var(--paper-2) 70%, transparent);
+  .tl-scroll::-webkit-scrollbar-thumb {
+    background: var(--card-edge);
+    border-radius: 4px;
   }
-  .era-band-5 {
-    background: color-mix(in srgb, var(--accent-100) 55%, transparent);
+
+  /* ---- Inner sizing ---- */
+  .tl-inner {
+    position: relative;
+    min-width: 760px;
+    /* top space: era labels (24px) + gap (8px) = 32px
+       bottom space: axis (2px) + ticks (16px) + labels (18px) = 36px */
+    padding: 32px 0 36px;
   }
-  /* Dark mode: paper tokens are darker than background, so use light cream
-     tints instead to keep era bands subtly distinguishable. */
-  :global(html.dark) .era-band-1 {
-    background: color-mix(in srgb, var(--ink-900) 4%, transparent);
+
+  /* ---- Era labels (above bands) ---- */
+  .tl-era-labels {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    pointer-events: none;
+    user-select: none;
   }
-  :global(html.dark) .era-band-2 {
-    background: color-mix(in srgb, var(--ink-900) 7%, transparent);
+  .tl-era-label {
+    position: absolute;
+    top: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-400, #8f7a54);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 6px;
+    transition: color 0.15s;
   }
-  :global(html.dark) .era-band-3 {
-    background: color-mix(in srgb, var(--ink-900) 5%, transparent);
+  .tl-era-label.is-active {
+    color: var(--accent-500, #b9381a);
+    font-weight: 600;
   }
-  :global(html.dark) .era-band-4 {
-    background: color-mix(in srgb, var(--ink-900) 9%, transparent);
+
+  /* ---- Era bands ---- */
+  .tl-bands {
+    position: absolute;
+    /* align with the axis: top = era-labels-height + gap = 32px, bottom = 36px */
+    top: 32px;
+    bottom: 36px;
+    left: 0;
+    right: 0;
+    pointer-events: none;
   }
-  :global(html.dark) .era-band-5 {
-    background: color-mix(in srgb, var(--accent-500) 13%, transparent);
+  .tl-band {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-right: 1px dashed var(--rule);
+    transition: background 0.2s;
   }
-  .bands {
-    box-shadow: inset 0 0 0 1px var(--card-edge);
-    overflow: visible; /* щоб dots/marker не обрізались */
+  .tl-band:last-child {
+    border-right: none;
   }
-  /* Dots і marker мають бути поверх band-підкладок. */
-  .dot {
+  .tl-band.is-active {
+    background: color-mix(in srgb, var(--accent-500) 8%, transparent);
+  }
+
+  /* ---- Axis wrapper (positions axis in the middle of padding) ---- */
+  .tl-axis-wrap {
+    position: relative;
+  }
+  .tl-axis {
+    position: relative;
+    height: 2px;
+    background: var(--card-edge);
+    border-radius: 2px;
+    overflow: visible;
+  }
+
+  /* ---- Ticks ---- */
+  .tl-tick {
+    position: absolute;
+    top: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 8px;
+    background: var(--ink-300, #6b5938);
+    margin-top: -4px;
+  }
+  .tl-tick--major {
+    width: 1.5px;
+    height: 14px;
+    background: var(--ink-500, #b09a72);
+    margin-top: -7px;
+  }
+  .tl-tick-label {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-500, #b09a72);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+
+  /* ---- Fact dots ---- */
+  .tl-dot {
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ink-600, #c4b898);
+    border: 2px solid var(--paper, #f3ecdc);
+    transform: translate(-50%, -50%);
     z-index: 2;
+    cursor: pointer;
+    transition:
+      transform 0.15s,
+      background 0.15s;
+    display: block;
   }
-  .marker {
+  .tl-dot:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    background: var(--accent-500, #b9381a);
+    z-index: 4;
+  }
+  .tl-dot--high {
+    width: 14px;
+    height: 14px;
+    background: var(--hl, #d97706);
+    border-color: var(--paper, #f3ecdc);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hl) 28%, transparent);
     z-index: 3;
   }
-  /* Smooth scroll affordance on touch.
-     overscroll-behavior-x: contain — тягнення таймлайну не скролює сторінку. */
-  .timeline-scroll {
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    overscroll-behavior-x: contain;
+  .tl-dot--high:hover {
+    background: var(--hl, #d97706);
+    transform: translate(-50%, -50%) scale(1.35);
   }
-  .timeline-scroll:focus-visible {
-    outline: 2px solid var(--accent-500);
-    outline-offset: 2px;
+
+  /* Tooltip via CSS ::after — hidden on touch */
+  .tl-dot[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink-900, #1a1813);
+    color: var(--paper, #f3ecdc);
+    padding: 6px 10px;
     border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    line-height: 1.4;
+    white-space: normal;
+    text-align: center;
+    max-width: 240px;
+    min-width: 120px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s;
+    z-index: 10;
   }
-  /* Hover bumps for high-impact dots — quiet, no animation thrash. */
-  .dot.dot-high:hover {
-    transform: translate(-50%, -50%) scale(1.2);
+  .tl-dot:hover[data-tip]::after,
+  .tl-dot:focus-visible[data-tip]::after {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .tl-dot[data-tip]::after {
+      display: none;
+    }
+  }
+
+  /* ---- Marker ---- */
+  .tl-marker {
+    position: absolute;
+    top: -28px;
+    bottom: -10px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 5;
+    width: 0;
+  }
+  .tl-marker-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background: var(--accent-500, #b9381a);
+    border-radius: 2px;
+  }
+  .tl-marker-cap {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-500, #b9381a);
+    border: 2px solid var(--paper, #f3ecdc);
+  }
+  .tl-marker-label {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--paper, #f3ecdc);
+    background: var(--accent-500, #b9381a);
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* ---- Legend ---- */
+  .tl-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-left: 2px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-500, #b09a72);
+    user-select: none;
+  }
+  .tl-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tl-swatch {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ink-600, #c4b898);
+    border: 2px solid var(--paper, #f3ecdc);
+    flex-shrink: 0;
+  }
+  .tl-swatch--high {
+    width: 12px;
+    height: 12px;
+    background: var(--hl, #d97706);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--hl) 28%, transparent);
+  }
+  .tl-swatch--year {
+    background: var(--accent-500, #b9381a);
+    border-color: var(--paper, #f3ecdc);
+  }
+
+  /* ---- Dark mode overrides ---- */
+  :global(html.dark) .tl-band.is-active {
+    background: color-mix(in srgb, var(--accent-500) 12%, transparent);
+  }
+  :global(html.dark) .tl-dot {
+    border-color: var(--paper, #2a2218);
+  }
+  :global(html.dark) .tl-dot--high {
+    border-color: var(--paper, #2a2218);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hl) 32%, transparent);
+  }
+  :global(html.dark) .tl-marker-cap,
+  :global(html.dark) .tl-swatch,
+  :global(html.dark) .tl-swatch--year {
+    border-color: var(--paper, #2a2218);
+  }
+  :global(html.dark) .tl-dot[data-tip]::after {
+    background: var(--ink-900, #f0e8d2);
+    color: var(--paper, #2a2218);
+  }
+
+  /* ---- Mobile sizing ---- */
+  @media (max-width: 640px) {
+    .tl-dot {
+      width: 12px;
+      height: 12px;
+    }
+    .tl-dot--high {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  /* ---- Reduced motion ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .tl-dot {
+      transition: none;
+    }
   }
 </style>
