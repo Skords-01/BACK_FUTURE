@@ -142,7 +142,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   jsonLd={[articleLd, breadcrumbsLd]}
 >
   <section class="ruled-hero">
-    <div class="container-prose pt-12 pb-12 sm:pt-16">
+    <div class="container-prose pt-8 pb-10 sm:pt-14 sm:pb-12">
       <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
         <ol class="flex flex-wrap items-center gap-1.5">
           <li>
@@ -187,7 +187,8 @@ const breadcrumbsLd: Record<string, unknown> = {
         >
       </p>
       <h1
-        class="font-display text-ink-900 dark:text-ink-900 mt-3 text-4xl leading-[1.02] font-extrabold tracking-tight sm:text-5xl"
+        class="font-display text-ink-900 dark:text-ink-900 mt-3 leading-[1.05] font-bold tracking-tight"
+        style="font-size: clamp(2rem, 7vw, 3.5rem);"
       >
         {
           totalCount > 0 ? (
