@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import SubjectIcon from "../components/SubjectIcon.astro";
 import SupportBlock from "../components/SupportBlock.astro";
 import ShareBlock from "../components/ShareBlock.astro";
 import Timeline from "../components/Timeline.astro";
@@ -459,7 +460,7 @@ const breadcrumbsLd: Record<string, unknown> = {
                     <div>
                       {meta && (
                         <p class="text-ink-500 dark:text-ink-400 mb-1.5 flex items-center gap-1.5 text-xs">
-                          <span aria-hidden="true">{meta.emoji}</span>
+                          <SubjectIcon subject={meta.id} />
                           <span>{meta.label}</span>
                         </p>
                       )}

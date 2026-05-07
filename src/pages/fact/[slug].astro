@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import SubjectIcon from "../../components/SubjectIcon.astro";
 import SupportBlock from "../../components/SupportBlock.astro";
 import { SITE, SUBJECTS } from "../../config/site";
 import { eraById } from "../../lib/eras";
@@ -151,7 +152,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           href={`/subject/${subject.id}/`}
           class="bg-accent-50 text-accent-700 hover:bg-accent-100 dark:bg-accent-900/40 dark:text-accent-200 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs uppercase transition"
         >
-          <span aria-hidden="true">{subject.emoji}</span>
+          <SubjectIcon subject={subject.id} />
           <span>{subject.label}</span>
         </a>
         <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
