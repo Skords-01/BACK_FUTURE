@@ -37,7 +37,7 @@ jobs:
             --no-progress
             --root-dir "$GITHUB_WORKSPACE/dist"
             --exclude "https://back-future.example.com/.*"
+            --exclude-path './dist/.*\.html'
+            --exclude-path './content/.*'
             './README.md'
             './docs/**/*.md'
-            './content/**/*.md'
-            './dist/**/*.html'
