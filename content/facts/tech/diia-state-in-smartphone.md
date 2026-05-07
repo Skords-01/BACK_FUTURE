@@ -15,6 +15,9 @@ sources:
     url: "https://zakon.rada.gov.ua/laws/show/1962-20"
   - title: "BBC: How Ukraine became a digital state during the war"
     url: "https://www.bbc.com/news/world-europe-67268604"
+quote:
+  text: "Уявити українську державу без «Дії» сьогодні так само складно, як уявити її без національної валюти"
+  author: "Михайло Федоров, віцепрем'єр-міністр, на International Government Communication Forum 2023"
 tags: ["україна", "Дія", "електронні-послуги", "держава"]
 draft: false
 ---

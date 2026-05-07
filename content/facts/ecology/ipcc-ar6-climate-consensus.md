@@ -15,6 +15,9 @@ sources:
     url: "https://www.nature.com/articles/d41586-021-02180-8"
   - title: "UN Secretary-General António Guterres on AR6"
     url: "https://www.un.org/sg/en/content/sg/statement/2021-08-09/secretary-generals-statement-the-ipcc-working-group-1-report-the-physical-science-basis-of-the-sixth-assessment"
+quote:
+  text: "Звіт IPCC AR6 — це червоний код для людства. Алярм оглушливий, докази незаперечні"
+  author: "Антоніо Гутерреш, Генеральний секретар ООН, 9 серпня 2021"
 tags: ["IPCC", "клімат", "наука", "звіт", "AR6"]
 draft: false
 ---

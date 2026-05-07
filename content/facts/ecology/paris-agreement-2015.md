@@ -15,6 +15,9 @@ sources:
     url: "https://www.ipcc.ch/sr15/"
   - title: "UNFCCC: Global Stocktake Synthesis Report (2023)"
     url: "https://unfccc.int/topics/global-stocktake"
+quote:
+  text: "Це не велика угода — це історична угода. Перший справді глобальний договір про клімат, який містить мету, яку ми зобов'язалися досягти"
+  author: "Бан Кі-Мун, Генсек ООН, 12 грудня 2015"
 tags: ["клімат", "COP21", "Париж", "1.5°C", "NDC"]
 draft: false
 ---

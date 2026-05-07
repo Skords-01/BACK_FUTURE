@@ -15,6 +15,9 @@ sources:
     url: "https://www.unesco.org/en/articles/kakhovka-dam-destruction-impacts-unescos-world-heritage-property"
   - title: "Nature 2023: The Kakhovka dam disaster — what damage and how it was caused"
     url: "https://www.nature.com/articles/d41586-023-01829-w"
+quote:
+  text: "Цей злочин — це екоцид. Російські терористи знищили не лише ГЕС, але й мільйони гектарів унікальних екосистем, тисячі тварин, життя сотень людей. Це найбільша рукотворна екологічна катастрофа в Європі за десятиліття"
+  author: "Володимир Зеленський, звернення 6 червня 2023"
 tags: ["Каховська ГЕС", "Дніпро", "війна", "екоцид", "Чорноморський заповідник"]
 draft: false
 ---
