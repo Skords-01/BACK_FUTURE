@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import FactCard from "../../components/FactCard.astro";
+import SubjectIcon from "../../components/SubjectIcon.astro";
 import SupportBlock from "../../components/SupportBlock.astro";
 import { getCollection } from "astro:content";
 import { factsForEra, groupBySubject } from "../../lib/filterFacts";
@@ -141,7 +142,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               href={`#subject-${g.subject}`}
               class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex shrink-0 items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap transition"
             >
-              <span aria-hidden="true">{g.emoji}</span>
+              <SubjectIcon subject={g.subject} class="text-accent-700" />
               <span>{g.label}</span>
               <span class="text-ink-500 font-mono text-xs tabular-nums">{g.items.length}</span>
             </a>
@@ -156,10 +157,11 @@ const breadcrumbsLd: Record<string, unknown> = {
       <section class="container-prose">
         {groups.map((g) => (
           <section id={`subject-${g.subject}`} class="mt-12 scroll-mt-20">
-            <header class="mb-5 flex items-baseline gap-3">
-              <span class="text-3xl" aria-hidden="true">
-                {g.emoji}
-              </span>
+            <header class="mb-5 flex items-center gap-3">
+              <SubjectIcon
+                subject={g.subject}
+                class="text-accent-700 dark:text-accent-300 text-3xl"
+              />
               <h2 class="font-display text-ink-900 dark:text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
                 {g.label}
               </h2>

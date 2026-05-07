@@ -1,0 +1,61 @@
+---
+/**
+ * SubjectIcon — SVG glyph for one of the 11 subjects.
+ *
+ * Замінює emoji, що рендеряться по-різному на різних платформах і випадають
+ * кольоровою плямою на нашому кремовому папері. Гліфи:
+ *   - 24×24 viewBox, stroke-based, `currentColor` — ловлять поточний `text-*`
+ *     колір (accent-700 у пігулках, ink-700 у списках).
+ *   - `aria-hidden` за замовчуванням, бо поряд завжди стоїть текстовий
+ *     лейбл (label / mark). Якщо потрібен самостійний значок — передай
+ *     `label="Астрономія"` і компонент стане `role="img"` з `<title>`.
+ *
+ * `emoji` в `SUBJECTS` лишається як друге дно для `og.ts` (resvg рендерить
+ * його зі системних шрифтів) і потенційного дегрейду — ця заміна тільки
+ * для UI.
+ */
+import type { SubjectId } from "../config/site";
+import { SUBJECT_ICON_PATHS } from "../lib/subjectIcons";
+
+interface Props {
+  subject: SubjectId;
+  /** Visible accessible label. If omitted, the icon is decorative. */
+  label?: string;
+  /** Square size in CSS units. Defaults to 1em so icon scales with text. */
+  size?: number | string;
+  /** Extra classes appended to the root `<svg>`. */
+  class?: string;
+}
+
+const { subject, label, size = "1em", class: className = "" } = Astro.props;
+
+const titleId = label ? `subject-icon-${subject}-${Math.random().toString(36).slice(2, 8)}` : null;
+const innerSvg = SUBJECT_ICON_PATHS[subject];
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.75"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class:list={["subject-icon shrink-0", className]}
+  role={label ? "img" : undefined}
+  aria-hidden={label ? undefined : "true"}
+  aria-labelledby={titleId ?? undefined}
+  data-subject={subject}
+>
+  {label && titleId && <title id={titleId}>{label}</title>}
+  <Fragment set:html={innerSvg} />
+</svg>
+
+<style>
+  .subject-icon {
+    display: inline-block;
+    vertical-align: -0.125em;
+  }
+</style>

@@ -291,6 +291,14 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 - [#50](https://github.com/Skords-01/BACK_FUTURE/pull/50) — окремий markdownlint-конфіг для `content/facts/`.
 - [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) — перші 5 задач: `/era/[slug]`, `/fact/[slug]`, фільтри року (`subject`, `era`, `region`, `impact`), розширення `SUBJECTS` до 11 і warning-only Lychee-крок для зовнішніх fact source URL.
 
+### Сесія 13 — Фаза 8.1: SVG-іконки предметів
+
+- Додано `src/lib/subjectIcons.ts` — реєстр з 11 inline-SVG path-сетами (24×24, stroke-only, `currentColor`). Гліфи: Saturn, ДНК-спіраль, глобус, скрол, атом, мікрочіп, ЕКГ-крива, барчарт, відкрита книга, кубок, лист.
+- Додано `<SubjectIcon>` (`src/components/SubjectIcon.astro`) — обгортка над реєстром: робить `<svg viewBox="0 0 24 24">`, виставляє `aria-hidden` за замовчуванням і `role="img"` + `<title>` коли передано `label`. Розмір — `1em`, тож наслідує `text-*`.
+- Замінено emoji-плейсхолдери на `<SubjectIcon>` у `src/pages/[year].astro` (тізери), `src/pages/subject/[id].astro` (хедер + «Інші предмети»), `src/pages/era/[slug].astro` (sticky-чіпи + sub-headers), `src/pages/fact/[slug].astro` (бейдж предмета) і `src/components/SubjectSection.astro` (хедер секції; пропс `emoji` прибрано — компонент тепер бере знак сам).
+- `SUBJECTS[].emoji` лишається для `src/lib/og.ts` (resvg рендерить його зі системних шрифтів) і потенційного дегрейду; `groupBySubject` теж не чіпали — поле в публічному API.
+- Юніт-тести: `src/lib/subjectIcons.test.ts` перевіряє, що 1) реєстр співпадає з `SUBJECTS` 1:1, 2) кожен запис містить хоча б одну SVG-фігуру, 3) ніхто не вкладає `<svg>` усередину, 4) `subjectIconPaths()` — тонка обгортка над реєстром.
+
 ---
 
 ## 8. Відкриті питання й відкладені рішення

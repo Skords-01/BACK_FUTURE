@@ -1,21 +1,21 @@
 ---
 import FactCard from "./FactCard.astro";
+import SubjectIcon from "./SubjectIcon.astro";
 import type { Fact } from "../lib/filterFacts";
 import type { SubjectId } from "../config/site";
 
 interface Props {
   subjectId: SubjectId;
-  emoji: string;
   label: string;
   items: Fact[];
 }
 
-const { subjectId, emoji, label, items } = Astro.props;
+const { subjectId, label, items } = Astro.props;
 ---
 
 <section id={`subject-${subjectId}`} class="mt-12 scroll-mt-20">
-  <header class="mb-5 flex items-baseline gap-3">
-    <span class="text-3xl" aria-hidden="true">{emoji}</span>
+  <header class="mb-5 flex items-center gap-3">
+    <SubjectIcon subject={subjectId} class="text-accent-700 dark:text-accent-300 text-3xl" />
     <h2
       class="font-display text-ink-900 dark:text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl"
     >

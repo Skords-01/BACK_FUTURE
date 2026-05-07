@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import FactCard from "../../components/FactCard.astro";
+import SubjectIcon from "../../components/SubjectIcon.astro";
 import SupportBlock from "../../components/SupportBlock.astro";
 import { getCollection } from "astro:content";
 import { eraCountsForSubject, factsForSubject } from "../../lib/filterFacts";
@@ -103,7 +104,7 @@ const breadcrumbsLd: Record<string, unknown> = {
         <span
           class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs uppercase"
         >
-          <span aria-hidden="true">{subject.emoji}</span>
+          <SubjectIcon subject={subject.id} />
           <span>ПРЕДМЕТ</span>
         </span>
         <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
@@ -196,9 +197,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             href={`/subject/${s.id}/`}
             class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:border-ink-700 dark:bg-ink-900 dark:hover:border-accent-400 dark:hover:bg-ink-800 group flex items-center gap-3 rounded-2xl border bg-white px-4 py-3 transition"
           >
-            <span aria-hidden="true" class="text-2xl">
-              {s.emoji}
-            </span>
+            <SubjectIcon subject={s.id} class="text-accent-700 dark:text-accent-300 text-2xl" />
             <span class="text-ink-800 dark:text-ink-800 font-medium">{s.label}</span>
             <span class="text-ink-400 group-hover:text-accent-700 dark:group-hover:text-accent-300 ml-auto">
               →
