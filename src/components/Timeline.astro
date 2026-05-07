@@ -16,6 +16,7 @@
 import { ERAS } from "../lib/eras";
 import { SITE } from "../config/site";
 import type { Fact } from "../lib/filterFacts";
+import { yearUrl } from "../lib/url";
 
 interface Props {
   selectedYear?: number;
@@ -46,15 +47,15 @@ type Dot = {
   href: string;
 };
 
-// Only show facts whose yearOfEvent is >= selectedYear (graduated-view)
-// On the index page selectedYear is the default year, so show all facts.
-const dotsRaw = facts.filter((f) => !f.data.draft);
+const dotsRaw = facts.filter(
+  (f) => !f.data.draft && f.data.yearOfEvent >= yearMin && f.data.yearOfEvent <= yearMax,
+);
 const dots: Dot[] = dotsRaw.map((f) => ({
   year: f.data.yearOfEvent,
   left: pct(f.data.yearOfEvent),
   high: f.data.impact === "high",
   tip: String(f.data.yearOfEvent),
-  href: `/${f.data.yearOfEvent}/`,
+  href: yearUrl(f.data.yearOfEvent),
 }));
 
 const markerLeft = selectedYear ? pct(selectedYear) : null;
@@ -179,6 +180,10 @@ const activeEraId = selectedYear
 </figure>
 
 <style>
+  .timeline-figure {
+    max-width: 100%;
+  }
+
   /* ---- Scroll container ---- */
   .tl-scroll {
     position: relative;

@@ -49,16 +49,16 @@ const totalCount = matched.length;
 
 const yearNow = new Date().getFullYear();
 const yearsPassed = yearNow - year;
-const factsSinceYear = allFacts.filter((f) => !f.data.draft && f.data.yearOfEvent >= year).length;
 
-function pluralizeYears(n: number): string {
+function pluralize(n: number, forms: [one: string, few: string, many: string]): string {
   const m10 = n % 10;
   const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return "рік";
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
-  return "років";
+  if (m10 === 1 && m100 !== 11) return forms[0];
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return forms[1];
+  return forms[2];
 }
-const yearsPassedLabel = pluralizeYears(yearsPassed);
+const yearsPassedLabel = pluralize(yearsPassed, ["рік", "роки", "років"]);
+const updatesLabel = pluralize(totalCount, ["оновлення", "оновлення", "оновлень"]);
 
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
 const ogImage = new URL(`/og/${year}.png`, SITE.defaultUrl).toString();
@@ -90,7 +90,7 @@ const homeUrl = `${SITE.defaultUrl}/`;
 const yearCanonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
 const articleHeadline =
   totalCount > 0
-    ? `Випуск ${year}: ${totalCount} ${totalCount === 1 ? "оновлення" : "оновлень"} після випускного`
+    ? `Випуск ${year}: ${totalCount} ${updatesLabel} після випускного`
     : `Випуск ${year}: ${era.label}`;
 
 const articleLd: Record<string, unknown> = {
@@ -193,8 +193,9 @@ const breadcrumbsLd: Record<string, unknown> = {
         {
           totalCount > 0 ? (
             <>
-              З <em class="text-accent-700 dark:text-accent-300 not-italic">{year}</em>-го світ
-              зрушив сильно
+              Ти пропустив{" "}
+              <em class="text-accent-700 dark:text-accent-300 not-italic">{totalCount}</em>{" "}
+              {updatesLabel}
             </>
           ) : (
             "Тут поки тихо"
@@ -203,7 +204,7 @@ const breadcrumbsLd: Record<string, unknown> = {
       </h1>
       <p class="text-ink-500 dark:text-ink-400 mt-3 font-mono text-sm tracking-wider uppercase">
         {era.label} · {totalCount}{" "}
-        {totalCount === 1 ? "факт" : totalCount >= 2 && totalCount < 5 ? "факти" : "фактів"}
+        {updatesLabel}
       </p>
       <p class="text-ink-700 dark:text-ink-700 mt-3 max-w-prose text-base">{era.summary}</p>
 
@@ -218,12 +219,12 @@ const breadcrumbsLd: Record<string, unknown> = {
             З твого випуску минуло <strong class="text-ink-700 dark:text-ink-700"
               >{yearsPassed}</strong
             >{" "}
-            {yearsPassedLabel} · <strong class="text-ink-700 dark:text-ink-700"
-              >{factsSinceYear}</strong
-            > фактів
+            {yearsPassedLabel} · <strong class="text-ink-700 dark:text-ink-700">{totalCount}</strong
+            >{" "}
+            {updatesLabel}
           </span>
         </div>
-        <Timeline facts={allFacts} selectedYear={year} />
+        <Timeline facts={matched} selectedYear={year} />
       </div>
     </div>
   </section>
@@ -260,7 +261,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="subject"
-                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-800 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі предмети</option>
                 {SUBJECTS.map((s) => (
@@ -270,11 +271,11 @@ const breadcrumbsLd: Record<string, unknown> = {
             </label>
             <label class="block">
               <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
-                ��ра
+                Ера
               </span>
               <select
                 name="era"
-                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-800 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі ери</option>
                 {ERAS.map((e) => (
@@ -288,7 +289,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="region"
-                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-800 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі регіони</option>
                 {regionOptions.map((option) => (
@@ -302,7 +303,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="impact"
-                class="border-ink-200 text-ink-900 dark:border-ink-600 dark:bg-ink-800 dark:text-ink-800 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 w-full rounded-xl border px-3 py-2 text-sm"
               >
                 <option value="">Усі рівні</option>
                 {impactOptions.map((option) => (
