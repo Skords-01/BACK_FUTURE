@@ -1,7 +1,7 @@
 import type { APIContext, GetStaticPaths } from "astro";
 import { getCollection } from "astro:content";
 import { SITE } from "../../config/site";
-import { buildYearOgSvg } from "../../lib/og";
+import { buildYearOgSvg, svgToPng } from "../../lib/og";
 
 export const getStaticPaths: GetStaticPaths = () => {
   const paths: { params: { year: string } }[] = [];
@@ -15,10 +15,12 @@ export async function GET({ params }: APIContext) {
   const year = Number(params.year);
   const allFacts = await getCollection("facts");
   const svg = buildYearOgSvg(year, allFacts);
+  const png = await svgToPng(svg);
 
-  return new Response(svg, {
+  return new Response(png, {
     headers: {
-      "Content-Type": "image/svg+xml; charset=utf-8",
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable",
     },
   });
 }

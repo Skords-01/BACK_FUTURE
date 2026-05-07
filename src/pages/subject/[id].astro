@@ -28,7 +28,7 @@ const otherSubjects = SUBJECTS.filter((s) => s.id !== subjectId);
 const description = `${subject.label}: усе, що змінилось за роки в одній стрічці. ${totalCount} ${
   totalCount === 1 ? "факт" : "фактів"
 } на ${SITE.name}.`;
-const ogImage = new URL("/og/default.svg", SITE.defaultUrl).toString();
+const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
 const homeUrl = `${SITE.defaultUrl}/`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
 const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(
