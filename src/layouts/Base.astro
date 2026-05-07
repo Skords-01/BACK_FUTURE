@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { SITE } from "../config/site";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import Analytics from "../components/Analytics.astro";
 
 interface Props {
   title?: string;
@@ -69,6 +70,7 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
         <script type="application/ld+json" set:html={serializeJsonLd(item)} />
       ))
     }
+    <Analytics />
   </head>
   <body class="bg-ink-50 text-ink-900">
     <a href="#main-content" class="skip-link">Перейти до контенту</a>

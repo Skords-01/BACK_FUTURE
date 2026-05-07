@@ -73,6 +73,22 @@ draft: false
 
 Детальніше в [`docs/content-guidelines.md`](docs/content-guidelines.md).
 
+## Аналітика (опційно)
+
+Підтримуються Plausible і Umami — privacy-friendly, без cookies. За замовчуванням нічого не вантажиться. Щоб увімкнути, задай env-змінні (див. `.env.example`):
+
+```bash
+# Plausible
+PUBLIC_ANALYTICS_PROVIDER=plausible
+PUBLIC_PLAUSIBLE_DOMAIN=back-future.example.com
+PUBLIC_PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/script.js  # опц., для self-hosted
+
+# або Umami
+PUBLIC_ANALYTICS_PROVIDER=umami
+PUBLIC_UMAMI_WEBSITE_ID=00000000-0000-0000-0000-000000000000
+PUBLIC_UMAMI_SCRIPT_URL=https://umami.example.com/script.js
+```
+
 ## Архітектура
 
 Див. [`docs/architecture.md`](docs/architecture.md). Сайт спроєктований так, щоб його можна було форкати в template для подібних контент-сайтів — основні точки кастомізації: `src/config/site.ts` + `content/`.
