@@ -37,10 +37,7 @@ jobs:
             --no-progress
             --root-dir "$GITHUB_WORKSPACE/dist"
             --exclude "https://back-future.example.com/.*"
-            --exclude "https://www.fda.gov/news-events/press-announcements/fda-approves-first-gene-therapies-treat-patients-sickle-cell-disease"
-            --exclude "https://www.iau.org/news/pressreleases/detail/iau0603/"
-            --exclude "https://uinp.gov.ua/temy/holodomor-genotsyd-1932-1933-rokiv"
+            --exclude-path './dist/.*\.html'
+            --exclude-path './content/.*'
             './README.md'
             './docs/**/*.md'
-            './content/**/*.md'
-            './dist/**/*.html'

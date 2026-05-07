@@ -3,6 +3,7 @@ backend:
   repo: Skords-01/BACK_FUTURE
   branch: main
 
+publish_mode: editorial_workflow
 locale: uk
 media_folder: public/uploads
 public_folder: /uploads
@@ -22,6 +23,7 @@ collections:
         name: title
         widget: string
         hint: До 80–140 символів, без крапки в кінці.
+        pattern: [".*[^.!?…]$", "Без крапки, знака оклику чи питання в кінці."]
       - label: Предмет
         name: subject
         widget: select
@@ -40,6 +42,7 @@ collections:
         widget: number
         value_type: int
         min: 1900
+        max: 2027
       - label: Релевантно для ер
         name: relevantForEras
         widget: list
@@ -75,3 +78,4 @@ collections:
       - label: Текст
         name: body
         widget: markdown
+        hint: 3–5 абзаців; див. docs/content-guidelines.md.

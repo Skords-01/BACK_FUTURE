@@ -13,7 +13,11 @@
     "typecheck": "astro check",
     "test": "npm run test:e2e",
     "test:e2e": "playwright test",
-    "lint": "eslint . && prettier --check .",
+    "lint": "eslint . && prettier --check . && npm run lint:md",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"!node_modules\" \"!dist\"",
+    "validate:content": "tsx scripts/validate-content.ts",
+    "coverage:content": "tsx scripts/content-coverage.ts",
+    "audit:lighthouse": "CHROME_PATH=$(tsx scripts/find-chrome.ts) lhci autorun --config=./lighthouserc.cjs",
     "format": "prettier --write ."
   },
   "engines": {
@@ -30,13 +34,17 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.59.1",
+    "@types/node": "^22.19.17",
     "@typescript-eslint/eslint-plugin": "^8.59.2",
     "@typescript-eslint/parser": "^8.59.2",
     "eslint": "^9.39.4",
     "eslint-plugin-astro": "^1.7.0",
+    "markdownlint-cli2": "^0.18.1",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "0.14.1",
-    "prettier-plugin-tailwindcss": "^0.8.0"
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "tsx": "^4.21.0"
   }
 }

@@ -6,7 +6,7 @@ yearOfEvent: 2022
 relevantForEras: [1, 2, 3, 4]
 sources:
   - title: "Український інститут національної пам'яті: Голодомор-геноцид"
-    url: "https://uinp.gov.ua/temy/holodomor-genotsyd-1932-1933-rokiv"
+    url: "https://uinp.gov.ua/elektronni-vydannya/broshura-ukrayina-1932-1933-genocyd-golodom"
   - title: "Резолюція Європарламенту про визнання Голодомору геноцидом (2022)"
     url: "https://www.europarl.europa.eu/doceo/document/TA-9-2022-0449_EN.html"
 tags: ["голодомор", "геноцид", "ХХ-століття", "усрр", "ссср"]
