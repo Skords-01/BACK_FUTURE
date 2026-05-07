@@ -11,7 +11,7 @@ interface Props {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const defaultOgImage = new URL("/og/default.svg", SITE.defaultUrl).toString();
+const defaultOgImage = new URL("/og/default.png", SITE.defaultUrl).toString();
 const { title, description = SITE.description, ogImage = defaultOgImage, jsonLd } = Astro.props;
 const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();

@@ -32,7 +32,7 @@ const era = eraById(eraForGraduationYear(year));
 const totalCount = matched.length;
 
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
-const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
+const ogImage = new URL(`/og/${year}.png`, SITE.defaultUrl).toString();
 
 const fallbackYears =
   totalCount === 0
