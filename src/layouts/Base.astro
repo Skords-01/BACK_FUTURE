@@ -71,8 +71,9 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
     }
   </head>
   <body class="bg-ink-50 text-ink-900">
+    <a href="#main-content" class="skip-link">Перейти до контенту</a>
     <Header />
-    <main class="pb-24">
+    <main id="main-content" tabindex="-1" class="pb-24">
       <slot />
     </main>
     <Footer />

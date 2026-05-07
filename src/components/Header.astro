@@ -15,6 +15,13 @@ function pluralizeFacts(n: number): string {
 }
 
 const factsLabel = pluralizeFacts(factsCount);
+
+const path = Astro.url.pathname;
+function isActive(href: string): boolean {
+  const normalized = href.replace(/\.html$/, "").replace(/\/$/, "");
+  const current = path.replace(/\.html$/, "").replace(/\/$/, "");
+  return current === normalized;
+}
 ---
 
 <header
@@ -40,12 +47,27 @@ const factsLabel = pluralizeFacts(factsCount);
       class="text-ink-600 dark:text-ink-300 flex items-center gap-1 text-sm sm:gap-3"
     >
       <a
-        class="hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5"
-        href="/metodologia.html">Методологія</a
+        class:list={[
+          "hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5",
+          isActive("/metodologia.html") &&
+            "bg-ink-100 text-ink-900 dark:bg-ink-800 dark:text-ink-50 font-medium",
+        ]}
+        href="/metodologia.html"
+        aria-current={isActive("/metodologia.html") ? "page" : undefined}
       >
-      <a class="hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5" href="/about.html"
-        >Про проєкт</a
+        Методологія
+      </a>
+      <a
+        class:list={[
+          "hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5",
+          isActive("/about.html") &&
+            "bg-ink-100 text-ink-900 dark:bg-ink-800 dark:text-ink-50 font-medium",
+        ]}
+        href="/about.html"
+        aria-current={isActive("/about.html") ? "page" : undefined}
       >
+        Про проєкт
+      </a>
       <ThemeToggle />
     </nav>
   </div>
