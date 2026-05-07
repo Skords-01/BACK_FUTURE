@@ -20,6 +20,7 @@
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"!node_modules\" \"!dist\"",
     "validate:content": "tsx scripts/validate-content.ts",
     "coverage:content": "tsx scripts/content-coverage.ts",
+    "dump:source-urls": "tsx scripts/dump-source-urls.ts",
     "audit:lighthouse": "CHROME_PATH=$(tsx scripts/find-chrome.ts) lhci autorun --config=./lighthouserc.cjs",
     "format": "prettier --write .",
     "prepare": "husky"
