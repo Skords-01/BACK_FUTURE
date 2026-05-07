@@ -16,9 +16,24 @@ for (let y = 1995; y <= SITE.yearMax; y += 5) {
 if (!quickYears.includes(SITE.yearMax)) {
   quickYears.push(SITE.yearMax);
 }
+
+const websiteLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE.name,
+  alternateName: SITE.tagline,
+  url: SITE.defaultUrl,
+  description: SITE.description,
+  inLanguage: "uk",
+  publisher: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.defaultUrl,
+  },
+};
 ---
 
-<Base>
+<Base jsonLd={websiteLd}>
   <section class="ruled-hero">
     <div class="container-prose pt-16 sm:pt-24">
       <p class="text-accent-700 mb-3 text-sm font-medium tracking-widest uppercase">
