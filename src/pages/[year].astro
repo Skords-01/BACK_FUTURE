@@ -42,26 +42,28 @@ const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Фак�
 <Base title={`Випуск ${year}`} description={description} ogImage={ogImage}>
   <section class="ruled-hero">
     <div class="container-prose pt-12 pb-12 sm:pt-16">
-      <nav aria-label="Хлібні крихти" class="text-ink-500 text-sm">
+      <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
         <ol class="flex flex-wrap items-center gap-1.5">
           <li>
             <a
               href="/"
-              class="hover:text-ink-900 underline-offset-2 hover:underline"
+              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
               aria-label="На головну"
             >
               Головна
             </a>
           </li>
-          <li aria-hidden="true" class="text-ink-300">›</li>
+          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
           <li>
-            <span class="text-ink-700 font-medium" aria-current="page">Випуск {year}</span>
+            <span class="text-ink-700 dark:text-ink-200 font-medium" aria-current="page"
+              >Випуск {year}</span
+            >
           </li>
-          <li aria-hidden="true" class="text-ink-300 ml-2">·</li>
+          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600 ml-2">·</li>
           <li>
             <a
               href="/"
-              class="hover:text-ink-900 inline-flex items-center gap-1 underline-offset-2 hover:underline"
+              class="hover:text-ink-900 dark:hover:text-ink-100 inline-flex items-center gap-1 underline-offset-2 hover:underline"
             >
               ← Інший рік
             </a>
@@ -70,17 +72,17 @@ const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Фак�
       </nav>
 
       <p
-        class="text-accent-700 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
+        class="text-accent-700 dark:text-accent-300 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
       >
         <span
-          class="bg-accent-50 text-accent-700 rounded-full px-3 py-1 font-mono text-xs tabular-nums"
+          class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs tabular-nums"
           >ВИПУСК {year}</span
         >
-        <span class="text-ink-500 font-sans text-xs uppercase">·</span>
-        <span class="text-ink-600 text-xs uppercase">{era.label}</span>
+        <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
+        <span class="text-ink-600 dark:text-ink-300 text-xs uppercase">{era.label}</span>
       </p>
       <h1
-        class="font-display text-ink-900 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
+        class="font-display text-ink-900 dark:text-ink-50 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
       >
         {
           totalCount > 0
@@ -88,7 +90,7 @@ const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Фак�
             : "Тут поки тихо"
         }
       </h1>
-      <p class="text-ink-700 mt-4 max-w-prose text-lg">{era.summary}</p>
+      <p class="text-ink-700 dark:text-ink-200 mt-4 max-w-prose text-lg">{era.summary}</p>
     </div>
   </section>
 
@@ -101,9 +103,11 @@ const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Фак�
       </section>
     ) : (
       <section class="container-prose mt-12">
-        <div class="border-ink-200 text-ink-700 rounded-3xl border border-dashed bg-white p-8 text-center">
-          <p class="font-display text-ink-900 text-xl font-bold">Поки що для цього року тихо.</p>
-          <p class="text-ink-600 mt-2 text-base">
+        <div class="border-ink-200 text-ink-700 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-200 rounded-3xl border border-dashed bg-white p-8 text-center">
+          <p class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">
+            Поки що для цього року тихо.
+          </p>
+          <p class="text-ink-600 dark:text-ink-300 mt-2 text-base">
             Ми постійно додаємо факти. Спробуй сусідній рік — ера програм та сама, контент скоріш за
             все підходить:
           </p>
@@ -111,17 +115,17 @@ const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Фак�
             {neighborYears.map((y) => (
               <a
                 href={`/${y}.html`}
-                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex items-center rounded-full border bg-white px-4 py-1.5 font-mono text-sm font-medium tabular-nums transition"
+                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center rounded-full border bg-white px-4 py-1.5 font-mono text-sm font-medium tabular-nums transition"
               >
                 {y}
               </a>
             ))}
           </div>
-          <p class="text-ink-500 mt-5 text-sm">
+          <p class="text-ink-500 dark:text-ink-400 mt-5 text-sm">
             Хочеш, щоб ми додали факт під цей рік?{" "}
             <a
               href={issueUrl}
-              class="text-accent-700 hover:text-accent-800 underline-offset-2 hover:underline"
+              class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -138,7 +142,7 @@ const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Фак�
   <SupportBlock />
 
   <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Спробуй інший рік</h2>
+    <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">Спробуй інший рік</h2>
     <div class="mt-4">
       <YearInput defaultYear={year} size="md" />
     </div>

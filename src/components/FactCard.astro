@@ -11,34 +11,44 @@ const { Content } = await render(fact);
 ---
 
 <article
-  class="group border-ink-100 shadow-card hover:border-ink-200 hover:shadow-card-hover rounded-3xl border bg-white p-5 transition hover:-translate-y-0.5 sm:p-7"
+  class="group border-ink-100 shadow-card hover:border-ink-200 hover:shadow-card-hover dark:border-ink-700 dark:bg-ink-800 dark:hover:border-ink-600 rounded-3xl border bg-white p-5 transition hover:-translate-y-0.5 sm:p-7"
 >
   <div class="flex items-start justify-between gap-4">
-    <h3 class="font-display text-ink-900 text-xl leading-snug font-bold sm:text-2xl">
+    <h3
+      class="font-display text-ink-900 dark:text-ink-50 text-xl leading-snug font-bold sm:text-2xl"
+    >
       {fact.data.title}
     </h3>
     <span
-      class="bg-accent-50 text-accent-700 shrink-0 rounded-full px-3 py-1 font-mono text-xs font-medium tabular-nums"
+      class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 shrink-0 rounded-full px-3 py-1 font-mono text-xs font-medium tabular-nums"
     >
       {fact.data.yearOfEvent}
     </span>
   </div>
 
-  <p class="text-ink-700 mt-3 text-base leading-relaxed">{fact.data.short}</p>
+  <p class="text-ink-700 dark:text-ink-200 mt-3 text-base leading-relaxed">{fact.data.short}</p>
 
   {
     (fact.data.before || fact.data.after) && (
-      <dl class="border-ink-100 bg-ink-50/40 mt-4 grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 sm:gap-4">
+      <dl class="border-ink-100 bg-ink-50/40 dark:border-ink-700 dark:bg-ink-900/40 mt-4 grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 sm:gap-4">
         {fact.data.before && (
           <div>
-            <dt class="text-ink-400 text-xs font-medium tracking-wider uppercase">Було</dt>
-            <dd class="text-ink-700 mt-1 text-sm leading-relaxed">{fact.data.before}</dd>
+            <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
+              Було
+            </dt>
+            <dd class="text-ink-700 dark:text-ink-300 mt-1 text-sm leading-relaxed">
+              {fact.data.before}
+            </dd>
           </div>
         )}
         {fact.data.after && (
           <div>
-            <dt class="text-accent-700 text-xs font-medium tracking-wider uppercase">Стало</dt>
-            <dd class="text-ink-800 mt-1 text-sm leading-relaxed">{fact.data.after}</dd>
+            <dt class="text-accent-700 dark:text-accent-300 text-xs font-medium tracking-wider uppercase">
+              Стало
+            </dt>
+            <dd class="text-ink-800 dark:text-ink-100 mt-1 text-sm leading-relaxed">
+              {fact.data.after}
+            </dd>
           </div>
         )}
       </dl>
@@ -47,7 +57,7 @@ const { Content } = await render(fact);
 
   <details class="group/details mt-4">
     <summary
-      class="text-accent-700 hover:text-accent-800 inline-flex cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"
+      class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 inline-flex cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"
     >
       <span class="group-open/details:hidden">Докладніше</span>
       <span class="hidden group-open/details:inline">Згорнути</span>
@@ -65,20 +75,22 @@ const { Content } = await render(fact);
     </summary>
 
     <div
-      class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 text-ink-800 mt-4 max-w-none"
+      class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 dark:prose-invert dark:prose-a:text-accent-300 text-ink-800 dark:text-ink-200 mt-4 max-w-none"
     >
       <Content />
     </div>
 
     {
       fact.data.sources.length > 0 && (
-        <div class="border-ink-100 text-ink-500 mt-4 border-t pt-3 text-xs">
-          <div class="text-ink-400 mb-1 font-medium tracking-wider uppercase">Джерела</div>
+        <div class="border-ink-100 text-ink-500 dark:border-ink-700 dark:text-ink-400 mt-4 border-t pt-3 text-xs">
+          <div class="text-ink-400 dark:text-ink-500 mb-1 font-medium tracking-wider uppercase">
+            Джерела
+          </div>
           <ul class="space-y-1">
             {fact.data.sources.map((s) => (
               <li>
                 <a
-                  class="hover:text-ink-900"
+                  class="hover:text-ink-900 dark:hover:text-ink-100"
                   href={s.url}
                   rel="noopener noreferrer"
                   target="_blank"

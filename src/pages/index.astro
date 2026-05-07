@@ -21,35 +21,39 @@ if (!quickYears.includes(SITE.yearMax)) {
 <Base>
   <section class="ruled-hero">
     <div class="container-prose pt-16 sm:pt-24">
-      <p class="text-accent-700 mb-3 text-sm font-medium tracking-widest uppercase">
+      <p
+        class="text-accent-700 dark:text-accent-300 mb-3 text-sm font-medium tracking-widest uppercase"
+      >
         Українською. Без підписки.
       </p>
       <h1
-        class="font-display text-ink-900 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+        class="font-display text-ink-900 dark:text-ink-50 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
       >
         Що ти пропустив після випускного?
       </h1>
-      <p class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
+      <p class="text-ink-700 dark:text-ink-200 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
         Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
         науково-популярно, з джерелами.
       </p>
 
       <div class="mt-10 pb-4">
         <YearInput defaultYear={2003} />
-        <p class="text-ink-500 mt-3 text-sm">
+        <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
           Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
         </p>
       </div>
 
       <div class="pb-16">
-        <p class="text-ink-500 mb-2 text-xs tracking-wider uppercase">Швидкий вибір</p>
+        <p class="text-ink-500 dark:text-ink-400 mb-2 text-xs tracking-wider uppercase">
+          Швидкий вибір
+        </p>
         <ul class="-mx-1 flex flex-wrap items-center gap-1.5">
           {
             quickYears.map((y) => (
               <li>
                 <a
                   href={`/${y}.html`}
-                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex items-center rounded-full border bg-white px-3 py-1.5 font-mono text-sm font-medium tabular-nums transition"
+                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-200 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center rounded-full border bg-white px-3 py-1.5 font-mono text-sm font-medium tabular-nums transition"
                 >
                   {y}
                 </a>
@@ -62,36 +66,41 @@ if (!quickYears.includes(SITE.yearMax)) {
   </section>
 
   <section class="container-prose mt-20">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Як це працює</h2>
-    <ol class="text-ink-700 mt-4 space-y-3">
+    <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">Як це працює</h2>
+    <ol class="text-ink-700 dark:text-ink-200 mt-4 space-y-3">
       <li>
-        <span class="text-ink-900 font-semibold">1. Введи рік випуску.</span> Від 1991 до сьогодні.
+        <span class="text-ink-900 dark:text-ink-50 font-semibold">1. Введи рік випуску.</span> Від 1991
+        до сьогодні.
       </li>
       <li>
-        <span class="text-ink-900 font-semibold">2. Отримаєш стрічку оновлень</span> по 5 предметах: астрономія,
-        біологія, географія, історія, фізика. Те, що змінилось у науці й світі від твого випускного року.
+        <span class="text-ink-900 dark:text-ink-50 font-semibold">2. Отримаєш стрічку оновлень</span
+        >
+        по 5 предметах: астрономія, біологія, географія, історія, фізика. Те, що змінилось у науці й світі
+        від твого випускного року.
       </li>
       <li>
-        <span class="text-ink-900 font-semibold">3. Кожен факт — з джерелом.</span> Можна розгорнути деталі
-        в науково-популярному форматі.
+        <span class="text-ink-900 dark:text-ink-50 font-semibold">3. Кожен факт — з джерелом.</span>
+        Можна розгорнути деталі в науково-популярному форматі.
       </li>
     </ol>
   </section>
 
   <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Тематичні блоки</h2>
+    <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">Тематичні блоки</h2>
     <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
       {
         SUBJECTS.map((s) => (
-          <li class="border-ink-100 flex flex-col items-start rounded-2xl border bg-white p-4">
+          <li class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 flex flex-col items-start rounded-2xl border bg-white p-4">
             <span class="text-2xl">{s.emoji}</span>
-            <span class="text-ink-900 mt-2 font-medium">{s.label}</span>
+            <span class="text-ink-900 dark:text-ink-100 mt-2 font-medium">{s.label}</span>
           </li>
         ))
       }
     </ul>
-    <p class="text-ink-500 mt-4 text-sm">
-      Зараз у базі: <span class="text-ink-700 font-semibold">{totalFacts}</span>{" "}
+    <p class="text-ink-500 dark:text-ink-400 mt-4 text-sm">
+      Зараз у базі: <span class="text-ink-700 dark:text-ink-200 font-semibold">{totalFacts}</span>{
+        " "
+      }
       {totalFacts === 1 ? "факт" : "фактів"}. Поповнюємо постійно.
     </p>
   </section>

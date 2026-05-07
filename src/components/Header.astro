@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { SITE } from "../config/site";
+import ThemeToggle from "./ThemeToggle.astro";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const factsCount = allFacts.length;
@@ -16,15 +17,17 @@ function pluralizeFacts(n: number): string {
 const factsLabel = pluralizeFacts(factsCount);
 ---
 
-<header class="border-ink-100 border-b bg-white/70 backdrop-blur">
+<header
+  class="border-ink-100 dark:border-ink-700 dark:bg-ink-900/70 border-b bg-white/70 backdrop-blur"
+>
   <div class="container-wide flex items-center justify-between gap-3 py-4">
     <a
       href="/"
-      class="font-display text-ink-900 flex items-center gap-2 text-lg font-bold tracking-tight"
+      class="font-display text-ink-900 dark:text-ink-50 flex items-center gap-2 text-lg font-bold tracking-tight"
     >
       {SITE.name}
       <span
-        class="bg-accent-50 text-accent-700 hidden rounded-full px-2 py-0.5 font-mono text-xs font-medium tabular-nums sm:inline"
+        class="bg-accent-50 text-accent-700 dark:bg-accent-900/50 dark:text-accent-200 hidden rounded-full px-2 py-0.5 font-mono text-xs font-medium tabular-nums sm:inline"
         aria-label={`${factsCount} ${factsLabel} у базі`}
         title={`${factsCount} ${factsLabel} у базі`}
       >
@@ -34,10 +37,16 @@ const factsLabel = pluralizeFacts(factsCount);
     </a>
     <nav
       aria-label="Основна навігація"
-      class="text-ink-600 flex items-center gap-1 text-sm sm:gap-3"
+      class="text-ink-600 dark:text-ink-300 flex items-center gap-1 text-sm sm:gap-3"
     >
-      <a class="hover:bg-ink-100 rounded-full px-3 py-1.5" href="/metodologia.html">Методологія</a>
-      <a class="hover:bg-ink-100 rounded-full px-3 py-1.5" href="/about.html">Про проєкт</a>
+      <a
+        class="hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5"
+        href="/metodologia.html">Методологія</a
+      >
+      <a class="hover:bg-ink-100 dark:hover:bg-ink-800 rounded-full px-3 py-1.5" href="/about.html"
+        >Про проєкт</a
+      >
+      <ThemeToggle />
     </nav>
   </div>
 </header>
