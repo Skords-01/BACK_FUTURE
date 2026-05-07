@@ -40,9 +40,10 @@ function makeFact(stub: FactStub): Fact {
 }
 
 describe("factsForYear", () => {
-  it("returns only facts whose relevantForEras contains the user's era", () => {
+  it("returns post-graduation facts whose relevantForEras contains the user's era", () => {
     const facts = [
       makeFact({ id: "a", subject: "physics", yearOfEvent: 2010, relevantForEras: [1, 2] }),
+      makeFact({ id: "before", subject: "physics", yearOfEvent: 2001, relevantForEras: [1, 2] }),
       makeFact({ id: "b", subject: "physics", yearOfEvent: 2015, relevantForEras: [3, 4, 5] }),
       makeFact({ id: "c", subject: "biology", yearOfEvent: 2020, relevantForEras: [5] }),
     ];
@@ -70,7 +71,7 @@ describe("factsForYear", () => {
 
   it("sorts results by yearOfEvent descending (most recent first)", () => {
     const facts = [
-      makeFact({ id: "old", subject: "physics", yearOfEvent: 2001, relevantForEras: [1, 2] }),
+      makeFact({ id: "old", subject: "physics", yearOfEvent: 2004, relevantForEras: [1, 2] }),
       makeFact({ id: "new", subject: "physics", yearOfEvent: 2024, relevantForEras: [1, 2] }),
       makeFact({ id: "mid", subject: "physics", yearOfEvent: 2012, relevantForEras: [1, 2] }),
     ];

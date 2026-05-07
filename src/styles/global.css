@@ -152,6 +152,8 @@
   }
 
   html {
+    max-width: 100%;
+    overflow-x: clip;
     font-family: var(--font-body);
     background: var(--color-bg);
     color: var(--color-fg);
@@ -159,7 +161,9 @@
     text-rendering: optimizeLegibility;
   }
   body {
+    max-width: 100%;
     min-height: 100dvh;
+    overflow-x: clip;
   }
   ::selection {
     background: var(--accent-200);

@@ -30,7 +30,7 @@ function matchesFilters(fact: Fact, filters: FactFilters): boolean {
 
 /**
  * Returns facts that are "new" for someone who graduated in `year`.
- * A fact is shown if its `relevantForEras` contains the user's era id.
+ * A fact is shown if it happened after graduation and is relevant to the user's era.
  */
 export function factsForYear(
   facts: readonly Fact[],
@@ -40,6 +40,7 @@ export function factsForYear(
   const era: EraId = eraForGraduationYear(year);
   return facts
     .filter((f) => !f.data.draft)
+    .filter((f) => f.data.yearOfEvent >= year)
     .filter((f) => f.data.relevantForEras.includes(era))
     .filter((f) => matchesFilters(f, filters))
     .slice()
