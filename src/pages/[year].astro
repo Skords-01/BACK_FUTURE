@@ -219,7 +219,9 @@ const breadcrumbsLd: Record<string, unknown> = {
               >
                 <option value="">Усі ери</option>
                 {ERAS.map((e) => (
-                  <option value={String(e.id)}>{e.label}</option>
+                  <option
+                    value={String(e.id)}
+                  >{`Ера ${e.id} (${e.yearStart}–${e.yearEnd})`}</option>
                 ))}
               </select>
             </label>

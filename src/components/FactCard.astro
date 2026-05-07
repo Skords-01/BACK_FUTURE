@@ -42,12 +42,7 @@ const detailUrl = factUrl(fact.id);
     <h3
       class="font-display text-ink-900 dark:text-ink-50 text-xl leading-snug font-bold sm:text-2xl"
     >
-      <a
-        href={detailUrl}
-        class="hover:text-accent-700 dark:hover:text-accent-300 underline-offset-4 transition hover:underline"
-      >
-        {fact.data.title}
-      </a>
+      {fact.data.title}
     </h3>
     <div class="flex shrink-0 flex-col items-end gap-1">
       <div class="flex items-center gap-1.5">
@@ -90,6 +85,14 @@ const detailUrl = factUrl(fact.id);
   </div>
 
   <p class="text-ink-700 dark:text-ink-200 mt-3 text-base leading-relaxed">{fact.data.short}</p>
+
+  <a
+    href={detailUrl}
+    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 mt-3 inline-flex items-center gap-1 text-sm font-medium underline-offset-2 hover:underline"
+    aria-label={`Відкрити постійну сторінку факту: ${fact.data.title}`}
+  >
+    Постійна сторінка →
+  </a>
 
   {
     (fact.data.before || fact.data.after) && (
