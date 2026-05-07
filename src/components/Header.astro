@@ -1,11 +1,36 @@
 ---
+import { getCollection } from "astro:content";
 import { SITE } from "../config/site";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const factsCount = allFacts.length;
+
+function pluralizeFacts(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "факт";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "факти";
+  return "фактів";
+}
+
+const factsLabel = pluralizeFacts(factsCount);
 ---
 
 <header class="border-ink-100 border-b bg-white/70 backdrop-blur">
-  <div class="container-wide flex items-center justify-between py-4">
-    <a href="/" class="font-display text-ink-900 text-lg font-bold tracking-tight">
+  <div class="container-wide flex items-center justify-between gap-3 py-4">
+    <a
+      href="/"
+      class="font-display text-ink-900 flex items-center gap-2 text-lg font-bold tracking-tight"
+    >
       {SITE.name}
+      <span
+        class="bg-accent-50 text-accent-700 hidden rounded-full px-2 py-0.5 font-mono text-xs font-medium tabular-nums sm:inline"
+        aria-label={`${factsCount} ${factsLabel} у базі`}
+        title={`${factsCount} ${factsLabel} у базі`}
+      >
+        {factsCount}
+        {factsLabel}
+      </span>
     </a>
     <nav
       aria-label="Основна навігація"
