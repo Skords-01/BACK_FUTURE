@@ -1,0 +1,155 @@
+---
+import { SITE } from "../config/site";
+
+interface Props {
+  year: number;
+  factsCount: number;
+}
+
+const { year, factsCount } = Astro.props;
+
+const url = new URL(`/${year}.html`, SITE.defaultUrl).toString();
+const messageBase =
+  factsCount > 0
+    ? `Я випустився ${year}-го й пропустив ${factsCount} оновлень у науці й історії.`
+    : `Як змінились наука й історія від випуску ${year}-го?`;
+const message = `${messageBase} ${SITE.tagline} — ${SITE.name}.`;
+
+const shareEncoded = encodeURIComponent(message);
+const urlEncoded = encodeURIComponent(url);
+
+const targets = [
+  {
+    id: "telegram",
+    label: "Telegram",
+    href: `https://t.me/share/url?url=${urlEncoded}&text=${shareEncoded}`,
+  },
+  {
+    id: "twitter",
+    label: "X / Twitter",
+    href: `https://twitter.com/intent/tweet?url=${urlEncoded}&text=${shareEncoded}`,
+  },
+  {
+    id: "facebook",
+    label: "Facebook",
+    href: `https://www.facebook.com/sharer/sharer.php?u=${urlEncoded}`,
+  },
+];
+---
+
+<section class="container-prose mt-12" aria-labelledby="share-heading">
+  <div class="border-ink-100 bg-paper-50 rounded-3xl border p-6 sm:p-8">
+    <h2
+      id="share-heading"
+      class="font-display text-ink-900 text-lg font-bold tracking-tight sm:text-xl"
+    >
+      Поділись цим випуском
+    </h2>
+    <p class="text-ink-600 mt-2 text-sm">
+      Хтось зі знайомих теж 19{year.toString().slice(2)}-го? Надішли їм цей рік.
+    </p>
+
+    <div
+      id="share-buttons"
+      class="mt-5 flex flex-wrap gap-2"
+      data-share-url={url}
+      data-share-text={message}
+    >
+      {
+        targets.map((t) => (
+          <a
+            href={t.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+          >
+            <span aria-hidden="true">↗</span>
+            {t.label}
+          </a>
+        ))
+      }
+      <button
+        id="share-copy-btn"
+        type="button"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+      >
+        <span aria-hidden="true">⎘</span>
+        <span data-state="idle">Скопіювати посилання</span>
+      </button>
+      <button
+        id="share-native-btn"
+        type="button"
+        hidden
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 inline-flex items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+      >
+        <span aria-hidden="true">↗</span>
+        Поділитись…
+      </button>
+    </div>
+
+    <p id="share-status" class="text-ink-500 mt-3 hidden text-sm" role="status" aria-live="polite">
+    </p>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    const root = document.getElementById("share-buttons");
+    if (!root) return;
+    const url = root.dataset.shareUrl ?? "";
+    const text = root.dataset.shareText ?? "";
+
+    const status = document.getElementById("share-status");
+    function showStatus(msg) {
+      if (!status) return;
+      status.textContent = msg;
+      status.classList.remove("hidden");
+      window.setTimeout(function () {
+        if (status.textContent === msg) {
+          status.classList.add("hidden");
+        }
+      }, 2500);
+    }
+
+    const copyBtn = document.getElementById("share-copy-btn");
+    if (copyBtn instanceof HTMLButtonElement) {
+      const labelSpan = copyBtn.querySelector("[data-state]");
+      copyBtn.addEventListener("click", function () {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          showStatus("Скопіюй вручну: " + url);
+          return;
+        }
+        navigator.clipboard
+          .writeText(url)
+          .then(function () {
+            if (labelSpan instanceof HTMLElement) {
+              labelSpan.textContent = "Скопійовано";
+            }
+            showStatus("Посилання скопійовано в буфер обміну.");
+            window.setTimeout(function () {
+              if (labelSpan instanceof HTMLElement) {
+                labelSpan.textContent = "Скопіювати посилання";
+              }
+            }, 2000);
+          })
+          .catch(function () {
+            showStatus("Не вдалось скопіювати. Спробуй вручну: " + url);
+          });
+      });
+    }
+
+    const nativeBtn = document.getElementById("share-native-btn");
+    if (
+      nativeBtn instanceof HTMLButtonElement &&
+      typeof navigator !== "undefined" &&
+      typeof navigator.share === "function"
+    ) {
+      nativeBtn.hidden = false;
+      nativeBtn.addEventListener("click", function () {
+        navigator.share({ title: document.title, text: text, url: url }).catch(function () {
+          // User cancelled or share failed; no UI noise.
+        });
+      });
+    }
+  })();
+</script>
