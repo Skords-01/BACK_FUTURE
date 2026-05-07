@@ -2,11 +2,13 @@
 import Base from "../layouts/Base.astro";
 import SubjectSection from "../components/SubjectSection.astro";
 import SupportBlock from "../components/SupportBlock.astro";
+import ShareBar from "../components/ShareBar.astro";
 import YearInput from "../components/YearInput.astro";
 import { getCollection } from "astro:content";
 import { factsForYear, groupBySubject } from "../lib/filterFacts";
 import { eraForGraduationYear, eraById } from "../lib/eras";
 import { SITE } from "../config/site";
+import { yearUrl } from "../lib/url";
 
 export async function getStaticPaths() {
   const years: { params: { year: string } }[] = [];
@@ -31,6 +33,12 @@ const totalCount = matched.length;
 
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
 const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
+const pageUrl = new URL(yearUrl(year), SITE.defaultUrl).toString();
+const shareTitle =
+  totalCount > 0
+    ? `Випуск ${year}: ${totalCount} оновлень — ${SITE.name}`
+    : `Випуск ${year} — ${SITE.name}`;
+const shareText = `Що змінилось у науці й історії після випуску ${year}? ${SITE.tagline}.`;
 ---
 
 <Base title={`Випуск ${year}`} description={description} ogImage={ogImage}>
@@ -82,6 +90,16 @@ const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
       </section>
     )
   }
+
+  <section class="container-prose mt-12">
+    <ShareBar url={pageUrl} title={shareTitle} text={shareText} />
+    <p class="text-ink-500 mt-3 text-sm">
+      Гарний постер для соцмереж: <a
+        class="hover:text-ink-900 underline"
+        href={`/share/${year}.html`}>відкрити /share/{year}</a
+      >.
+    </p>
+  </section>
 
   <SupportBlock />
 

@@ -14,6 +14,13 @@ const defaultOgImage = new URL("/og/default.svg", SITE.defaultUrl).toString();
 const { title, description = SITE.description, ogImage = defaultOgImage } = Astro.props;
 const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+
+const plausibleDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN ?? "";
+const plausibleSrc =
+  import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_URL ?? "https://plausible.io/js/script.js";
+const simpleAnalyticsHost = import.meta.env.PUBLIC_SIMPLE_ANALYTICS_HOST ?? "";
+const enablePlausible = plausibleDomain.length > 0;
+const enableSimpleAnalytics = simpleAnalyticsHost.length > 0;
 ---
 
 <!doctype html>
@@ -42,6 +49,24 @@ const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
+    {enablePlausible && <script defer data-domain={plausibleDomain} src={plausibleSrc} is:inline />}
+    {
+      enableSimpleAnalytics && (
+        <script async defer src={`https://${simpleAnalyticsHost}/latest.js`} is:inline />
+      )
+    }
+    {
+      enableSimpleAnalytics && (
+        <noscript>
+          <img
+            src={`https://${simpleAnalyticsHost}/noscript.gif`}
+            alt=""
+            referrerpolicy="no-referrer-when-downgrade"
+          />
+        </noscript>
+      )
+    }
   </head>
   <body class="bg-ink-50 text-ink-900">
     <Header />

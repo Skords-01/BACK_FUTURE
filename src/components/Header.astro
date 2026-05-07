@@ -1,16 +1,34 @@
 ---
 import { SITE } from "../config/site";
+import { getCollection } from "astro:content";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const totalFacts = allFacts.length;
 ---
 
 <header class="border-ink-100 border-b bg-white/70 backdrop-blur">
-  <div class="container-wide flex items-center justify-between py-4">
-    <a href="/" class="font-display text-ink-900 text-lg font-bold tracking-tight">
-      {SITE.name}
-    </a>
+  <div class="container-wide flex items-center justify-between gap-3 py-4">
+    <div class="flex items-center gap-3">
+      <a href="/" class="font-display text-ink-900 text-lg font-bold tracking-tight">
+        {SITE.name}
+      </a>
+      <span
+        class="border-ink-200 text-ink-600 hidden items-center gap-1 rounded-full border bg-white/70 px-2.5 py-1 font-mono text-[0.7rem] tabular-nums sm:inline-flex"
+        title="Кількість опублікованих фактів"
+        aria-label={`У базі ${totalFacts} фактів`}
+      >
+        <span class="text-ink-400">База:</span>
+        <span class="text-ink-800 font-semibold">{totalFacts}</span>
+        <span class="text-ink-500">{totalFacts === 1 ? "факт" : "фактів"}</span>
+      </span>
+    </div>
     <nav
       aria-label="Основна навігація"
-      class="text-ink-600 flex items-center gap-1 text-sm sm:gap-3"
+      class="text-ink-600 flex flex-wrap items-center gap-1 text-sm sm:gap-2"
     >
+      <a class="hover:bg-ink-100 rounded-full px-3 py-1.5" href="/timeline.html">Хронологія</a>
+      <a class="hover:bg-ink-100 rounded-full px-3 py-1.5" href="/kviz.html">Квіз</a>
+      <a class="hover:bg-ink-100 rounded-full px-3 py-1.5" href="/temy.html">Теми</a>
       <a class="hover:bg-ink-100 rounded-full px-3 py-1.5" href="/metodologia.html">Методологія</a>
       <a class="hover:bg-ink-100 rounded-full px-3 py-1.5" href="/about.html">Про проєкт</a>
     </nav>

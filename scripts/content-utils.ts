@@ -5,7 +5,7 @@ import process from "node:process";
 
 import { z } from "zod";
 
-import erasJson from "../content/eras.json" with { type: "json" };
+import erasJson from "../content/uk/eras.json" with { type: "json" };
 
 export const subjects = ["astronomy", "biology", "geography", "history", "physics"] as const;
 export const eraIds = [1, 2, 3, 4, 5] as const;
@@ -129,7 +129,7 @@ export function parseFrontmatter(filePath: string): { data: unknown; body: strin
 }
 
 export async function loadFacts(): Promise<Fact[]> {
-  const factsDir = repoPath("content", "facts");
+  const factsDir = repoPath("content", "uk", "facts");
   const filePaths = await listMarkdownFiles(factsDir);
   return filePaths.map((filePath) => {
     const { data, body } = parseFrontmatter(filePath);

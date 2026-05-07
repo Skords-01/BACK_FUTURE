@@ -10,6 +10,10 @@ sources:
   - title: "Nobel Prize in Physics 2013"
     url: "https://www.nobelprize.org/prizes/physics/2013/summary/"
 tags: ["фізика-високих-енергій", "стандартна-модель", "CERN", "LHC"]
+topic: "particle-physics"
+comparison:
+  then: "Бозон Хіггса — гіпотетична частинка, передбачена 1964-го; у підручниках — зі знаком питання."
+  now: "Експериментально підтверджена з 4 липня 2012-го; маса ~125 ГеВ/c²; Стандартна модель закрила цю прогалину."
 draft: false
 ---
 

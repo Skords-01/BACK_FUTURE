@@ -1,0 +1,250 @@
+---
+interface Props {
+  url: string;
+  title: string;
+  text?: string;
+  /** Additional CSS classes for outer wrapper. */
+  class?: string;
+}
+
+const { url, title, text = "", class: className = "" } = Astro.props;
+const shareText = text || title;
+const encodedUrl = encodeURIComponent(url);
+const encodedText = encodeURIComponent(shareText);
+const tg = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+const tw = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
+const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+const li = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+const viber = `viber://forward?text=${encodedText}%20${encodedUrl}`;
+---
+
+<div
+  class:list={[
+    "share-bar border-ink-100 flex flex-wrap items-center gap-2 rounded-2xl border bg-white p-3 sm:p-4",
+    className,
+  ]}
+  data-share-url={url}
+  data-share-title={title}
+  data-share-text={shareText}
+>
+  <span class="text-ink-500 mr-1 text-xs font-medium tracking-wider uppercase sm:text-sm">
+    Поділитись
+  </span>
+
+  <a
+    class="share-link"
+    href={tg}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Поділитись у Telegram"
+    title="Telegram"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm5.5 8.4-1.9 8.6c-.1.6-.5.7-1 .4l-2.7-2-1.3 1.3c-.1.1-.3.2-.5.2l.2-2.7 4.9-4.4c.2-.2-.1-.3-.3-.2L8.8 13l-2.6-.8c-.6-.2-.6-.6.1-.8L17 7.5c.5-.2.9.1.7 1z"
+      ></path>
+    </svg>
+    <span>Telegram</span>
+  </a>
+
+  <a
+    class="share-link"
+    href={tw}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Поділитись у X (Twitter)"
+    title="X (Twitter)"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M18.244 2H21l-6.51 7.44L22 22h-6.844l-4.61-6.026L4.5 22H1.74l7.02-8.025L1.5 2h6.91l4.193 5.51L18.244 2zm-2.4 18h2.05L7.27 4H5.16l10.685 16z"
+      ></path>
+    </svg>
+    <span>X</span>
+  </a>
+
+  <a
+    class="share-link"
+    href={fb}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Поділитись у Facebook"
+    title="Facebook"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M22 12a10 10 0 1 0-11.6 9.9V14.9H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12z"
+      ></path>
+    </svg>
+    <span>Facebook</span>
+  </a>
+
+  <a
+    class="share-link hidden sm:inline-flex"
+    href={li}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Поділитись у LinkedIn"
+    title="LinkedIn"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2zM8 19H5v-9h3v9zM6.5 8.7a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4zM19 19h-3v-4.6c0-1.1 0-2.5-1.5-2.5s-1.7 1.2-1.7 2.4V19h-3v-9h2.9v1.2h.1c.4-.7 1.4-1.5 2.9-1.5 3.1 0 3.7 2 3.7 4.6V19z"
+      ></path>
+    </svg>
+    <span>LinkedIn</span>
+  </a>
+
+  <a
+    class="share-link share-link--viber hidden sm:inline-flex"
+    href={viber}
+    aria-label="Поділитись у Viber"
+    title="Viber"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M12 1C6 1 1 5 1 11.6c0 3.5 1.7 6.4 4.5 8v3.4l3.4-1.9c1 .2 2 .3 3.1.3 6 0 11-4 11-10.6S18 1 12 1zm5.7 14.6c-.3 1-1.4 1.7-2.4 1.8-.4 0-.7 0-3.7-1.2-3.6-1.5-5.7-5.2-5.9-5.4-.2-.2-1.4-1.9-1.4-3.6S5.2 4.6 5.6 4.2c.4-.4.8-.5 1.1-.5h.5c.3 0 .6 0 .8.6.3.7 1 2.3 1.1 2.5.1.2.2.4 0 .6-.1.2-.2.4-.4.6-.2.2-.4.4-.5.6-.2.2-.4.4-.2.7.2.3.9 1.4 2 2.4 1.4 1.2 2.5 1.6 2.8 1.7.3.1.5.1.7-.1.2-.2.8-1 1-1.3.2-.3.4-.2.7-.1.3.1 1.9.9 2.2 1 .3.2.5.2.6.3.1.2.1.9-.2 1.7z"
+      ></path>
+    </svg>
+    <span>Viber</span>
+  </a>
+
+  <button
+    type="button"
+    class="share-link share-link--copy"
+    aria-label="Скопіювати посилання"
+    data-copy-button
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+      ></path>
+    </svg>
+    <span data-copy-label>Скопіювати</span>
+  </button>
+
+  <button
+    type="button"
+    class="share-link share-link--native hidden"
+    aria-label="Системний дайджест поширення"
+    data-native-share
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M18 16.1c-.8 0-1.5.3-2 .8l-7.1-4.2c.1-.5.1-1 0-1.4l7-4.1c.6.5 1.3.8 2.1.8a3 3 0 1 0-3-3c0 .2 0 .5.1.7L8 9.8a3 3 0 1 0 0 4.4l7.1 4.2v.6a3 3 0 1 0 3-2.9z"
+      ></path>
+    </svg>
+    <span>Поділитись…</span>
+  </button>
+</div>
+
+<style is:global>
+  .share-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-ink-200, #d6d6d2);
+    background: #fff;
+    color: var(--color-ink-700, #3a3a35);
+    font-size: 0.825rem;
+    font-weight: 500;
+    line-height: 1;
+    transition:
+      border-color 150ms ease,
+      color 150ms ease,
+      background 150ms ease,
+      transform 150ms ease;
+    cursor: pointer;
+  }
+  .share-link:hover {
+    border-color: var(--color-ink-400, #8a8a82);
+    color: var(--color-ink-900, #16161a);
+  }
+  .share-link:focus-visible {
+    outline: 2px solid var(--color-accent-500, #3b66f1);
+    outline-offset: 2px;
+  }
+  .share-link--copy[data-copied="true"] {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    /** @type {HTMLElement[]} */
+    const bars = Array.from(document.querySelectorAll(".share-bar"));
+    if (bars.length === 0) return;
+
+    bars.forEach((bar) => {
+      if (bar.dataset.shareInit === "true") return;
+      bar.dataset.shareInit = "true";
+
+      const url = bar.dataset.shareUrl || window.location.href;
+      const title = bar.dataset.shareTitle || document.title;
+      const text = bar.dataset.shareText || title;
+
+      // Resolve absolute URL even if a relative URL was passed in.
+      const absoluteUrl = new URL(url, window.location.href).toString();
+
+      const copyBtn = bar.querySelector("[data-copy-button]");
+      const copyLabel = bar.querySelector("[data-copy-label]");
+      if (copyBtn instanceof HTMLButtonElement && copyLabel) {
+        copyBtn.addEventListener("click", function () {
+          const fallback = function () {
+            const ta = document.createElement("textarea");
+            ta.value = absoluteUrl;
+            ta.setAttribute("readonly", "");
+            ta.style.position = "absolute";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+              document.execCommand("copy");
+            } catch (err) {
+              void err;
+            }
+            document.body.removeChild(ta);
+          };
+          const done = function () {
+            copyBtn.dataset.copied = "true";
+            copyLabel.textContent = "Скопійовано!";
+            setTimeout(function () {
+              copyBtn.removeAttribute("data-copied");
+              copyLabel.textContent = "Скопіювати";
+            }, 1800);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(absoluteUrl).then(done, function () {
+              fallback();
+              done();
+            });
+          } else {
+            fallback();
+            done();
+          }
+        });
+      }
+
+      const nativeBtn = bar.querySelector("[data-native-share]");
+      if (nativeBtn instanceof HTMLButtonElement && navigator.share) {
+        nativeBtn.classList.remove("hidden");
+        nativeBtn.addEventListener("click", function () {
+          navigator.share({ title: title, text: text, url: absoluteUrl }).catch(function () {
+            /* user dismissed */
+          });
+        });
+      }
+    });
+  })();
+</script>

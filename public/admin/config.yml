@@ -11,7 +11,7 @@ public_folder: /uploads
 collections:
   - name: facts
     label: Факти
-    folder: content/facts
+    folder: content/uk/facts
     create: true
     path: "{{subject}}/{{slug}}"
     extension: md
@@ -71,6 +71,27 @@ collections:
         fields:
           - { label: Шлях, name: src, widget: image }
           - { label: Alt-текст, name: alt, widget: string }
+      - label: «Тоді vs зараз»
+        name: comparison
+        widget: object
+        required: false
+        hint: Дві короткі тези — як було в підручнику й що зараз.
+        fields:
+          - { label: «Тоді» (як у підручнику), name: then, widget: text }
+          - { label: «Зараз» (актуально), name: now, widget: text }
+      - label: Тема шкільної програми
+        name: topic
+        widget: string
+        required: false
+        hint: id з src/lib/topics.ts (наприклад, exoplanets, genetics).
+      - label: Мова
+        name: lang
+        widget: select
+        required: false
+        default: uk
+        options:
+          - { label: Українська, value: uk }
+          - { label: English, value: en }
       - label: Чернетка
         name: draft
         widget: boolean

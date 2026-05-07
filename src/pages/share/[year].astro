@@ -1,0 +1,184 @@
+---
+import Base from "../../layouts/Base.astro";
+import ShareBar from "../../components/ShareBar.astro";
+import { SITE } from "../../config/site";
+import { getCollection } from "astro:content";
+import { factsForYear, groupBySubject } from "../../lib/filterFacts";
+import { eraForGraduationYear, eraById } from "../../lib/eras";
+import { yearUrl } from "../../lib/url";
+
+export async function getStaticPaths() {
+  const years: { params: { year: string } }[] = [];
+  for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
+    years.push({ params: { year: String(y) } });
+  }
+  return years;
+}
+
+const { year: yearStr } = Astro.params;
+const year = Number(yearStr);
+if (!Number.isInteger(year) || year < SITE.yearMin || year > SITE.yearMax) {
+  return Astro.redirect("/");
+}
+
+const allFacts = await getCollection("facts");
+const matched = factsForYear(allFacts, year);
+const groups = groupBySubject(matched);
+const era = eraById(eraForGraduationYear(year));
+
+const totalCount = matched.length;
+const subjectsCount = groups.length;
+
+const yearPagePath = yearUrl(year);
+const ogPath = `/og/${year}.svg`;
+const yearPageUrl = new URL(yearPagePath, SITE.defaultUrl).toString();
+const description = `Постер для соцмереж: ${totalCount} оновлень за випуск ${year}. ${SITE.tagline}.`;
+const shareTitle = `Випуск ${year}: ${totalCount} ${totalCount === 1 ? "оновлення" : "оновлень"} — ${SITE.name}`;
+const shareText = `${shareTitle}. Поділись із друзями, які теж випускались у ${year}.`;
+---
+
+<Base title={`Постер · Випуск ${year}`} description={description}>
+  <section class="container-prose pt-16">
+    <a
+      href={yearPagePath}
+      class="text-ink-500 hover:text-ink-900 inline-flex items-center gap-1 text-sm"
+      aria-label="Назад до сторінки року"
+    >
+      ← Назад до випуску {year}
+    </a>
+
+    <h1
+      class="font-display text-ink-900 mt-4 text-3xl leading-tight font-extrabold tracking-tight sm:text-5xl"
+    >
+      Постер: випуск {year}
+    </h1>
+    <p class="text-ink-700 mt-3 max-w-prose text-lg">
+      Готовий банер 1200×630 для шеру в соцмережах. Скачай його як SVG/PNG або просто скопіюй
+      посилання — Telegram, X, Facebook автоматично підтягнуть превʼю.
+    </p>
+
+    <figure class="border-ink-200 shadow-card mt-8 overflow-hidden rounded-3xl border bg-white">
+      <img
+        src={ogPath}
+        alt={`Постер: ${shareTitle}`}
+        width="1200"
+        height="630"
+        class="block w-full"
+        decoding="async"
+        loading="eager"
+      />
+    </figure>
+
+    <dl class="text-ink-700 mt-6 grid gap-3 text-sm sm:grid-cols-3">
+      <div class="border-ink-100 rounded-2xl border bg-white p-4">
+        <dt class="text-ink-400 text-xs font-medium tracking-wider uppercase">Випуск</dt>
+        <dd class="text-ink-900 mt-1 font-mono text-2xl tabular-nums">{year}</dd>
+      </div>
+      <div class="border-ink-100 rounded-2xl border bg-white p-4">
+        <dt class="text-ink-400 text-xs font-medium tracking-wider uppercase">Оновлень</dt>
+        <dd class="text-ink-900 mt-1 font-mono text-2xl tabular-nums">{totalCount}</dd>
+      </div>
+      <div class="border-ink-100 rounded-2xl border bg-white p-4">
+        <dt class="text-ink-400 text-xs font-medium tracking-wider uppercase">Предметів</dt>
+        <dd class="text-ink-900 mt-1 font-mono text-2xl tabular-nums">{subjectsCount}</dd>
+      </div>
+    </dl>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a class="btn" href={ogPath} download={`back-future-${year}.svg`}>Скачати SVG</a>
+      <button type="button" class="btn-ghost" data-png-button data-year={year}>
+        Скачати PNG
+      </button>
+      <a class="btn-ghost" href={ogPath} target="_blank" rel="noopener noreferrer">
+        Відкрити в новій вкладці
+      </a>
+    </div>
+
+    <p class="text-ink-500 mt-3 text-xs">
+      PNG генерується у твоєму браузері — нічого не йде на сервер.
+    </p>
+
+    <h2 class="font-display text-ink-900 mt-12 text-xl font-bold">Поділитись посиланням</h2>
+    <p class="text-ink-700 mt-2 text-sm">Підставимо превʼю автоматично.</p>
+    <div class="mt-4">
+      <ShareBar url={yearPageUrl} title={shareTitle} text={shareText} />
+    </div>
+
+    <h2 class="font-display text-ink-900 mt-12 text-xl font-bold">Що в цьому випуску</h2>
+    <p class="text-ink-700 mt-2">{era.label}. {era.summary}</p>
+    {
+      groups.length > 0 ? (
+        <ul class="text-ink-700 mt-4 grid gap-2 sm:grid-cols-2">
+          {groups.map((g) => (
+            <li class="border-ink-100 flex items-center gap-3 rounded-2xl border bg-white p-3 text-sm">
+              <span class="text-2xl" aria-hidden="true">
+                {g.emoji}
+              </span>
+              <span class="font-medium">{g.label}</span>
+              <span class="text-ink-500 ml-auto font-mono text-xs tabular-nums">
+                {g.items.length}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="text-ink-500 mt-4">Поки що немає опублікованих фактів для цього року.</p>
+      )
+    }
+  </section>
+</Base>
+
+<script is:inline>
+  (function () {
+    const btn = document.querySelector("[data-png-button]");
+    if (!(btn instanceof HTMLButtonElement)) return;
+    const year = btn.dataset.year;
+    if (!year) return;
+
+    btn.addEventListener("click", function () {
+      btn.setAttribute("disabled", "true");
+      const original = btn.textContent;
+      btn.textContent = "Готую PNG…";
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = 1200;
+        canvas.height = 630;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          btn.removeAttribute("disabled");
+          btn.textContent = original;
+          return;
+        }
+        ctx.fillStyle = "#f7f7f5";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(function (blob) {
+          if (!blob) {
+            btn.removeAttribute("disabled");
+            btn.textContent = original;
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "back-future-" + year + ".png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          btn.removeAttribute("disabled");
+          btn.textContent = original;
+        }, "image/png");
+      };
+      img.onerror = function () {
+        btn.removeAttribute("disabled");
+        btn.textContent = original;
+        alert("Не вдалось згенерувати PNG. Спробуй ще раз.");
+      };
+      img.src = "/og/" + year + ".svg";
+    });
+  })();
+</script>

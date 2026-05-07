@@ -1,4 +1,4 @@
-import erasJson from "../../content/eras.json" with { type: "json" };
+import erasJson from "../../content/uk/eras.json" with { type: "json" };
 
 export type EraId = 1 | 2 | 3 | 4 | 5;
 

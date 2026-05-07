@@ -4,12 +4,13 @@ import { z } from "astro/zod";
 
 const SUBJECT = z.enum(["astronomy", "biology", "geography", "history", "physics"]);
 const ERA = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
+const LANG = z.enum(["uk", "en"]);
 const SOURCE_URL = z.string().refine((value) => URL.canParse(value), {
   message: "Invalid URL",
 });
 
 const facts = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./content/facts" }),
+  loader: glob({ pattern: "**/*.md", base: "./content/uk/facts" }),
   schema: z.object({
     title: z.string().min(3).max(140),
     subject: SUBJECT,
@@ -35,6 +36,14 @@ const facts = defineCollection({
         alt: z.string(),
       })
       .optional(),
+    comparison: z
+      .object({
+        then: z.string().min(10).max(280),
+        now: z.string().min(10).max(280),
+      })
+      .optional(),
+    topic: z.string().optional(),
+    lang: LANG.default("uk"),
     draft: z.boolean().default(false),
   }),
 });

@@ -8,6 +8,10 @@ sources:
   - title: "IAU 2006 General Assembly: Resolutions"
     url: "https://iauarchive.eso.org/news/pressreleases/detail/iau0603/"
 tags: ["сонячна-система", "планети", "класифікація"]
+topic: "solar-system"
+comparison:
+  then: "Сонячна система має 9 планет: Меркурій, Венера, Земля, Марс, Юпітер, Сатурн, Уран, Нептун, Плутон."
+  now: "Планет — 8. Плутон — карликова планета з пояса Койпера, поряд із Церерою, Хаумеа, Макемаке й Еридою."
 draft: false
 ---
 

@@ -1,0 +1,127 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { SUBJECTS, type SubjectId } from "../config/site";
+import { TOPICS, topicsBySubject } from "../lib/topics";
+import { yearUrl } from "../lib/url";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+
+const factsByTopic = new Map<string, typeof allFacts>();
+for (const fact of allFacts) {
+  const id = fact.data.topic;
+  if (!id) continue;
+  const bucket = factsByTopic.get(id) ?? [];
+  bucket.push(fact);
+  factsByTopic.set(id, bucket);
+}
+
+const taggedCount = Array.from(factsByTopic.values()).reduce((acc, list) => acc + list.length, 0);
+
+const description = `Шкільна програма й оновлення науки: ${TOPICS.length} тем по 5 предметах. Кожна тема показує, що змінилось у науці й історії після того, як ти закрив підручник.`;
+---
+
+<Base title="Теми шкільної програми" description={description}>
+  <section class="container-prose pt-16">
+    <p class="text-accent-700 mb-3 text-sm font-medium tracking-widest uppercase">
+      Шкільна програма ↔ оновлення науки
+    </p>
+    <h1 class="font-display text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
+      Теми
+    </h1>
+    <p class="text-ink-700 mt-4 max-w-prose text-lg">
+      {TOPICS.length} тем зі шкільної програми. До кожної підвʼязані факти, які з'явились (або переглянулись)
+      після виходу підручників. Натомість якщо хочеш дивитись стрічку «що сталось від випуску» — обирай
+      <a class="hover:text-ink-900 underline" href="/">рік випуску</a>.
+    </p>
+    {
+      taggedCount > 0 ? (
+        <p class="text-ink-500 mt-3 text-sm">
+          Поки що пов'язано {taggedCount} {taggedCount === 1 ? "факт" : "фактів"}. Прив'язки додаємо
+          поступово.
+        </p>
+      ) : (
+        <p class="text-ink-500 mt-3 text-sm">
+          Прив'язки до тем зараз додаємо. Якщо знаєш факт, який варто прив'язати —
+          <a
+            class="hover:text-ink-900 ml-1 underline"
+            href="https://github.com/Skords-01/BACK_FUTURE/issues/new"
+          >
+            відкрий issue
+          </a>
+          .
+        </p>
+      )
+    }
+
+    <nav aria-label="Перейти до предмета" class="mt-8 flex flex-wrap gap-2">
+      {
+        SUBJECTS.map((s) => (
+          <a
+            class="border-ink-200 hover:border-ink-400 text-ink-700 hover:text-ink-900 inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-sm transition"
+            href={`#${s.id}`}
+          >
+            <span aria-hidden="true">{s.emoji}</span>
+            <span>{s.label}</span>
+          </a>
+        ))
+      }
+    </nav>
+  </section>
+
+  {
+    SUBJECTS.map((subject) => {
+      const subjectTopics = topicsBySubject(subject.id as SubjectId);
+      return (
+        <section class="container-prose mt-16" id={subject.id}>
+          <header class="mb-6 flex items-center gap-3">
+            <span class="text-3xl" aria-hidden="true">
+              {subject.emoji}
+            </span>
+            <h2 class="font-display text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              {subject.label}
+            </h2>
+          </header>
+          <ul class="grid gap-3 sm:grid-cols-2">
+            {subjectTopics.map((topic) => {
+              const items = factsByTopic.get(topic.id) ?? [];
+              return (
+                <li
+                  id={topic.id}
+                  class="border-ink-100 shadow-card rounded-3xl border bg-white p-5 sm:p-6"
+                >
+                  <div class="flex items-start justify-between gap-3">
+                    <h3 class="font-display text-ink-900 text-lg leading-snug font-bold">
+                      {topic.label}
+                    </h3>
+                    <span class="text-ink-500 shrink-0 font-mono text-xs tabular-nums">
+                      {items.length}
+                    </span>
+                  </div>
+                  <p class="text-ink-700 mt-2 text-sm leading-relaxed">{topic.short}</p>
+                  {items.length > 0 && (
+                    <ul class="text-ink-700 mt-3 space-y-1.5 text-sm">
+                      {items.slice(0, 5).map((f) => (
+                        <li>
+                          <a
+                            class="hover:text-ink-900 underline decoration-dotted"
+                            href={`${yearUrl(f.data.yearOfEvent)}#${f.id}`}
+                          >
+                            <span class="text-ink-400 mr-1 font-mono text-xs tabular-nums">
+                              {f.data.yearOfEvent}
+                            </span>
+                            {f.data.title}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      );
+    })
+  }
+</Base>

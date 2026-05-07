@@ -1,0 +1,366 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { SUBJECTS, type SubjectId } from "../config/site";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+
+interface QuizQuestion {
+  id: string;
+  title: string;
+  short: string;
+  subject: SubjectId;
+  year: number;
+  /** plausible distractor years */
+  options: number[];
+}
+
+const subjectsById = new Map(SUBJECTS.map((s) => [s.id, s]));
+
+function pickDistractors(year: number): number[] {
+  const min = 1990;
+  const max = new Date().getFullYear();
+  const span = Math.min(15, year - min, max - year + 5);
+  const candidates = new Set<number>();
+  // generate up to ~12 candidates around the year
+  for (let attempt = 0; attempt < 30 && candidates.size < 6; attempt++) {
+    const offset =
+      (attempt % 2 === 0 ? 1 : -1) * Math.max(2, Math.round(((attempt + 1) / 2) * (span / 4)));
+    const candidate = year + offset;
+    if (candidate !== year && candidate >= min && candidate <= max) {
+      candidates.add(candidate);
+    }
+  }
+  const arr = Array.from(candidates);
+  // pick three evenly-distributed distractors
+  const picked: number[] = [];
+  const step = Math.max(1, Math.floor(arr.length / 3));
+  for (let i = 0; i < arr.length && picked.length < 3; i += step) {
+    picked.push(arr[i]!);
+  }
+  while (picked.length < 3) {
+    const fallback = year + (picked.length + 2);
+    if (!picked.includes(fallback) && fallback <= max) picked.push(fallback);
+    else picked.push(year - (picked.length + 2));
+  }
+  return picked;
+}
+
+const questions: QuizQuestion[] = allFacts
+  .map((fact) => {
+    const distractors = pickDistractors(fact.data.yearOfEvent);
+    const options = [...distractors, fact.data.yearOfEvent].sort((a, b) => a - b);
+    return {
+      id: fact.id,
+      title: fact.data.title,
+      short: fact.data.short,
+      subject: fact.data.subject as SubjectId,
+      year: fact.data.yearOfEvent,
+      options,
+    };
+  })
+  // shuffle deterministically for SSG; client picks a random subset on load
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+const quizPayload = JSON.stringify(
+  questions.map((q) => ({
+    id: q.id,
+    title: q.title,
+    short: q.short,
+    subject: q.subject,
+    year: q.year,
+    options: q.options,
+    subjectLabel: subjectsById.get(q.subject)?.label ?? q.subject,
+    subjectEmoji: subjectsById.get(q.subject)?.emoji ?? "",
+  })),
+);
+
+const description = `Квіз: вгадай рік відкриття. ${questions.length} запитань на основі реальних фактів з бази.`;
+---
+
+<Base title="Квіз: вгадай рік" description={description}>
+  <section class="container-prose pt-16">
+    <p class="text-accent-700 mb-3 text-sm font-medium tracking-widest uppercase">Інтерактив</p>
+    <h1 class="font-display text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
+      Квіз: вгадай рік
+    </h1>
+    <p class="text-ink-700 mt-4 max-w-prose text-lg">
+      Тобі покажуть факт. Завдання — вибрати рік, коли це сталось. По 5 запитань за раунд.
+    </p>
+
+    {
+      questions.length === 0 ? (
+        <p class="text-ink-500 mt-8">База фактів поки порожня — повертайся пізніше.</p>
+      ) : (
+        <>
+          <div class="mt-8" data-quiz-stage="intro">
+            <p class="text-ink-600 mb-4 text-sm">
+              У базі {questions.length} {questions.length === 1 ? "факт" : "фактів"}. Старт раунду —
+              рандомні 5.
+            </p>
+            <button type="button" class="btn" data-action="start">
+              Поїхали
+            </button>
+          </div>
+
+          <div class="mt-8 hidden" data-quiz-stage="play">
+            <div class="text-ink-500 mb-2 flex items-center justify-between text-xs">
+              <span>
+                Запитання <span data-quiz-current>1</span> / <span data-quiz-total>5</span>
+              </span>
+              <span class="font-mono tabular-nums">
+                Очки: <span data-quiz-score>0</span>
+              </span>
+            </div>
+            <article class="border-ink-100 shadow-card rounded-3xl border bg-white p-5 sm:p-7">
+              <div class="text-ink-500 text-xs font-medium tracking-wider uppercase">
+                <span data-quiz-subject-emoji>🪐</span> <span data-quiz-subject>Астрономія</span>
+              </div>
+              <h2
+                class="font-display text-ink-900 mt-2 text-xl leading-snug font-bold sm:text-2xl"
+                data-quiz-title
+              >
+                ...
+              </h2>
+              <p class="text-ink-700 mt-3 text-base leading-relaxed" data-quiz-short>
+                ...
+              </p>
+
+              <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <button type="button" class="quiz-option" data-option-index={i}>
+                    ----
+                  </button>
+                ))}
+              </div>
+
+              <div class="mt-6 hidden" data-quiz-feedback>
+                <p class="font-display text-lg font-semibold" data-quiz-feedback-text />
+                <button type="button" class="btn-ghost mt-3" data-action="next">
+                  Далі →
+                </button>
+              </div>
+            </article>
+          </div>
+
+          <div class="mt-8 hidden" data-quiz-stage="end">
+            <article class="border-ink-100 shadow-card rounded-3xl border bg-white p-5 sm:p-7">
+              <h2 class="font-display text-ink-900 text-2xl font-extrabold">
+                Результат: <span data-quiz-final>0</span> / <span data-quiz-final-total>5</span>
+              </h2>
+              <p class="text-ink-700 mt-2" data-quiz-verdict />
+              <div class="mt-4 flex flex-wrap gap-3">
+                <button type="button" class="btn" data-action="restart">
+                  Ще раз
+                </button>
+                <a class="btn-ghost" href="/timeline.html">
+                  Подивитись усю хронологію
+                </a>
+              </div>
+            </article>
+          </div>
+        </>
+      )
+    }
+  </section>
+</Base>
+
+<style is:global>
+  .quiz-option {
+    border: 1px solid #d6d6d2;
+    background: #fff;
+    color: #1f1f1c;
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      background 150ms ease,
+      transform 150ms ease;
+  }
+  .quiz-option:hover {
+    border-color: #1e3a8a;
+    background: #f4f6ff;
+  }
+  .quiz-option[data-correct="true"] {
+    border-color: #10b981;
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  .quiz-option[data-incorrect="true"] {
+    border-color: #ef4444;
+    background: #fef2f2;
+    color: #7f1d1d;
+  }
+  .quiz-option[data-disabled="true"] {
+    cursor: default;
+    pointer-events: none;
+  }
+</style>
+
+<script type="application/json" id="quiz-data" set:html={quizPayload} />
+
+<script is:inline>
+  (function () {
+    const dataNode = document.getElementById("quiz-data");
+    if (!dataNode || !dataNode.textContent) return;
+    /** @type {Array<{id:string,title:string,short:string,subject:string,year:number,options:number[],subjectLabel:string,subjectEmoji:string}>} */
+    let pool;
+    try {
+      pool = JSON.parse(dataNode.textContent);
+    } catch (err) {
+      void err;
+      return;
+    }
+    if (!Array.isArray(pool) || pool.length === 0) return;
+
+    const ROUND_SIZE = Math.min(5, pool.length);
+    const stages = {
+      intro: document.querySelector('[data-quiz-stage="intro"]'),
+      play: document.querySelector('[data-quiz-stage="play"]'),
+      end: document.querySelector('[data-quiz-stage="end"]'),
+    };
+    const titleEl = document.querySelector("[data-quiz-title]");
+    const shortEl = document.querySelector("[data-quiz-short]");
+    const subjectEl = document.querySelector("[data-quiz-subject]");
+    const subjectEmojiEl = document.querySelector("[data-quiz-subject-emoji]");
+    const optionEls = Array.from(document.querySelectorAll(".quiz-option"));
+    const currentEl = document.querySelector("[data-quiz-current]");
+    const totalEl = document.querySelector("[data-quiz-total]");
+    const scoreEl = document.querySelector("[data-quiz-score]");
+    const feedbackEl = document.querySelector("[data-quiz-feedback]");
+    const feedbackTextEl = document.querySelector("[data-quiz-feedback-text]");
+    const finalEl = document.querySelector("[data-quiz-final]");
+    const finalTotalEl = document.querySelector("[data-quiz-final-total]");
+    const verdictEl = document.querySelector("[data-quiz-verdict]");
+
+    function setStage(name) {
+      Object.entries(stages).forEach(function (entry) {
+        const el = entry[1];
+        if (el instanceof HTMLElement) {
+          if (entry[0] === name) el.classList.remove("hidden");
+          else el.classList.add("hidden");
+        }
+      });
+    }
+
+    function shuffle(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = copy[i];
+        copy[i] = copy[j];
+        copy[j] = t;
+      }
+      return copy;
+    }
+
+    let round = [];
+    let index = 0;
+    let score = 0;
+    let answered = false;
+
+    function startRound() {
+      round = shuffle(pool).slice(0, ROUND_SIZE);
+      index = 0;
+      score = 0;
+      if (totalEl) totalEl.textContent = String(ROUND_SIZE);
+      if (finalTotalEl) finalTotalEl.textContent = String(ROUND_SIZE);
+      setStage("play");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      answered = false;
+      const q = round[index];
+      if (!q) {
+        endRound();
+        return;
+      }
+      if (titleEl) titleEl.textContent = q.title;
+      if (shortEl) shortEl.textContent = q.short;
+      if (subjectEl) subjectEl.textContent = q.subjectLabel;
+      if (subjectEmojiEl) subjectEmojiEl.textContent = q.subjectEmoji;
+      if (currentEl) currentEl.textContent = String(index + 1);
+      if (scoreEl) scoreEl.textContent = String(score);
+      if (feedbackEl instanceof HTMLElement) feedbackEl.classList.add("hidden");
+      optionEls.forEach(function (btn, i) {
+        if (!(btn instanceof HTMLElement)) return;
+        const value = q.options[i];
+        if (typeof value === "undefined") {
+          btn.style.display = "none";
+          return;
+        }
+        btn.style.display = "";
+        btn.textContent = String(value);
+        btn.removeAttribute("data-correct");
+        btn.removeAttribute("data-incorrect");
+        btn.removeAttribute("data-disabled");
+        btn.dataset.value = String(value);
+      });
+    }
+
+    function selectAnswer(ev) {
+      if (answered) return;
+      const target = ev.currentTarget;
+      if (!(target instanceof HTMLElement)) return;
+      const q = round[index];
+      if (!q) return;
+      const value = Number(target.dataset.value);
+      const isCorrect = value === q.year;
+      answered = true;
+      optionEls.forEach(function (btn) {
+        if (btn instanceof HTMLElement) {
+          btn.dataset.disabled = "true";
+          if (Number(btn.dataset.value) === q.year) btn.dataset.correct = "true";
+        }
+      });
+      if (!isCorrect) target.dataset.incorrect = "true";
+      if (isCorrect) score += 1;
+      if (scoreEl) scoreEl.textContent = String(score);
+      if (feedbackTextEl) {
+        if (isCorrect) {
+          feedbackTextEl.textContent = "Правильно — " + q.year + " рік.";
+          feedbackTextEl.style.color = "#065f46";
+        } else {
+          feedbackTextEl.textContent = "Майже. Правильна відповідь — " + q.year + ".";
+          feedbackTextEl.style.color = "#7f1d1d";
+        }
+      }
+      if (feedbackEl instanceof HTMLElement) feedbackEl.classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      index += 1;
+      if (index >= round.length) endRound();
+      else renderQuestion();
+    }
+
+    function endRound() {
+      setStage("end");
+      if (finalEl) finalEl.textContent = String(score);
+      const ratio = score / round.length;
+      let verdict = "";
+      if (ratio === 1) verdict = "Феноменально. Ти ходиш по бібліотеках, чи що.";
+      else if (ratio >= 0.7) verdict = "Ти добре стежиш за наукою.";
+      else if (ratio >= 0.4) verdict = "Ок, стандартно. Ще раунд?";
+      else verdict = "Не страшно — підручник теж старіший за тебе. Ще спробу?";
+      if (verdictEl) verdictEl.textContent = verdict;
+    }
+
+    document.addEventListener("click", function (e) {
+      const target = e.target;
+      if (!(target instanceof HTMLElement)) return;
+      const action = target.getAttribute("data-action");
+      if (action === "start" || action === "restart") startRound();
+      if (action === "next") nextQuestion();
+    });
+
+    optionEls.forEach(function (btn) {
+      btn.addEventListener("click", selectAnswer);
+    });
+  })();
+</script>

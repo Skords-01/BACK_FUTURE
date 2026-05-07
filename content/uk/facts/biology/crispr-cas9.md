@@ -10,6 +10,10 @@ sources:
   - title: "FDA approves first CRISPR therapy (Casgevy, 2023)"
     url: "https://www.fda.gov/vaccines-blood-biologics/cber-2023-orphan-approvals-new-blas"
 tags: ["генетика", "біотехнології", "нобелівська-премія"]
+topic: "biotech-medicine"
+comparison:
+  then: "Редагування ДНК — складна, дорога й рідкісна процедура. У школі — лише у вигляді теоретичного «трансгенозу»."
+  now: "CRISPR/Cas9 — стандартний інструмент у тисячах лабораторій; з 2023-го існує перший CRISPR-препарат (Casgevy)."
 draft: false
 ---
 
