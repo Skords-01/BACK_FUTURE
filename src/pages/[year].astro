@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import SubjectSection from "../components/SubjectSection.astro";
 import SupportBlock from "../components/SupportBlock.astro";
+import ShareBlock from "../components/ShareBlock.astro";
 import YearInput from "../components/YearInput.astro";
 import { getCollection } from "astro:content";
 import { factsForYear, groupBySubject } from "../lib/filterFacts";
@@ -82,6 +83,8 @@ const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
       </section>
     )
   }
+
+  <ShareBlock year={year} factsCount={totalCount} />
 
   <SupportBlock />
 
