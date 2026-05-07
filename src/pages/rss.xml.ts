@@ -24,7 +24,7 @@ export async function GET(context: APIContext) {
         return {
           title: fact.data.title,
           description: fact.data.short,
-          link: `/${year}.html#${fact.id}`,
+          link: `/${year}/#${fact.id}`,
           pubDate: new Date(fact.data.yearOfEvent, 0, 1),
         };
       }),

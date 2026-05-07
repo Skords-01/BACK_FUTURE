@@ -105,6 +105,25 @@ describe("groupBySubject", () => {
     expect(astronomy?.emoji).toBe("🪐");
   });
 
+  it("threads the typographic mark through every group", () => {
+    // The new templates render the 3-letter Cyrillic abbreviation instead of
+    // the emoji. We assert the mark is present and matches SUBJECTS so the
+    // template doesn't have to reach back into the SUBJECTS table.
+    const facts = [
+      makeFact({ id: "a1", subject: "astronomy", yearOfEvent: 2010, relevantForEras: [3] }),
+      makeFact({ id: "p1", subject: "physics", yearOfEvent: 2010, relevantForEras: [3] }),
+      makeFact({ id: "h1", subject: "history", yearOfEvent: 2010, relevantForEras: [3] }),
+    ];
+
+    const groups = groupBySubject(facts);
+    const marks = Object.fromEntries(groups.map((g) => [g.subject, g.mark]));
+    expect(marks).toEqual({ astronomy: "АСТ", history: "ІСТ", physics: "ФІЗ" });
+    for (const g of groups) {
+      expect(g.mark, `group ${g.subject} is missing a mark`).toBeTruthy();
+      expect(/^[А-ЯҐЄІЇ]{3}$/.test(g.mark)).toBe(true);
+    }
+  });
+
   it("filters out subjects with no items", () => {
     const facts = [
       makeFact({ id: "b1", subject: "biology", yearOfEvent: 2020, relevantForEras: [5] }),
@@ -112,6 +131,7 @@ describe("groupBySubject", () => {
     const groups = groupBySubject(facts);
     expect(groups).toHaveLength(1);
     expect(groups[0]!.subject).toBe("biology");
+    expect(groups[0]!.mark).toBe("БІО");
   });
 
   it("returns an empty array for no input", () => {

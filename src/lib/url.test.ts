@@ -10,36 +10,36 @@ describe("pageUrl", () => {
     expect(pageUrl("/")).toBe("/");
   });
 
-  it("appends .html to a plain slug", () => {
-    expect(pageUrl("about")).toBe("/about.html");
+  it("emits a trailing-slash URL for a plain slug", () => {
+    expect(pageUrl("about")).toBe("/about/");
   });
 
   it("trims leading slashes", () => {
-    expect(pageUrl("/about")).toBe("/about.html");
-    expect(pageUrl("///about")).toBe("/about.html");
+    expect(pageUrl("/about")).toBe("/about/");
+    expect(pageUrl("///about")).toBe("/about/");
   });
 
-  it("trims trailing slashes", () => {
-    expect(pageUrl("about/")).toBe("/about.html");
-    expect(pageUrl("about///")).toBe("/about.html");
+  it("collapses trailing slashes to a single one", () => {
+    expect(pageUrl("about/")).toBe("/about/");
+    expect(pageUrl("about///")).toBe("/about/");
   });
 
   it("trims both ends", () => {
-    expect(pageUrl("/about/")).toBe("/about.html");
+    expect(pageUrl("/about/")).toBe("/about/");
   });
 
   it("preserves nested paths", () => {
-    expect(pageUrl("subject/biology")).toBe("/subject/biology.html");
+    expect(pageUrl("subject/biology")).toBe("/subject/biology/");
   });
 });
 
 describe("yearUrl", () => {
-  it("formats a year as /<year>.html", () => {
-    expect(yearUrl(2003)).toBe("/2003.html");
-    expect(yearUrl(1991)).toBe("/1991.html");
+  it("formats a year as /<year>/", () => {
+    expect(yearUrl(2003)).toBe("/2003/");
+    expect(yearUrl(1991)).toBe("/1991/");
   });
 
   it("handles edge years inside the supported range", () => {
-    expect(yearUrl(2026)).toBe("/2026.html");
+    expect(yearUrl(2026)).toBe("/2026/");
   });
 });

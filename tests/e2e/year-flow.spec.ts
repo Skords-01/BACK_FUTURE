@@ -6,7 +6,7 @@ test("shows matching updates for a valid graduation year", async ({ page }) => {
   await page.getByLabel("Рік випуску").fill("2003");
   await page.getByRole("button", { name: "Подивитись" }).click();
 
-  await expect(page).toHaveURL(/\/2003\.html$/);
+  await expect(page).toHaveURL(/\/2003\/?$/);
   await expect(page.getByRole("heading", { name: /Ти пропустив \d+ оновлень/ })).toBeVisible();
   await expect(page.getByText("Перші стандарти")).toBeVisible();
   await expect(page.getByRole("link", { name: "На головну" })).toBeVisible();
@@ -30,7 +30,7 @@ test("validates graduation year range on the landing page", async ({ page }) => 
 });
 
 test("renders methodology page", async ({ page }) => {
-  await page.goto("/metodologia.html");
+  await page.goto("/metodologia/");
 
   await expect(page.getByRole("heading", { name: "Методологія" })).toBeVisible();
   await expect(page.getByText("Ери шкільних програм")).toBeVisible();
@@ -54,5 +54,5 @@ test("supports keyboard navigation and core landmarks", async ({ page }) => {
   await page.keyboard.press("Tab");
   await expect(mainNav.getByRole("link", { name: "Про проєкт" })).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/about\.html$/);
+  await expect(page).toHaveURL(/\/about\/?$/);
 });

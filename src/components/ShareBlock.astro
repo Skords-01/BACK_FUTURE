@@ -8,7 +8,7 @@ interface Props {
 
 const { year, factsCount } = Astro.props;
 
-const url = new URL(`/${year}.html`, SITE.defaultUrl).toString();
+const url = new URL(`/${year}/`, SITE.defaultUrl).toString();
 const messageBase =
   factsCount > 0
     ? `Я випустився ${year}-го й пропустив ${factsCount} оновлень у науці й історії.`

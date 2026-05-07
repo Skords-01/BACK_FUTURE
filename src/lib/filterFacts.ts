@@ -84,10 +84,16 @@ export function eraCountsForSubject(
   return counts;
 }
 
-/** Group facts by subject in the canonical SUBJECTS order. */
+/**
+ * Group facts by subject in the canonical SUBJECTS order. Both the typographic
+ * `mark` (e.g. "АСТ") and `emoji` are exposed: new templates render the mark,
+ * `emoji` stays around as a fallback for legacy spots like the dense teaser
+ * subtitle on empty-year pages.
+ */
 export function groupBySubject(facts: readonly Fact[]): Array<{
   subject: SubjectId;
   label: string;
+  mark: string;
   emoji: string;
   items: Fact[];
 }> {
@@ -100,6 +106,7 @@ export function groupBySubject(facts: readonly Fact[]): Array<{
   return SUBJECTS.map((s) => ({
     subject: s.id,
     label: s.label,
+    mark: s.mark,
     emoji: s.emoji,
     items: bySubject.get(s.id) ?? [],
   })).filter((g) => g.items.length > 0);

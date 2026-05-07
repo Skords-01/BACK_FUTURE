@@ -95,7 +95,7 @@ const breadcrumbsLd: Record<string, unknown> = {
       "@type": "ListItem",
       position: 2,
       name: subject.label,
-      item: new URL(`/subject/${subject.id}.html`, SITE.defaultUrl).toString(),
+      item: new URL(`/subject/${subject.id}/`, SITE.defaultUrl).toString(),
     },
     {
       "@type": "ListItem",
@@ -129,7 +129,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
           <li>
             <a
-              href={`/subject/${subject.id}.html`}
+              href={`/subject/${subject.id}/`}
               class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
             >
               {subject.label}
@@ -148,7 +148,7 @@ const breadcrumbsLd: Record<string, unknown> = {
         class="text-accent-700 dark:text-accent-300 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
       >
         <a
-          href={`/subject/${subject.id}.html`}
+          href={`/subject/${subject.id}/`}
           class="bg-accent-50 text-accent-700 hover:bg-accent-100 dark:bg-accent-900/40 dark:text-accent-200 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs uppercase transition"
         >
           <span aria-hidden="true">{subject.emoji}</span>

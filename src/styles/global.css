@@ -10,10 +10,42 @@
    surfaces / typography. Dark mode swaps tokens on `html.dark` — we
    keep WARM cream tints in dark mode (not cold whites/greys) per mockup.
    ----------------------------------------------------------------------- */
+/* Tailwind 4 token aliases — single source of truth for colour utilities.
+   Each `--color-*` references the cream-palette CSS variable below so that
+   `bg-ink-50`, `text-accent-700`, … resolve at runtime via the same vars
+   that swap in `html.dark`. The fallback pipeline stays:
+       utility → --color-{name} → --{name} → final hex (in :root / html.dark)
+*/
 @theme {
   --font-display: "Unbounded", "Geist", "Inter", system-ui, sans-serif;
   --font-body: "Geist", "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "DM Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-paper-50: var(--paper);
+  --color-paper-100: var(--paper-2);
+  --color-paper-200: var(--paper-3);
+
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+  --color-accent-900: var(--accent-900);
 }
 
 @layer base {
@@ -58,8 +90,8 @@
     --card: #fbf6e8;
     --card-edge: rgba(26, 24, 19, 0.12);
 
-    /* Lines / rules */
-    --rule: rgba(26, 24, 19, 0.18);
+    /* Lines / rules — softer on cream paper to avoid the over-ruled feel. */
+    --rule: rgba(26, 24, 19, 0.1);
 
     /* Shadows */
     --shadow: 0 1px 0 rgba(26, 24, 19, 0.05), 0 14px 28px -16px rgba(26, 24, 19, 0.22);
@@ -182,7 +214,7 @@
     top: 0;
     left: 0;
     padding: 0.75rem 1.25rem;
-    background: theme("colors.accent.700");
+    background: var(--color-accent-700);
     color: white;
     font-weight: 600;
     border-radius: 0 0 0.75rem 0;
@@ -192,7 +224,7 @@
   }
   .skip-link:focus {
     transform: translateY(0);
-    outline: 2px solid theme("colors.accent.300");
+    outline: 2px solid var(--color-accent-300);
     outline-offset: 2px;
   }
   .container-prose {
@@ -205,7 +237,7 @@
     @apply border-accent-700 bg-accent-700 shadow-card hover:bg-accent-800 focus-visible:outline-accent-500 inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
   }
   .btn-ghost {
-    @apply border-ink-200 text-ink-800 hover:border-ink-400 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-100 dark:hover:border-ink-500 inline-flex items-center justify-center gap-2 rounded-full border bg-white px-5 py-2.5 text-sm font-medium transition;
+    @apply border-ink-200 text-ink-800 hover:border-ink-400 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-100 dark:hover:border-ink-500 inline-flex items-center justify-center gap-2 rounded-full border bg-[color:var(--card)] px-5 py-2.5 text-sm font-medium transition;
   }
   /* Subtle ruled-paper background — only on hero section. */
   .ruled-hero {
