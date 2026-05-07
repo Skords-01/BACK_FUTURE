@@ -15,6 +15,9 @@ sources:
     url: "https://www.reuters.com/technology/chatgpt-sets-record-fastest-growing-user-base-analyst-note-2023-02-01/"
   - title: "Stanford AI Index Report 2024"
     url: "https://aiindex.stanford.edu/report/"
+quote:
+  text: "Це Netscape-момент сучасності — момент, коли технологія перейшла з лабораторій у повсякденне життя"
+  author: "Сатья Наделла, CEO Microsoft"
 tags: ["AI", "LLM", "OpenAI", "генеративний-ШІ"]
 draft: false
 ---

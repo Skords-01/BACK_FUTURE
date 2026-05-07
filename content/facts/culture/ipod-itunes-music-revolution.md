@@ -15,6 +15,9 @@ sources:
     url: "https://www.riaa.com/u-s-sales-database/"
   - title: "Computer History Museum: The iPod and the digital music revolution"
     url: "https://computerhistory.org/blog/the-rise-and-fall-of-the-ipod/"
+quote:
+  text: "Хороші митці копіюють, великі — крадуть. Ми ніколи не соромились брати найкращі ідеї і робити з них продукт"
+  author: "Стів Джобс про підхід до музичного сервісу"
 tags: ["музика", "Apple", "iPod", "цифрова економіка"]
 draft: false
 ---

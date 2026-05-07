@@ -15,6 +15,9 @@ sources:
     url: "https://computerhistory.org/blog/toy-story-25-years-of-cgi-feature-animation/"
   - title: "Academy of Motion Picture Arts: Special Achievement Oscar 1996"
     url: "https://www.oscars.org/oscars/ceremonies/1996"
+quote:
+  text: "Ми хотіли, щоб глядач забув, що це комп'ютер. Завдання — щоб історія була така, що технологія непомітна"
+  author: "Джон Лассетер про філософію Pixar"
 tags: ["анімація", "Pixar", "CGI", "кіно"]
 draft: false
 ---

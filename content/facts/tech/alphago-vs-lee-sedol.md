@@ -15,6 +15,9 @@ sources:
     url: "https://deepmind.google/research/breakthroughs/alphago/"
   - title: "Documentary: AlphaGo (2017)"
     url: "https://www.alphagomovie.com/"
+quote:
+  text: "Я думав, AlphaGo рахує. Але вона грала так, ніби розуміла"
+  author: "Лі Седоль після матчу"
 tags: ["AI", "machine-learning", "DeepMind", "neural-networks"]
 draft: false
 ---

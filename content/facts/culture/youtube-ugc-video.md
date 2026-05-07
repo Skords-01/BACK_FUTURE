@@ -15,6 +15,9 @@ sources:
     url: "https://googlepress.blogspot.com/2006/10/google-to-acquire-youtube-for-165_09.html"
   - title: "Pew Research: YouTube as the most popular online platform"
     url: "https://www.pewresearch.org/internet/2024/01/31/americans-social-media-use/"
+quote:
+  text: "Ми думали, що люди завантажуватимуть домашнє відео для друзів. Виявилось, що вони хочуть показати свою творчість мільйонам незнайомих людей"
+  author: "Чад Герлі в інтерв'ю Wired"
 tags: ["відео", "YouTube", "медіа", "інтернет"]
 draft: false
 ---

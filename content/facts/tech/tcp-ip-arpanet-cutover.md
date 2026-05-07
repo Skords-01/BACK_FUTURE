@@ -15,6 +15,9 @@ sources:
     url: "https://www.rfc-editor.org/rfc/rfc801"
   - title: "Vint Cerf and Bob Kahn: A Protocol for Packet Network Intercommunication (1974)"
     url: "https://www.cs.princeton.edu/courses/archive/fall06/cos561/papers/cerf74.pdf"
+quote:
+  text: "Ми не знали, чи спрацює — ми просто наважились вимкнути старий протокол. Назад дороги не було"
+  author: "згадує Вінт Серф"
 tags: ["інтернет", "TCP/IP", "ARPANET", "протоколи"]
 draft: false
 ---

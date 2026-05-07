@@ -15,6 +15,9 @@ sources:
     url: "https://info.cern.ch/hypertext/WWW/TheProject.html"
   - title: "CERN: Software released into public domain (1993)"
     url: "https://cds.cern.ch/record/1164399"
+quote:
+  text: "Якщо я й маю чим пишатись, то це тим, що ми не пробували на цьому заробити"
+  author: "Тім Бернерс-Лі про рішення CERN зробити веб публічним"
 tags: ["інтернет", "веб", "CERN", "гіпертекст"]
 draft: false
 ---

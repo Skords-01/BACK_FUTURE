@@ -15,6 +15,9 @@ sources:
     url: "https://www.wired.com/story/amazon-web-services-cloud-computing-history/"
   - title: "Gartner: 2024 cloud infrastructure market share"
     url: "https://www.gartner.com/en/newsroom/press-releases"
+quote:
+  text: "Ми не плануємо зайти в хмарний бізнес. Ми вже в ньому"
+  author: "Джефф Безос на конференції Re:Invent 2012"
 tags: ["cloud", "AWS", "інфраструктура", "DevOps"]
 draft: false
 ---

@@ -15,6 +15,9 @@ sources:
     url: "https://thewaltdisneycompany.com/disney-to-acquire-marvel-entertainment/"
   - title: "Variety: How Marvel Built the MCU"
     url: "https://variety.com/2018/film/news/marvel-cinematic-universe-10-years-1202737632/"
+quote:
+  text: "Якщо у тебе є один великий персонаж — це фільм. Якщо у тебе є десять, які знають один одного — це індустрія"
+  author: "Кевін Файгі про логіку MCU"
 tags: ["кіно", "Marvel", "MCU", "блокбастер"]
 draft: false
 ---

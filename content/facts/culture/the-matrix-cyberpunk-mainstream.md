@@ -15,6 +15,9 @@ sources:
     url: "https://www.bfi.org.uk/sight-and-sound/features/matrix-20-years-cinema-bullet-time"
   - title: "Academy Awards: 72nd Ceremony (2000) winners"
     url: "https://www.oscars.org/oscars/ceremonies/2000"
+quote:
+  text: "Ми хотіли зняти фільм, який змусить глядача поставити запитання, яких він раніше не ставив — і дасть йому інструменти, щоб шукати відповідь"
+  author: "Лана Вачовскі про сценарій"
 tags: ["кіно", "Вачовскі", "кіберпанк", "1990-ті"]
 draft: false
 ---

@@ -15,6 +15,9 @@ sources:
     url: "https://www.iea.org/reports/world-energy-outlook-2020"
   - title: "Nature Energy 2018: Solar PV cost declines"
     url: "https://www.nature.com/articles/s41560-017-0022-y"
+quote:
+  text: "Сонячна електроенергія тепер на дві третини дешевша, ніж очікувало IEA лише десять років тому. Це не еволюція — це революція"
+  author: "Фатіх Біроль, виконавчий директор IEA, жовтень 2020"
 tags: ["сонячна енергія", "ВДЕ", "LCOE", "Swanson's law", "Китай"]
 draft: false
 ---
