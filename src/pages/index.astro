@@ -56,10 +56,37 @@ if (!quickYears.includes(SITE.yearMax)) {
               </li>
             ))
           }
+          <li>
+            <button
+              id="surprise-btn"
+              type="button"
+              data-min={SITE.yearMin}
+              data-max={SITE.yearMax}
+              class="border-accent-200 bg-accent-50 text-accent-800 hover:border-accent-700 hover:bg-accent-100 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition"
+              aria-label="Відкрити випадковий рік"
+            >
+              <span aria-hidden="true">🎲</span>
+              Сюрприз
+            </button>
+          </li>
         </ul>
       </div>
     </div>
   </section>
+
+  <script is:inline>
+    (function () {
+      const btn = document.getElementById("surprise-btn");
+      if (!(btn instanceof HTMLButtonElement)) return;
+      btn.addEventListener("click", function () {
+        const min = Number(btn.dataset.min);
+        const max = Number(btn.dataset.max);
+        if (!Number.isInteger(min) || !Number.isInteger(max) || max < min) return;
+        const year = Math.floor(Math.random() * (max - min + 1)) + min;
+        window.location.href = `/${year}.html`;
+      });
+    })();
+  </script>
 
   <section class="container-prose mt-20">
     <h2 class="font-display text-ink-900 text-xl font-bold">Як це працює</h2>
