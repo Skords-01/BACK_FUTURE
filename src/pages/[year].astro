@@ -93,10 +93,32 @@ const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Фак�
   </section>
 
   {
+    groups.length > 1 && (
+      <nav
+        class="border-ink-100 bg-paper-50/85 sticky top-0 z-30 border-b backdrop-blur"
+        aria-label="Розділи цього року"
+      >
+        <div class="container-prose flex flex-nowrap items-center gap-1.5 overflow-x-auto py-2.5 sm:flex-wrap sm:overflow-visible">
+          {groups.map((g) => (
+            <a
+              href={`#subject-${g.subject}`}
+              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex shrink-0 items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap transition"
+            >
+              <span aria-hidden="true">{g.emoji}</span>
+              <span>{g.label}</span>
+              <span class="text-ink-500 font-mono text-xs tabular-nums">{g.items.length}</span>
+            </a>
+          ))}
+        </div>
+      </nav>
+    )
+  }
+
+  {
     groups.length > 0 ? (
       <section class="container-prose">
         {groups.map((g) => (
-          <SubjectSection emoji={g.emoji} label={g.label} items={g.items} />
+          <SubjectSection subjectId={g.subject} emoji={g.emoji} label={g.label} items={g.items} />
         ))}
       </section>
     ) : (
