@@ -6,6 +6,16 @@ import { getCollection } from "astro:content";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const totalFacts = allFacts.length;
+
+// Quick-jump chips: середини декад + поточний рік. Допомагає тим, хто
+// не хоче друкувати на мобілці й сумнівається в точному році.
+const quickYears: number[] = [];
+for (let y = 1995; y <= SITE.yearMax; y += 5) {
+  quickYears.push(y);
+}
+if (!quickYears.includes(SITE.yearMax)) {
+  quickYears.push(SITE.yearMax);
+}
 ---
 
 <Base>
@@ -24,11 +34,29 @@ const totalFacts = allFacts.length;
         науково-популярно, з джерелами.
       </p>
 
-      <div class="mt-10 pb-16">
+      <div class="mt-10 pb-4">
         <YearInput defaultYear={2003} />
         <p class="text-ink-500 mt-3 text-sm">
           Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
         </p>
+      </div>
+
+      <div class="pb-16">
+        <p class="text-ink-500 mb-2 text-xs tracking-wider uppercase">Швидкий вибір</p>
+        <ul class="-mx-1 flex flex-wrap items-center gap-1.5">
+          {
+            quickYears.map((y) => (
+              <li>
+                <a
+                  href={`/${y}.html`}
+                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex items-center rounded-full border bg-white px-3 py-1.5 font-mono text-sm font-medium tabular-nums transition"
+                >
+                  {y}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
       </div>
     </div>
   </section>
