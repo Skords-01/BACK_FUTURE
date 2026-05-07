@@ -29,6 +29,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Dump fact source URLs
+        run: npm run dump:source-urls
+
       - name: Check Markdown and built HTML links
         uses: lycheeverse/lychee-action@v2
         with:
@@ -41,3 +44,4 @@ jobs:
             --exclude-path './content/.*'
             './README.md'
             './docs/**/*.md'
+            './dist/.fact-source-urls.md'
