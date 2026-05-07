@@ -16,6 +16,40 @@ export function factsForYear(facts: readonly Fact[], year: number): Fact[] {
     .sort((a, b) => b.data.yearOfEvent - a.data.yearOfEvent);
 }
 
+/**
+ * Returns all non-draft facts of a single subject, sorted by yearOfEvent
+ * descending with id ascending as a deterministic tie-break.
+ */
+export function factsForSubject(facts: readonly Fact[], subject: SubjectId): Fact[] {
+  return facts
+    .filter((f) => !f.data.draft && f.data.subject === subject)
+    .slice()
+    .sort((a, b) => {
+      if (b.data.yearOfEvent !== a.data.yearOfEvent) {
+        return b.data.yearOfEvent - a.data.yearOfEvent;
+      }
+      return a.id.localeCompare(b.id);
+    });
+}
+
+/**
+ * Count non-draft facts per era for a single subject. Returns a map keyed by
+ * era id; a fact contributes to every era listed in its `relevantForEras`.
+ */
+export function eraCountsForSubject(
+  facts: readonly Fact[],
+  subject: SubjectId,
+): Map<EraId, number> {
+  const counts = new Map<EraId, number>();
+  for (const f of facts) {
+    if (f.data.draft || f.data.subject !== subject) continue;
+    for (const eraId of f.data.relevantForEras) {
+      counts.set(eraId, (counts.get(eraId) ?? 0) + 1);
+    }
+  }
+  return counts;
+}
+
 /** Group facts by subject in the canonical SUBJECTS order. */
 export function groupBySubject(facts: readonly Fact[]): Array<{
   subject: SubjectId;

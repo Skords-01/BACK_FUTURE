@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { Fact } from "./filterFacts";
-import { factsForYear, groupBySubject, pickFallbackYears, sampleFacts } from "./filterFacts";
+import {
+  eraCountsForSubject,
+  factsForSubject,
+  factsForYear,
+  groupBySubject,
+  pickFallbackYears,
+  sampleFacts,
+} from "./filterFacts";
 
 interface FactStub {
   id: string;
@@ -169,6 +176,75 @@ describe("pickFallbackYears", () => {
     const result = pickFallbackYears(2003, facts);
     expect(result).toHaveLength(1);
     expect(result[0]!.year).not.toBe(2003);
+  });
+});
+
+describe("factsForSubject", () => {
+  it("returns only non-draft facts of the requested subject, sorted by year desc / id asc", () => {
+    const facts = [
+      makeFact({ id: "p-old", subject: "physics", yearOfEvent: 2001, relevantForEras: [1] }),
+      makeFact({ id: "b1", subject: "biology", yearOfEvent: 2024, relevantForEras: [5] }),
+      makeFact({ id: "p-2024-b", subject: "physics", yearOfEvent: 2024, relevantForEras: [5] }),
+      makeFact({ id: "p-2024-a", subject: "physics", yearOfEvent: 2024, relevantForEras: [5] }),
+    ];
+
+    expect(factsForSubject(facts, "physics").map((f) => f.id)).toEqual([
+      "p-2024-a",
+      "p-2024-b",
+      "p-old",
+    ]);
+  });
+
+  it("excludes drafts", () => {
+    const facts = [
+      makeFact({
+        id: "p-draft",
+        subject: "physics",
+        yearOfEvent: 2024,
+        relevantForEras: [5],
+        draft: true,
+      }),
+      makeFact({ id: "p-live", subject: "physics", yearOfEvent: 2010, relevantForEras: [3] }),
+    ];
+    expect(factsForSubject(facts, "physics").map((f) => f.id)).toEqual(["p-live"]);
+  });
+
+  it("returns empty when no fact matches the subject", () => {
+    const facts = [
+      makeFact({ id: "h1", subject: "history", yearOfEvent: 2024, relevantForEras: [5] }),
+    ];
+    expect(factsForSubject(facts, "physics")).toEqual([]);
+  });
+});
+
+describe("eraCountsForSubject", () => {
+  it("counts a non-draft fact once per era listed in relevantForEras", () => {
+    const facts = [
+      makeFact({ id: "a", subject: "physics", yearOfEvent: 2010, relevantForEras: [3, 4, 5] }),
+      makeFact({ id: "b", subject: "physics", yearOfEvent: 2020, relevantForEras: [5] }),
+      makeFact({ id: "h", subject: "history", yearOfEvent: 2014, relevantForEras: [4, 5] }),
+    ];
+
+    const counts = eraCountsForSubject(facts, "physics");
+    expect(counts.get(3)).toBe(1);
+    expect(counts.get(4)).toBe(1);
+    expect(counts.get(5)).toBe(2);
+    expect(counts.has(1)).toBe(false);
+    expect(counts.has(2)).toBe(false);
+  });
+
+  it("excludes drafts", () => {
+    const facts = [
+      makeFact({
+        id: "draft",
+        subject: "physics",
+        yearOfEvent: 2010,
+        relevantForEras: [3],
+        draft: true,
+      }),
+    ];
+
+    expect(eraCountsForSubject(facts, "physics").size).toBe(0);
   });
 });
 

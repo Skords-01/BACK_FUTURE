@@ -1,0 +1,211 @@
+---
+import Base from "../../layouts/Base.astro";
+import FactCard from "../../components/FactCard.astro";
+import SupportBlock from "../../components/SupportBlock.astro";
+import { getCollection } from "astro:content";
+import { eraCountsForSubject, factsForSubject } from "../../lib/filterFacts";
+import { ERAS } from "../../lib/eras";
+import { SITE, SUBJECTS, type SubjectId } from "../../config/site";
+
+export async function getStaticPaths() {
+  return SUBJECTS.map((s) => ({ params: { id: s.id } }));
+}
+
+const { id: rawId } = Astro.params;
+const subject = SUBJECTS.find((s) => s.id === rawId);
+if (!subject) {
+  return Astro.redirect("/");
+}
+const subjectId = subject.id satisfies SubjectId;
+
+const allFacts = await getCollection("facts");
+const items = factsForSubject(allFacts, subjectId);
+const eraCounts = eraCountsForSubject(allFacts, subjectId);
+const totalCount = items.length;
+
+const otherSubjects = SUBJECTS.filter((s) => s.id !== subjectId);
+
+const description = `${subject.label}: усе, що змінилось за роки в одній стрічці. ${totalCount} ${
+  totalCount === 1 ? "факт" : "фактів"
+} на ${SITE.name}.`;
+const ogImage = new URL("/og/default.svg", SITE.defaultUrl).toString();
+const homeUrl = `${SITE.defaultUrl}/`;
+const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(
+  `Факт у ${subject.label.toLowerCase()}`,
+)}`;
+
+const collectionLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `${subject.label} — ${SITE.name}`,
+  description,
+  inLanguage: "uk",
+  url: canonical,
+  isPartOf: {
+    "@type": "WebSite",
+    name: SITE.name,
+    url: SITE.defaultUrl,
+  },
+};
+
+const breadcrumbsLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Головна",
+      item: homeUrl,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: subject.label,
+      item: canonical,
+    },
+  ],
+};
+---
+
+<Base
+  title={subject.label}
+  description={description}
+  ogImage={ogImage}
+  jsonLd={[collectionLd, breadcrumbsLd]}
+>
+  <section class="ruled-hero">
+    <div class="container-prose pt-12 pb-12 sm:pt-16">
+      <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
+        <ol class="flex flex-wrap items-center gap-1.5">
+          <li>
+            <a
+              href="/"
+              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+              aria-label="На головну"
+            >
+              Головна
+            </a>
+          </li>
+          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
+          <li>
+            <span class="text-ink-700 dark:text-ink-200 font-medium" aria-current="page"
+              >{subject.label}</span
+            >
+          </li>
+        </ol>
+      </nav>
+
+      <p
+        class="text-accent-700 dark:text-accent-300 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
+      >
+        <span
+          class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs uppercase"
+        >
+          <span aria-hidden="true">{subject.emoji}</span>
+          <span>ПРЕДМЕТ</span>
+        </span>
+        <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
+        <span class="text-ink-600 dark:text-ink-300 font-mono text-xs tabular-nums">
+          {totalCount}
+          {totalCount === 1 ? "факт" : "фактів"}
+        </span>
+      </p>
+      <h1
+        class="font-display text-ink-900 dark:text-ink-50 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
+      >
+        {subject.label}
+      </h1>
+      <p class="text-ink-700 dark:text-ink-200 mt-4 max-w-prose text-lg">
+        Усе, що ми зібрали по предмету «{subject.label.toLowerCase()}», у одній стрічці. Сортовано
+        за роком події — від найновішого до найстаршого.
+      </p>
+    </div>
+  </section>
+
+  {
+    eraCounts.size > 0 && (
+      <nav
+        class="border-ink-100 bg-paper-50/85 sticky top-0 z-30 border-b backdrop-blur"
+        aria-label="Розподіл по ерах"
+      >
+        <div class="container-prose flex flex-nowrap items-center gap-1.5 overflow-x-auto py-2.5 sm:flex-wrap sm:overflow-visible">
+          <span class="text-ink-500 dark:text-ink-400 mr-1 shrink-0 text-xs tracking-wider uppercase">
+            Ери
+          </span>
+          {ERAS.filter((era) => (eraCounts.get(era.id) ?? 0) > 0).map((era) => {
+            const middle = Math.round((era.yearStart + era.yearEnd) / 2);
+            return (
+              <a
+                href={`/${middle}.html`}
+                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex shrink-0 items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap transition"
+                title={`${era.label}: ${era.yearStart}–${era.yearEnd}`}
+              >
+                <span>{era.label}</span>
+                <span class="text-ink-500 font-mono text-xs tabular-nums">
+                  {eraCounts.get(era.id) ?? 0}
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </nav>
+    )
+  }
+
+  {
+    items.length > 0 ? (
+      <section class="container-prose mt-12">
+        <div class="grid gap-4">
+          {items.map((f) => (
+            <FactCard fact={f} />
+          ))}
+        </div>
+      </section>
+    ) : (
+      <section class="container-prose mt-12">
+        <div class="border-ink-200 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border border-dashed bg-white p-8">
+          <p class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">
+            Поки що по «{subject.label.toLowerCase()}» нічого немає.
+          </p>
+          <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
+            Хочеш, щоб ми додали факт?{" "}
+            <a
+              href={issueUrl}
+              class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Запропонуй у GitHub
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <SupportBlock />
+
+  <section class="container-prose mt-16">
+    <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">Інші предмети</h2>
+    <div class="mt-4 grid gap-2 sm:grid-cols-2">
+      {
+        otherSubjects.map((s) => (
+          <a
+            href={`/subject/${s.id}.html`}
+            class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:border-ink-700 dark:bg-ink-900 dark:hover:border-accent-400 dark:hover:bg-ink-800 group flex items-center gap-3 rounded-2xl border bg-white px-4 py-3 transition"
+          >
+            <span aria-hidden="true" class="text-2xl">
+              {s.emoji}
+            </span>
+            <span class="text-ink-800 dark:text-ink-100 font-medium">{s.label}</span>
+            <span class="text-ink-400 group-hover:text-accent-700 dark:group-hover:text-accent-300 ml-auto">
+              →
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>
