@@ -104,30 +104,31 @@
 
   /* Dark mode — теплі кремові, не сині сталеві. */
   html.dark {
-    --paper: #1c1810;
-    --paper-2: #221d13;
-    --paper-3: #2a2316;
+    /* Surfaces — підняті на 2-3 ступені яскравості для теплого коричневого відчуття */
+    --paper: #2a2218;
+    --paper-2: #32291c;
+    --paper-3: #3c3021;
 
-    --ink: #efe7d2;
-    --ink-2: #e2d6b9;
-    --ink-3: #b3a98c;
-    --ink-50: #1c1810;
-    --ink-100: #2a2316;
-    --ink-200: #3a3122;
-    --ink-300: #564930;
-    --ink-400: #7a6a4a;
-    --ink-500: #9d8c69;
-    --ink-600: #b3a98c;
-    --ink-700: #cbbf9f;
-    --ink-800: #e2d6b9;
-    --ink-900: #efe7d2;
+    --ink: #f0e8d2;
+    --ink-2: #e6d9be;
+    --ink-3: #c4b898;
+    --ink-50: #2a2218;
+    --ink-100: #3c3021;
+    --ink-200: #4e3f2a;
+    --ink-300: #6b5938;
+    --ink-400: #8f7a54;
+    --ink-500: #b09a72;
+    --ink-600: #c4b898;
+    --ink-700: #d8cfb4;
+    --ink-800: #e6d9be;
+    --ink-900: #f0e8d2;
 
     --accent: #d05432;
-    --accent-50: #2a1610;
-    --accent-100: #3d1d15;
-    --accent-200: #5b2a1a;
-    --accent-300: #80391f;
-    --accent-400: #a64627;
+    --accent-50: #3a1c10;
+    --accent-100: #4e2418;
+    --accent-200: #6b3220;
+    --accent-300: #8f4228;
+    --accent-400: #b35232;
     --accent-500: #d05432;
     --accent-600: #de6b48;
     --accent-700: #e88762;
@@ -136,13 +137,14 @@
 
     --hl: #f59e0b;
 
-    --card: #261e12;
-    --card-edge: rgba(239, 231, 210, 0.14);
+    /* Cards — помітно світліші за фон, але в тій самій теплій гамі */
+    --card: #342a1c;
+    --card-edge: rgba(240, 232, 210, 0.1);
 
-    --rule: rgba(239, 231, 210, 0.12);
+    --rule: rgba(240, 232, 210, 0.1);
 
-    --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 14px 28px -16px rgba(0, 0, 0, 0.6);
-    --shadow-hi: 0 1px 0 rgba(0, 0, 0, 0.3), 0 22px 40px -18px rgba(0, 0, 0, 0.7);
+    --shadow: 0 1px 0 rgba(0, 0, 0, 0.25), 0 14px 28px -16px rgba(0, 0, 0, 0.5);
+    --shadow-hi: 0 1px 0 rgba(0, 0, 0, 0.25), 0 22px 40px -18px rgba(0, 0, 0, 0.6);
 
     --color-bg: var(--paper);
     --color-fg: var(--ink);
@@ -245,6 +247,48 @@
     background-size: 100% 32px;
     background-position: 0 0;
   }
+  /* -----------------------------------------------------------------------
+     Smooth details/summary open animation via CSS grid trick.
+     No JS needed — works in all modern browsers.
+     Respects prefers-reduced-motion via the global rule above.
+     ----------------------------------------------------------------------- */
+  details > :not(summary) {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 0.25s ease;
+  }
+  details > :not(summary) > * {
+    min-height: 0;
+  }
+  details[open] > :not(summary) {
+    grid-template-rows: 1fr;
+  }
+
+  /* -----------------------------------------------------------------------
+     Scroll-triggered fade-in for [data-reveal] elements.
+     JS adds .is-visible via IntersectionObserver.
+     Reduced-motion: skip animation entirely (elements start visible).
+     ----------------------------------------------------------------------- */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.45s ease,
+      transform 0.45s ease;
+  }
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
   /* Typographic helpers exposed for component templates. */
   .font-display {
     font-family: var(--font-display);
