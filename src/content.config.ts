@@ -5,6 +5,7 @@ import { z } from "astro/zod";
 const SUBJECT = z.enum(["astronomy", "biology", "geography", "history", "physics"]);
 const ERA = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
 const REGION = z.enum(["world", "ukraine"]);
+const IMPACT = z.enum(["low", "medium", "high"]);
 const SOURCE_URL = z.string().refine((value) => URL.canParse(value), {
   message: "Invalid URL",
 });
@@ -24,6 +25,7 @@ const facts = defineCollection({
       .max(new Date().getFullYear() + 1),
     relevantForEras: z.array(ERA).min(1),
     region: REGION.optional(),
+    impact: IMPACT.optional(),
     sources: z
       .array(
         z.object({
