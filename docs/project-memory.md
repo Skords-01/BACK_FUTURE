@@ -2,7 +2,7 @@
 
 > Цей документ — «жива» довгострокова пам'ять проєкту. Тут зафіксовано все, що було спільно проговорено між власником і Devin: бачення, рішення, відкладені моменти, відкриті питання, поточний стан. Оновлюється з кожним значущим етапом. Усі майбутні сесії повинні почати читання саме з цього документа.
 
-Останнє оновлення: травень 2026 року, після фази 1 «UX-швидкі перемоги» (PR #28–#33).
+Останнє оновлення: травень 2026 року, після фази 2 (розширення схеми) і початку фази 3 — PR #35–#39 (`region`, `updatedAt`, `impact`, fallback, `/subject/[id]`).
 
 ---
 
@@ -266,6 +266,14 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 - [#31](https://github.com/Skords-01/BACK_FUTURE/pull/31) — фаза 1.4: JSON-LD `Article` + `BreadcrumbList` на `/[year]`.
 - [#32](https://github.com/Skords-01/BACK_FUTURE/pull/32) — фаза 1.6: sticky-підсумок з якорями-чіпами на предмети, з обробником прокрутки для активного chip'а.
 - [#33](https://github.com/Skords-01/BACK_FUTURE/pull/33) — фаза 1.2: темна тема. Class-based (через `<html class="dark">`), pre-paint скрипт у `Base.astro` запобігає FOUC. `ThemeToggle` компонент: light → dark із 3-м станом «system» (відсутність ключа в `localStorage`). Усі компоненти й сторінки оновлені з `dark:` варіантами; `global.css` має `@variant dark` і CSS vars під темну тему.
+
+### Сесія 11 (PR #35–#39) — Фаза 2 закрита, відкриваємо фазу 3
+
+- [#35](https://github.com/Skords-01/BACK_FUTURE/pull/35) — фаза 3.3: розширений fallback на `[year].astro`. До декадних чіпів із #23 додали теги фактів-«сусідів» з тієї ж ери. `pickFallbackYears(forYear, facts)` + `sampleFacts(facts, n)` в `src/lib/filterFacts.ts`, обидві детерміністичні (юніт-покриття в `filterFacts.test.ts`).
+- [#36](https://github.com/Skords-01/BACK_FUTURE/pull/36) — фаза 2.2: опц. поле `region: "world" | "ukraine"` у `content.config.ts`. На FactCard для `ukraine` малюється прапор і капс-підпис «УКРАЇНСЬКИЙ ВНЕСОК» (`title` для hover, `aria-label`); `world` — нічого не рендериться. Гайд по content `region` в `docs/content-guidelines.md`.
+- [#37](https://github.com/Skords-01/BACK_FUTURE/pull/37) — фаза 2.3: опц. поле `updatedAt` (`z.coerce.date().refine(≤ now)`) + новий хелпер `src/lib/format.ts` (`formatUkDate`, `formatUkShortDate`, `isoDate`) з юніт-тестами. На картці поряд з роком події — «оновл. DD.MM.YYYY» (`<time datetime>` + svg-іконка таймера). У гайді прописано жорсткий правило: `updatedAt` виставляється тільки при зміні змісту, не косметиці.
+- [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38) — фаза 2.4: опц. поле `impact: "low" | "medium" | "high"`. Дефолт «undefined» ≡ medium. Для `"high"` на FactCard появляється бейдж «★ Веха» і м'яка акцентна рамка. Критерії прописані: high — «переломний» факт (~10–15% бібліотеки), якщо вагаєшся — medium.
+- [#39](https://github.com/Skords-01/BACK_FUTURE/pull/39) — фаза 3.1: `/subject/[id]` (5 сторінок через `getStaticPaths`). Hero + breadcrumbs + sticky-навігація по ерах (лінки на репрезентативний рік) + грід FactCard´ів + footer з посиланнями на інші предмети. JSON-LD `CollectionPage` + `BreadcrumbList`. Нові хелпери `factsForSubject` і `eraCountsForSubject` у `src/lib/filterFacts.ts` (з юніт-тестами).
 
 ---
 
