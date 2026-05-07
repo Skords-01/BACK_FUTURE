@@ -81,6 +81,16 @@
       if (storedPreference() === "system") apply("system");
     });
 
-    apply(storedPreference());
+    // Синхронізуємо стан кнопки з поточним класом (вже встановленим pre-paint
+    // скриптом у Base.astro). Не перемикаємо клас повторно — це б спричинило
+    // миттєвий flash через CSS transitions.
+    (function syncButton() {
+      const isDark = root.classList.contains("dark");
+      btn.setAttribute(
+        "aria-label",
+        isDark ? "Переключити на світлу тему" : "Переключити на темну тему",
+      );
+      btn.setAttribute("title", btn.getAttribute("aria-label") ?? "");
+    })();
   })();
 </script>
