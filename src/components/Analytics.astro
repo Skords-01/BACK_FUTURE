@@ -1,0 +1,58 @@
+---
+/**
+ * Privacy-friendly analytics. Без cookies, без PII.
+ *
+ * Опціональний — якщо env-змінні не задані, нічого не рендеримо.
+ *
+ * Підтримуються два провайдери (вибрати один через PUBLIC_ANALYTICS_PROVIDER):
+ *
+ * - "plausible":
+ *     PUBLIC_ANALYTICS_PROVIDER=plausible
+ *     PUBLIC_PLAUSIBLE_DOMAIN=back-future.example.com   (обов'язково)
+ *     PUBLIC_PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/script.js
+ *       (опційно; для self-hosted Plausible вкажи свій домен)
+ *
+ * - "umami":
+ *     PUBLIC_ANALYTICS_PROVIDER=umami
+ *     PUBLIC_UMAMI_WEBSITE_ID=00000000-0000-0000-0000-000000000000  (обов'язково)
+ *     PUBLIC_UMAMI_SCRIPT_URL=https://umami.example.com/script.js   (обов'язково)
+ *
+ * Префікс PUBLIC_ потрібен, щоб Astro прокинув змінну в client-side bundle
+ * (https://docs.astro.build/en/guides/environment-variables/).
+ */
+
+const provider = import.meta.env.PUBLIC_ANALYTICS_PROVIDER;
+
+type PlausibleConfig = { kind: "plausible"; src: string; domain: string };
+type UmamiConfig = { kind: "umami"; src: string; websiteId: string };
+type AnalyticsConfig = PlausibleConfig | UmamiConfig | null;
+
+function resolveConfig(): AnalyticsConfig {
+  if (provider === "plausible") {
+    const domain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
+    if (!domain) return null;
+    const src = import.meta.env.PUBLIC_PLAUSIBLE_SCRIPT_URL ?? "https://plausible.io/js/script.js";
+    return { kind: "plausible", src, domain };
+  }
+  if (provider === "umami") {
+    const websiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+    const src = import.meta.env.PUBLIC_UMAMI_SCRIPT_URL;
+    if (!websiteId || !src) return null;
+    return { kind: "umami", src, websiteId };
+  }
+  return null;
+}
+
+const config = resolveConfig();
+---
+
+{
+  config?.kind === "plausible" && (
+    <script is:inline defer data-domain={config.domain} src={config.src} />
+  )
+}
+{
+  config?.kind === "umami" && (
+    <script is:inline defer data-website-id={config.websiteId} src={config.src} />
+  )
+}
