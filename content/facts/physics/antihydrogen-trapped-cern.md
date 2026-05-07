@@ -6,7 +6,7 @@ yearOfEvent: 2010
 relevantForEras: [1, 2, 3]
 sources:
   - title: "CERN: Antimatter atoms produced and trapped"
-    url: "https://home.cern/news/press-release/cern/antimatter-atoms-produced-and-trapped-cern"
+    url: "https://home.web.cern.ch/news/press-release/cern/antimatter-atoms-produced-and-trapped-cern"
 tags: ["антиматерія", "CERN", "частинки", "симетрії"]
 draft: false
 ---

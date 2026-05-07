@@ -6,7 +6,7 @@ yearOfEvent: 2023
 relevantForEras: [1, 2, 3, 4, 5]
 sources:
   - title: "CERN: ALPHA observes gravity on antimatter"
-    url: "https://home.cern/news/press-release/physics/alpha-experiment-cern-observes-influence-gravity-antimatter"
+    url: "https://home.cern/alpha-experiment-at-cern-observes-the-influence-of-gravity-on-antimatter/"
 tags: ["антиматерія", "гравітація", "CERN", "симетрії"]
 draft: false
 ---

@@ -6,7 +6,7 @@ yearOfEvent: 2015
 relevantForEras: [1, 2, 3, 4]
 sources:
   - title: "LIGO: Gravitational waves detected"
-    url: "https://www.ligo.caltech.edu/news/ligo20160211"
+    url: "https://www.nsf.gov/impacts/space-time"
 tags: ["гравітація", "загальна-теорія-відносності", "чорні-діри", "LIGO"]
 draft: false
 ---
