@@ -37,13 +37,32 @@ const ogImage = new URL(`/og/${year}.svg`, SITE.defaultUrl).toString();
 <Base title={`Випуск ${year}`} description={description} ogImage={ogImage}>
   <section class="ruled-hero">
     <div class="container-prose pt-12 pb-12 sm:pt-16">
-      <a
-        href="/"
-        class="text-ink-500 hover:text-ink-900 inline-flex items-center gap-1 text-sm"
-        aria-label="Назад на головну"
-      >
-        ← Інший рік
-      </a>
+      <nav aria-label="Хлібні крихти" class="text-ink-500 text-sm">
+        <ol class="flex flex-wrap items-center gap-1.5">
+          <li>
+            <a
+              href="/"
+              class="hover:text-ink-900 underline-offset-2 hover:underline"
+              aria-label="На головну"
+            >
+              Головна
+            </a>
+          </li>
+          <li aria-hidden="true" class="text-ink-300">›</li>
+          <li>
+            <span class="text-ink-700 font-medium" aria-current="page">Випуск {year}</span>
+          </li>
+          <li aria-hidden="true" class="text-ink-300 ml-2">·</li>
+          <li>
+            <a
+              href="/"
+              class="hover:text-ink-900 inline-flex items-center gap-1 underline-offset-2 hover:underline"
+            >
+              ← Інший рік
+            </a>
+          </li>
+        </ol>
+      </nav>
 
       <p
         class="text-accent-700 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
