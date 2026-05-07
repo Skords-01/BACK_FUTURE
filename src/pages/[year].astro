@@ -240,7 +240,8 @@ const breadcrumbsLd: Record<string, unknown> = {
                 Фільтри
               </h2>
               <p class="text-ink-500 dark:text-ink-400 mt-1 text-sm">
-                Показано <span data-filter-result-count>{totalCount}</span> з {totalCount} фактів.
+                Показано <span data-filter-result-count>{totalCount}</span> з{" "}
+                <span data-filter-total-count>{totalCount}</span> фактів.
               </p>
             </div>
             <a
@@ -276,9 +277,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               >
                 <option value="">Усі ери</option>
                 {ERAS.map((e) => (
-                  <option
-                    value={String(e.id)}
-                  >{`Ера ${e.id} (${e.yearStart}–${e.yearEnd})`}</option>
+                  <option value={String(e.id)}>{e.label}</option>
                 ))}
               </select>
             </label>
@@ -494,14 +493,20 @@ const breadcrumbsLd: Record<string, unknown> = {
       const sections = Array.from(document.querySelectorAll("[data-subject-section]"));
       const navItems = Array.from(document.querySelectorAll("[data-subject-nav]"));
       const countNode = document.querySelector("[data-filter-result-count]");
+      const totalCountNode = document.querySelector("[data-filter-total-count]");
       const emptyNode = document.querySelector("[data-filter-empty]");
+      // Sync total count from actual DOM cards (high+medium only, low rows excluded)
+      if (totalCountNode) totalCountNode.textContent = String(cards.length);
       const selects = Array.from(form.querySelectorAll("select"));
       const params = new URLSearchParams(window.location.search);
 
       selects.forEach(function (select) {
         const value = params.get(select.name) ?? "";
-        if (value && select.querySelector('option[value="' + CSS.escape(value) + '"]')) {
-          select.value = value;
+        if (value) {
+          const hasOption = Array.from(select.options).some(function (opt) {
+            return opt.value === value;
+          });
+          if (hasOption) select.value = value;
         }
       });
 

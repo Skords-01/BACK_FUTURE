@@ -91,13 +91,13 @@ const mark = subject?.mark ?? "—";
 
   {
     (fact.data.before || fact.data.after) && (
-      <dl class="before-after border-ink-200 bg-paper-50 dark:border-ink-300 dark:bg-paper-100 mx-auto mt-6 grid max-w-2xl gap-3 rounded-2xl border p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4">
+      <dl class="before-after border-ink-200 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 mx-auto mt-6 grid max-w-2xl gap-3 rounded-2xl border p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4">
         {fact.data.before ? (
           <div class="text-center">
-            <dt class="text-ink-500 dark:text-ink-700 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
+            <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
               Було
             </dt>
-            <dd class="text-ink-700 dark:text-ink-800 text-sm leading-relaxed">
+            <dd class="text-ink-700 dark:text-ink-200 text-sm leading-relaxed">
               {fact.data.before}
             </dd>
           </div>
@@ -106,18 +106,16 @@ const mark = subject?.mark ?? "—";
         )}
         <div
           aria-hidden="true"
-          class="text-accent-500 hidden self-center text-2xl font-bold sm:block"
+          class="text-accent-500 dark:text-accent-400 hidden self-center text-2xl font-bold sm:block"
         >
           →
         </div>
         {fact.data.after ? (
           <div class="text-center">
-            <dt class="text-accent-700 dark:text-accent-700 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
+            <dt class="text-accent-700 dark:text-accent-300 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
               Стало
             </dt>
-            <dd class="text-ink-900 dark:text-ink-900 text-sm leading-relaxed">
-              {fact.data.after}
-            </dd>
+            <dd class="text-ink-900 dark:text-ink-50 text-sm leading-relaxed">{fact.data.after}</dd>
           </div>
         ) : (
           <div />
