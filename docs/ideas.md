@@ -2,84 +2,119 @@
 
 > Список можливих покращень для BACK_FUTURE. Це **сирі ідеї** — частина з них ще не пройшла через спільне обговорення. Робочий план PR-ів — у [`roadmap.md`](./roadmap.md).
 > 24 пункти, погоджені з власником, — у `project-memory.md`, секція 6.
+> Останнє оновлення: травень 2026 (після PR #51). Ідеї, які вже зроблено, перенесено в розділ «Зроблено» внизу — щоб новий контриб'ютор бачив, що залишилось, але міг звіритися з історією.
 
 ---
 
-## 1. Контент: збагатити модель факту
+## Що ще можна зробити
 
-- **`before` / `after`** — те, що було в підручнику vs. що відомо зараз. Це і є головна цінність продукту, але зараз вона неявна.
-- **`region`** — `world` / `ukraine` / `country:<iso2>`. Для фільтра «тільки про Україну».
-- **`updatedAt`** — дата останнього оновлення факту. Бейдж «Оновлено» або сортування за свіжістю.
-- **`impact`** — `low` / `medium` / `high`. Для сортування fallback, коли року події не вистачає.
+### Контент: збагатити модель факту
+
 - **`authors`** — frontmatter список авторів (для `/contributors`).
-- **Розширити `SUBJECTS`:** tech, medicine, economy, culture, sport, ecology.
-- **Перевірка джерел у CI:** є `link-check.yml`, можна розширити, щоб ловив биті посилання саме у `sources[].url`.
+- **`region: country:<iso2>`** — наразі є тільки `world` / `ukraine`; для майбутнього розширення фільтрів за країнами (роздільно від «світу» загалом).
+- **Міграція `image` на `astro:assets`** — поки `image` поле опційне; коли заповниться — оптимізувати pipeline (5.3 у roadmap).
 
-## 2. UX і навігація
+### UX і навігація
 
-- **Глобальний хедер з лічильником:** «База: N фактів».
-- **Мобільне меню** в `Header.astro` (зараз 2 пункти інлайн, на маленьких екранах виглядає тісно).
-- **Хлібні крихти** (`/` → `Випуск 2010`).
-- **Sticky-summary** на сторінці року — чіпи з предметами, кліком — якір на секцію.
-- **Кастомний 404** — дружній текст + поле року.
-- **Темна тема** з `prefers-color-scheme` і перемикачем.
-- **Кнопка «Сюрприз»** — рандомний рік на лендингу.
+- **«Мій рік»** — швидке повернення, persist у `localStorage` (4.3 у roadmap).
+- **Збережені факти** (bookmark) — невелика сторінка `/saved` (4.4).
+- **Анімовані тізери** на лендингу (#4 у memory).
 
-## 3. Нові сторінки
+### Нові сторінки
 
-- **`/subject/[id]`** — стрічка по предмету.
-- **`/era/[slug]`** — стрічка по ері.
-- **`/fact/[slug]`** — окрема сторінка факту (для шерингу + JSON-LD).
-- **`/timeline`** — лінія часу (узгоджена ціль із 24-пункту memory).
-- **`/compare?a=1998&b=2010`** — два роки поруч.
-- **`/quiz`** — «вгадай рік відкриття» (узгоджена ціль).
-- **`/share/[year]`** — рендер постера PNG для соцмереж.
+- **`/timeline`** — лінія часу всіх фактів (#9 у memory; 6.2 у roadmap).
+- **`/compare?a=1998&b=2010`** — два роки поруч (6.3 у roadmap).
+- **`/quiz`** — «вгадай рік відкриття» (#11 у memory; 6.4 у roadmap).
+- **`/share/[year]`** — рендер постера PNG для соцмереж (#5 у memory; 6.5 у roadmap).
 
-## 4. SEO і шеринг
+### SEO і шеринг
 
-- **OG як PNG** — поточні SVG не завжди показуються (LinkedIn, частково Telegram). Додати рендер через satori / sharp.
-- **JSON-LD:** `Article`, `BreadcrumbList`, `FAQPage` (для секції FAQ на about).
-- **Twitter card** уже на місці (summary_large_image), але треба перевірити мета-теги для конкретних сторінок.
+- **JSON-LD `FAQPage`** — для секції FAQ на about (`Article` + `BreadcrumbList` уже є після PR #31).
+- **Перевірка мета-тегів** для `/era/[slug]` і `/fact/[slug]` після PR #51 — впевнитися, що OG/Twitter картки коректно резолвляться у популярних соцмережах.
 
-## 5. Пошук і персоналізація
+### Пошук і персоналізація
 
-- **Pagefind** — build-time повнотекстовий пошук, без беку.
-- **Фільтри** на сторінці року: за регіоном / ерою / предметом / `impact`.
-- **«Мій рік»** — швидке повернення (persist у `localStorage`).
-- **Збережені факти** (bookmark) — невелика сторінка `/saved`.
+- **Pagefind** — build-time повнотекстовий пошук, без беку (4.1 у roadmap).
 
-## 6. PWA / a11y
+### PWA / a11y
 
-- **Manifest + service-worker** для офлайн-перегляду.
-- **axe-аудит** у CI поверх Playwright.
-- **`astro:assets`** для майбутніх зображень фактів.
+- **Manifest + service-worker** для офлайн-перегляду (5.1 у roadmap).
+- **axe-аудит** у CI поверх Playwright (5.2 у roadmap).
 
-## 7. Залучення / community
+### Залучення / community
 
-- **Шер-кнопки** на `/[year]` і `/fact/[slug]` (Telegram, X, копіювання посилання).
-- **GitHub Action:** issue зі шаблону `new-fact.yml` → draft PR з готовим `.md`-фактом.
-- **`/contributors`** — список авторів фактів.
-- **`/support`** — Monobank / Buy Me a Coffee, коли URL заповняться у `site.ts`.
-- **Email-дайджест** — раз на місяць нові факти (Buttondown або self-hosted).
+- **GitHub Action**: issue зі шаблону `new-fact.yml` → draft PR з готовим `.md`-фактом (7.1 у roadmap).
+- **`/contributors`** — список авторів фактів (потребує `authors` поля у frontmatter; 7.2 у roadmap).
+- **`/support`** — Monobank / Buy Me a Coffee, коли URL заповняться у `site.ts` (7.3 у roadmap).
+- **Email-дайджест** — раз на місяць нові факти, Buttondown або self-hosted (7.4 у roadmap).
 
-## 8. Бренд і дизайн-система
+### Бренд і дизайн-система
 
-- **SVG-іконки** для предметів замість emoji (зберегти emoji як fallback).
-- **Локальний шрифтовий пакет** замість Google Fonts (швидше + privacy).
-- **Theme Laboratory** як справжній перемикач теми (cookie-стійкий).
+- **SVG-іконки** для предметів замість emoji — зберегти emoji як fallback (8.1 у roadmap).
+- **Локальний шрифтовий пакет** замість Google Fonts — швидше + privacy (8.2 у roadmap).
+- **Theme Laboratory як справжній перемикач** теми, cookie-стійкий (8.3 у roadmap).
 
-## 9. i18n
+### i18n
 
-- **Astro routing**: `/uk/`, `/en/` (структурно — без перекладів спочатку).
-- **ICU plurals** у форматерах.
-- **Англомовний UI** — діаспора + органіка.
+- **Astro routing**: `/uk/`, `/en/` — структурно, без перекладів спочатку (9.1 у roadmap).
+- **ICU plurals** у форматерах кількості (9.2 у roadmap).
+- **Англомовний UI** — діаспора + органіка (9.3 у roadmap).
 
-## 10. Тех-борг
+### Інфра / тех-борг
 
-- **Юніт-тести** для `src/lib/` (зараз тільки Playwright e2e).
-- **`docs/proposed-ci/`** — CI вже мігрований, теку можна видаляти.
-- **pre-commit** (Husky + lint-staged) для prettier / markdownlint — пришвидшує red-CI feedback loop локально.
-- **Renovate** замість/поверх Dependabot — кращий контроль над групуваннями оновлень.
+- **Реальний домен + Vercel/Cloudflare** (#18 у memory) — pending після контенту.
+- **Sveltia / Decap CMS production auth** (#20 у memory) — конфіг є, налаштування авторизації для прода — pending.
+- **Renovate замість/поверх Dependabot** — кращий контроль над групуваннями оновлень (поки Dependabot з груповими правилами достатній).
+
+---
+
+## Зроблено
+
+> Перенесено сюди з основного списку ідей — лишаємо як референс, що було колись «ідеєю», а тепер уже у проді. Деталі — в `project-memory.md` (секція 7) і `roadmap.md` (таблиця «Нещодавно виконано»).
+
+### Контент-схема (зроблено)
+
+- **`before` / `after`** — Done у [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28).
+- **`region` (`world` / `ukraine`)** — Done у [#36](https://github.com/Skords-01/BACK_FUTURE/pull/36).
+- **`updatedAt`** — Done у [#37](https://github.com/Skords-01/BACK_FUTURE/pull/37).
+- **`impact` (low / medium / high)** — Done у [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38).
+- **Розширити `SUBJECTS`** (tech, medicine, economy, culture, sport, ecology) — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) (схема/CMS/UI; контент додається окремо).
+- **CI-перевірка для `sources[].url`** — Done у [#49](https://github.com/Skords-01/BACK_FUTURE/pull/49) + [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) (warning-only Lychee).
+
+### UX і навігація (зроблено)
+
+- **Глобальний хедер з лічильником «N фактів»** — Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).
+- **Мобільне меню в `Header.astro`** — Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).
+- **Хлібні крихти** — Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).
+- **Sticky-summary з якорями-чіпами на предмети** — Done у [#32](https://github.com/Skords-01/BACK_FUTURE/pull/32).
+- **Кастомний 404** — Done у [#29](https://github.com/Skords-01/BACK_FUTURE/pull/29).
+- **Темна тема (auto-prefers + перемикач)** — Done у [#33](https://github.com/Skords-01/BACK_FUTURE/pull/33).
+- **Кнопка «Сюрприз» (рандомний рік)** — Done у [#30](https://github.com/Skords-01/BACK_FUTURE/pull/30).
+
+### Нові сторінки (частково)
+
+- **`/subject/[id]` — стрічка по предмету** — Done у [#39](https://github.com/Skords-01/BACK_FUTURE/pull/39).
+- **`/era/[slug]` — стрічка по ері** — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51).
+- **`/fact/[slug]` — окрема сторінка факту** — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51).
+
+### SEO і шеринг (зроблено)
+
+- **OG як PNG** — Done у [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) (через `@resvg/resvg-js`).
+- **JSON-LD `Article` + `BreadcrumbList`** — Done у [#31](https://github.com/Skords-01/BACK_FUTURE/pull/31).
+- **Шер-кнопки (Telegram, X, copy, native share)** — Done у [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21).
+
+### Пошук і персоналізація (зроблено)
+
+- **Фільтри на сторінці року** (subject / era / region / impact) — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51).
+
+### Тех-борг (зроблено)
+
+- **Юніт-тести для `src/lib/`** — Done у [#27](https://github.com/Skords-01/BACK_FUTURE/pull/27) (Vitest, покриття `src/lib/` ≥ 80%).
+- **`docs/proposed-ci/` видалено** — Done у [#26](https://github.com/Skords-01/BACK_FUTURE/pull/26).
+- **pre-commit (Husky + lint-staged)** — Done у [#42](https://github.com/Skords-01/BACK_FUTURE/pull/42).
+- **Розширене групування Dependabot** — Done у [#41](https://github.com/Skords-01/BACK_FUTURE/pull/41).
+- **Аналітика (Plausible / Umami як опція через env)** — Done у [#44](https://github.com/Skords-01/BACK_FUTURE/pull/44).
+- **Окремий markdownlint для `content/facts/`** — Done у [#50](https://github.com/Skords-01/BACK_FUTURE/pull/50).
 
 ---
 

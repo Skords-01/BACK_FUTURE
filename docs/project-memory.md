@@ -107,13 +107,19 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### Стан батчів
 
-| Предмет   | Гілка                     | PR                                                      | Статус                                                  |
-| --------- | ------------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
-| Astronomy | `devin/content-astronomy` | [#3](https://github.com/Skords-01/BACK_FUTURE/pull/3)   | Awaiting approval                                       |
-| Biology   | `devin/content-biology`   | [#4](https://github.com/Skords-01/BACK_FUTURE/pull/4)   | Awaiting approval (з виправленнями про війну 2014/2022) |
-| Geography | `devin/content-geography` | [#5](https://github.com/Skords-01/BACK_FUTURE/pull/5)   | Awaiting approval                                       |
-| History   | `devin/content-history`   | [#16](https://github.com/Skords-01/BACK_FUTURE/pull/16) | MERGED                                                  |
-| Physics   | `devin/content-physics`   | [#17](https://github.com/Skords-01/BACK_FUTURE/pull/17) | MERGED                                                  |
+| Предмет   | Гілка                     | PR                                                      | Статус                                           |
+| --------- | ------------------------- | ------------------------------------------------------- | ------------------------------------------------ |
+| Astronomy | `devin/content-astronomy` | [#3](https://github.com/Skords-01/BACK_FUTURE/pull/3)   | MERGED                                           |
+| Biology   | `devin/content-biology`   | [#4](https://github.com/Skords-01/BACK_FUTURE/pull/4)   | MERGED (з виправленнями про війну 2014/2022)     |
+| Geography | `devin/content-geography` | [#5](https://github.com/Skords-01/BACK_FUTURE/pull/5)   | MERGED                                           |
+| History   | `devin/content-history`   | [#16](https://github.com/Skords-01/BACK_FUTURE/pull/16) | MERGED                                           |
+| Physics   | `devin/content-physics`   | [#17](https://github.com/Skords-01/BACK_FUTURE/pull/17) | MERGED                                           |
+| Tech      | —                         | —                                                       | Pending — порожня тека `content/facts/tech/`     |
+| Medicine  | —                         | —                                                       | Pending — порожня тека `content/facts/medicine/` |
+| Economy   | —                         | —                                                       | Pending — порожня тека `content/facts/economy/`  |
+| Culture   | —                         | —                                                       | Pending — порожня тека `content/facts/culture/`  |
+| Sport     | —                         | —                                                       | Pending — порожня тека `content/facts/sport/`    |
+| Ecology   | —                         | —                                                       | Pending — порожня тека `content/facts/ecology/`  |
 
 ### Український внесок (ціль: 3+ фактів на предмет)
 
