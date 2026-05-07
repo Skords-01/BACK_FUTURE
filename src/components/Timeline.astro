@@ -125,11 +125,15 @@ const activeEraId = selectedYear
           }
           <!-- Major ticks (every 5y, label only when not colliding with endpoints) -->
           {
-            majorTicks.map((y) => (
-              <div class="tl-tick tl-tick--major" style={`left: ${pct(y)}%;`}>
-                {labeledTicks.has(y) && <span class="tl-tick-label">{y}</span>}
-              </div>
-            ))
+            majorTicks.map((y) => {
+              const edge =
+                y === yearMin ? " tl-tick--edge-left" : y === yearMax ? " tl-tick--edge-right" : "";
+              return (
+                <div class={`tl-tick tl-tick--major${edge}`} style={`left: ${pct(y)}%;`}>
+                  {labeledTicks.has(y) && <span class="tl-tick-label">{y}</span>}
+                </div>
+              );
+            })
           }
 
           <!-- Fact dots ON the axis -->
@@ -333,13 +337,14 @@ const activeEraId = selectedYear
     user-select: none;
   }
   /* Кінцеві мітки (yearMin / yearMax) тиснуться до межі axis, інакше їхня
-     половина випадає за паддінг inner і створює хвостовий «порожній» простір
-     при горизонтальному скролі. */
-  .tl-tick--major:first-of-type .tl-tick-label {
+     половина випадає за overflow інакого предка (.tl-scroll з overflow-x:auto)
+     і ми бачимо лише «91» / «26». :first-of-type не матчить, бо першими
+     дітьми .tl-axis рендеряться minor ticks — використовуємо явний клас. */
+  .tl-tick--edge-left .tl-tick-label {
     left: 0;
     transform: translateX(0);
   }
-  .tl-tick--major:last-of-type .tl-tick-label {
+  .tl-tick--edge-right .tl-tick-label {
     left: auto;
     right: 0;
     transform: translateX(0);
