@@ -33,6 +33,12 @@ collections:
           - { label: Географія, value: geography }
           - { label: Історія, value: history }
           - { label: Фізика, value: physics }
+          - { label: Технологія, value: tech }
+          - { label: Медицина, value: medicine }
+          - { label: Економіка, value: economy }
+          - { label: Культура, value: culture }
+          - { label: Спорт, value: sport }
+          - { label: Екологія, value: ecology }
       - label: Короткий опис
         name: short
         widget: text

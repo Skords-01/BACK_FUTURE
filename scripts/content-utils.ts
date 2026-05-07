@@ -7,7 +7,19 @@ import { z } from "zod";
 
 import erasJson from "../content/eras.json" with { type: "json" };
 
-export const subjects = ["astronomy", "biology", "geography", "history", "physics"] as const;
+export const subjects = [
+  "astronomy",
+  "biology",
+  "geography",
+  "history",
+  "physics",
+  "tech",
+  "medicine",
+  "economy",
+  "culture",
+  "sport",
+  "ecology",
+] as const;
 export const eraIds = [1, 2, 3, 4, 5] as const;
 
 export type SubjectId = (typeof subjects)[number];

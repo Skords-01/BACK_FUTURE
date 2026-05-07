@@ -1,0 +1,215 @@
+---
+import Base from "../../layouts/Base.astro";
+import FactCard from "../../components/FactCard.astro";
+import SupportBlock from "../../components/SupportBlock.astro";
+import { getCollection } from "astro:content";
+import { factsForEra, groupBySubject } from "../../lib/filterFacts";
+import { ERAS } from "../../lib/eras";
+import { SITE } from "../../config/site";
+import { eraUrl, yearUrl } from "../../lib/url";
+
+export async function getStaticPaths() {
+  return ERAS.map((era) => ({ params: { slug: era.slug } }));
+}
+
+const { slug } = Astro.params;
+const era = ERAS.find((e) => e.slug === slug);
+if (!era) {
+  return Astro.redirect("/");
+}
+
+const allFacts = await getCollection("facts");
+const items = factsForEra(allFacts, era.id);
+const groups = groupBySubject(items);
+const totalCount = items.length;
+const middleYear = Math.round((era.yearStart + Math.min(era.yearEnd, SITE.yearMax)) / 2);
+const otherEras = ERAS.filter((e) => e.id !== era.id);
+
+const description = `${era.label}: факти, релевантні випускникам ${era.yearStart}–${Math.min(
+  era.yearEnd,
+  SITE.yearMax,
+)} років. ${totalCount} ${totalCount === 1 ? "факт" : "фактів"} на ${SITE.name}.`;
+const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
+const homeUrl = `${SITE.defaultUrl}/`;
+const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+
+const collectionLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `${era.label} — ${SITE.name}`,
+  description,
+  inLanguage: "uk",
+  url: canonical,
+  isPartOf: {
+    "@type": "WebSite",
+    name: SITE.name,
+    url: SITE.defaultUrl,
+  },
+};
+
+const breadcrumbsLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Головна",
+      item: homeUrl,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: era.label,
+      item: canonical,
+    },
+  ],
+};
+---
+
+<Base
+  title={era.label}
+  description={description}
+  ogImage={ogImage}
+  jsonLd={[collectionLd, breadcrumbsLd]}
+>
+  <section class="ruled-hero">
+    <div class="container-prose pt-12 pb-12 sm:pt-16">
+      <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
+        <ol class="flex flex-wrap items-center gap-1.5">
+          <li>
+            <a
+              href="/"
+              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+              aria-label="На головну"
+            >
+              Головна
+            </a>
+          </li>
+          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
+          <li>
+            <span class="text-ink-700 dark:text-ink-200 font-medium" aria-current="page"
+              >{era.label}</span
+            >
+          </li>
+          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600 ml-2">·</li>
+          <li>
+            <a
+              href={yearUrl(middleYear)}
+              class="hover:text-ink-900 dark:hover:text-ink-100 inline-flex items-center gap-1 underline-offset-2 hover:underline"
+            >
+              Приклад року
+            </a>
+          </li>
+        </ol>
+      </nav>
+
+      <p
+        class="text-accent-700 dark:text-accent-300 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
+      >
+        <span
+          class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs tabular-nums"
+          >ЕРА {era.id}</span
+        >
+        <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
+        <span class="text-ink-600 dark:text-ink-300 text-xs uppercase">
+          {era.yearStart}–{era.yearEnd > SITE.yearMax ? "сьогодні" : era.yearEnd}
+        </span>
+      </p>
+      <h1
+        class="font-display text-ink-900 dark:text-ink-50 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
+      >
+        {era.label}
+      </h1>
+      <p class="text-ink-700 dark:text-ink-200 mt-4 max-w-prose text-lg">{era.summary}</p>
+      <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
+        {totalCount}
+        {totalCount === 1 ? "факт" : "фактів"} у цій ері, згруповано за предметами.
+      </p>
+    </div>
+  </section>
+
+  {
+    groups.length > 1 && (
+      <nav
+        class="border-ink-100 bg-paper-50/85 sticky top-0 z-30 border-b backdrop-blur"
+        aria-label="Розділи цієї ери"
+      >
+        <div class="container-prose flex flex-nowrap items-center gap-1.5 overflow-x-auto py-2.5 sm:flex-wrap sm:overflow-visible">
+          {groups.map((g) => (
+            <a
+              href={`#subject-${g.subject}`}
+              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex shrink-0 items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap transition"
+            >
+              <span aria-hidden="true">{g.emoji}</span>
+              <span>{g.label}</span>
+              <span class="text-ink-500 font-mono text-xs tabular-nums">{g.items.length}</span>
+            </a>
+          ))}
+        </div>
+      </nav>
+    )
+  }
+
+  {
+    groups.length > 0 ? (
+      <section class="container-prose">
+        {groups.map((g) => (
+          <section id={`subject-${g.subject}`} class="mt-12 scroll-mt-20">
+            <header class="mb-5 flex items-baseline gap-3">
+              <span class="text-3xl" aria-hidden="true">
+                {g.emoji}
+              </span>
+              <h2 class="font-display text-ink-900 dark:text-ink-50 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                {g.label}
+              </h2>
+              <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
+                {g.items.length}
+                {g.items.length === 1 ? "оновлення" : "оновлень"}
+              </span>
+            </header>
+            <div class="grid gap-4">
+              {g.items.map((f) => (
+                <FactCard fact={f} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </section>
+    ) : (
+      <section class="container-prose mt-12">
+        <div class="border-ink-200 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border border-dashed bg-white p-8">
+          <p class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">
+            Поки що для цієї ери немає фактів.
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <SupportBlock />
+
+  <section class="container-prose mt-16">
+    <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">Інші ери</h2>
+    <div class="mt-4 grid gap-2 sm:grid-cols-2">
+      {
+        otherEras.map((e) => (
+          <a
+            href={eraUrl(e.slug)}
+            class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:border-ink-700 dark:bg-ink-900 dark:hover:border-accent-400 dark:hover:bg-ink-800 group flex items-center justify-between gap-3 rounded-2xl border bg-white px-4 py-3 transition"
+          >
+            <span class="flex flex-col">
+              <span class="text-ink-800 dark:text-ink-100 font-medium">{e.label}</span>
+              <span class="text-ink-500 dark:text-ink-400 text-xs">
+                {e.yearStart}–{e.yearEnd > SITE.yearMax ? "сьогодні" : e.yearEnd}
+              </span>
+            </span>
+            <span class="text-ink-400 group-hover:text-accent-700 dark:group-hover:text-accent-300">
+              →
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>

@@ -21,18 +21,22 @@ const weakSubjectRows = rows.flatMap((row) =>
     .map(({ subject }) => `- ${row.era.label}: missing ${subject}`),
 );
 
+const subjectLabels = subjects.map((subject) => subject[0]!.toUpperCase() + subject.slice(1));
+const header = ["Era", "Years", "Total", ...subjectLabels];
+const alignment = ["---", "---", "---:", ...subjects.map(() => "---:")];
+
 const report = [
   "# Content coverage report",
   "",
   `Generated for ${facts.length} facts.`,
   "",
-  "| Era | Years | Total | Astronomy | Biology | Geography | History | Physics |",
-  "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+  `| ${header.join(" | ")} |`,
+  `| ${alignment.join(" | ")} |`,
   ...rows.map((row) => {
     const counts = Object.fromEntries(
       row.subjectCounts.map(({ subject, count }) => [subject, count]),
     );
-    return `| ${row.era.label} | ${row.era.yearStart}–${row.era.yearEnd} | ${row.total} | ${counts.astronomy} | ${counts.biology} | ${counts.geography} | ${counts.history} | ${counts.physics} |`;
+    return `| ${row.era.label} | ${row.era.yearStart}–${row.era.yearEnd} | ${row.total} | ${subjects.map((subject) => counts[subject] ?? 0).join(" | ")} |`;
   }),
   "",
   "## Gaps",

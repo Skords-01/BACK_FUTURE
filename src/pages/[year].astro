@@ -1,14 +1,14 @@
 ---
 import Base from "../layouts/Base.astro";
-import SubjectSection from "../components/SubjectSection.astro";
 import SupportBlock from "../components/SupportBlock.astro";
 import ShareBlock from "../components/ShareBlock.astro";
 import YearInput from "../components/YearInput.astro";
 import FactCard from "../components/FactCard.astro";
 import { getCollection } from "astro:content";
 import { factsForYear, groupBySubject, pickFallbackYears, sampleFacts } from "../lib/filterFacts";
-import { eraForGraduationYear, eraById } from "../lib/eras";
+import { ERAS, eraForGraduationYear, eraById } from "../lib/eras";
 import { SITE, SUBJECTS } from "../config/site";
+import { eraUrl } from "../lib/url";
 
 export async function getStaticPaths() {
   const years: { params: { year: string } }[] = [];
@@ -43,6 +43,15 @@ const fallbackYears =
 const teaserFacts = totalCount === 0 ? sampleFacts(allFacts, 2) : [];
 const subjectMeta = new Map(SUBJECTS.map((s) => [s.id, s] as const));
 const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Факт під випуск ${year}`)}`;
+const regionOptions = [
+  { value: "world", label: "Світ" },
+  { value: "ukraine", label: "Україна" },
+] as const;
+const impactOptions = [
+  { value: "low", label: "Низький" },
+  { value: "medium", label: "Середній" },
+  { value: "high", label: "Високий" },
+] as const;
 
 // Усі year-сторінки регенеряться разом при кожному build — використовуємо
 // build-time дату як `datePublished`/`dateModified`. Для трекінгу свіжості
@@ -142,7 +151,11 @@ const breadcrumbsLd: Record<string, unknown> = {
           >ВИПУСК {year}</span
         >
         <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
-        <span class="text-ink-600 dark:text-ink-300 text-xs uppercase">{era.label}</span>
+        <a
+          href={eraUrl(era.slug)}
+          class="text-ink-600 hover:text-accent-700 dark:text-ink-300 dark:hover:text-accent-300 text-xs uppercase underline-offset-2 hover:underline"
+          >{era.label}</a
+        >
       </p>
       <h1
         class="font-display text-ink-900 dark:text-ink-50 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
@@ -158,6 +171,98 @@ const breadcrumbsLd: Record<string, unknown> = {
   </section>
 
   {
+    groups.length > 0 && (
+      <section class="container-prose mt-10" aria-labelledby="filters-heading">
+        <div class="border-ink-100 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border p-5 sm:p-6">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2
+                id="filters-heading"
+                class="font-display text-ink-900 dark:text-ink-50 text-lg font-bold tracking-tight"
+              >
+                Фільтри
+              </h2>
+              <p class="text-ink-500 dark:text-ink-400 mt-1 text-sm">
+                Показано <span data-filter-result-count>{totalCount}</span> з {totalCount} фактів.
+              </p>
+            </div>
+            <a
+              href={`/${year}.html`}
+              class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 text-sm font-medium underline-offset-2 hover:underline"
+            >
+              Скинути
+            </a>
+          </div>
+
+          <form data-year-filters class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label class="block">
+              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
+                Предмет
+              </span>
+              <select
+                name="subject"
+                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+              >
+                <option value="">Усі предмети</option>
+                {SUBJECTS.map((s) => (
+                  <option value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
+                Ера
+              </span>
+              <select
+                name="era"
+                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+              >
+                <option value="">Усі ери</option>
+                {ERAS.map((e) => (
+                  <option
+                    value={String(e.id)}
+                  >{`Ера ${e.id} (${e.yearStart}–${e.yearEnd})`}</option>
+                ))}
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
+                Регіон
+              </span>
+              <select
+                name="region"
+                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+              >
+                <option value="">Усі регіони</option>
+                {regionOptions.map((option) => (
+                  <option value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
+                Вплив
+              </span>
+              <select
+                name="impact"
+                class="border-ink-200 text-ink-900 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 mt-1 w-full rounded-xl border bg-white px-3 py-2 text-sm"
+              >
+                <option value="">Усі рівні</option>
+                {impactOptions.map((option) => (
+                  <option value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+          </form>
+          <p data-filter-empty class="text-ink-500 dark:text-ink-400 mt-4 hidden text-sm">
+            За такими фільтрами фактів не знайдено.
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  {
     groups.length > 1 && (
       <nav
         class="border-ink-100 bg-paper-50/85 sticky top-0 z-30 border-b backdrop-blur"
@@ -167,11 +272,14 @@ const breadcrumbsLd: Record<string, unknown> = {
           {groups.map((g) => (
             <a
               href={`#subject-${g.subject}`}
+              data-subject-nav={g.subject}
               class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 inline-flex shrink-0 items-center gap-1.5 rounded-full border bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap transition"
             >
               <span aria-hidden="true">{g.emoji}</span>
               <span>{g.label}</span>
-              <span class="text-ink-500 font-mono text-xs tabular-nums">{g.items.length}</span>
+              <span class="text-ink-500 font-mono text-xs tabular-nums" data-nav-count>
+                {g.items.length}
+              </span>
             </a>
           ))}
         </div>
@@ -183,7 +291,33 @@ const breadcrumbsLd: Record<string, unknown> = {
     groups.length > 0 ? (
       <section class="container-prose">
         {groups.map((g) => (
-          <SubjectSection subjectId={g.subject} emoji={g.emoji} label={g.label} items={g.items} />
+          <section id={`subject-${g.subject}`} data-subject-section class="mt-12 scroll-mt-20">
+            <header class="mb-5 flex items-baseline gap-3">
+              <span class="text-3xl" aria-hidden="true">
+                {g.emoji}
+              </span>
+              <h2 class="font-display text-ink-900 dark:text-ink-50 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                {g.label}
+              </h2>
+              <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
+                <span data-filter-count>{g.items.length}</span>
+                {g.items.length === 1 ? "оновлення" : "оновлень"}
+              </span>
+            </header>
+            <div class="grid gap-4">
+              {g.items.map((f) => (
+                <div
+                  data-fact-card
+                  data-region={f.data.region ?? "world"}
+                  data-era={f.data.relevantForEras.join(" ")}
+                  data-subject={f.data.subject}
+                  data-impact={f.data.impact ?? "medium"}
+                >
+                  <FactCard fact={f} />
+                </div>
+              ))}
+            </div>
+          </section>
         ))}
       </section>
     ) : (
@@ -258,6 +392,103 @@ const breadcrumbsLd: Record<string, unknown> = {
       </section>
     )
   }
+
+  <script is:inline>
+    (function () {
+      const form = document.querySelector("[data-year-filters]");
+      if (!(form instanceof HTMLFormElement)) return;
+
+      const cards = Array.from(document.querySelectorAll("[data-fact-card]"));
+      const sections = Array.from(document.querySelectorAll("[data-subject-section]"));
+      const navItems = Array.from(document.querySelectorAll("[data-subject-nav]"));
+      const countNode = document.querySelector("[data-filter-result-count]");
+      const emptyNode = document.querySelector("[data-filter-empty]");
+      const selects = Array.from(form.querySelectorAll("select"));
+      const params = new URLSearchParams(window.location.search);
+
+      selects.forEach(function (select) {
+        const value = params.get(select.name) ?? "";
+        if (value && select.querySelector('option[value="' + CSS.escape(value) + '"]')) {
+          select.value = value;
+        }
+      });
+
+      function selected(name) {
+        const field = form.elements.namedItem(name);
+        return field instanceof HTMLSelectElement ? field.value : "";
+      }
+
+      function visibleCardsIn(section) {
+        return Array.from(section.querySelectorAll("[data-fact-card]")).filter(function (card) {
+          return card instanceof HTMLElement && !card.hidden;
+        }).length;
+      }
+
+      function updateUrl() {
+        const url = new URL(window.location.href);
+        selects.forEach(function (select) {
+          if (select.value) {
+            url.searchParams.set(select.name, select.value);
+          } else {
+            url.searchParams.delete(select.name);
+          }
+        });
+        window.history.replaceState({}, "", url);
+      }
+
+      function update() {
+        const subject = selected("subject");
+        const era = selected("era");
+        const region = selected("region");
+        const impact = selected("impact");
+        let visible = 0;
+
+        cards.forEach(function (card) {
+          if (!(card instanceof HTMLElement)) return;
+          const cardEras = (card.dataset.era ?? "").split(" ");
+          const matches =
+            (!subject || card.dataset.subject === subject) &&
+            (!era || cardEras.includes(era)) &&
+            (!region || card.dataset.region === region) &&
+            (!impact || card.dataset.impact === impact);
+          card.hidden = !matches;
+          if (matches) visible += 1;
+        });
+
+        sections.forEach(function (section) {
+          if (!(section instanceof HTMLElement)) return;
+          const sectionCount = visibleCardsIn(section);
+          section.hidden = sectionCount === 0;
+          const sectionCountNode = section.querySelector("[data-filter-count]");
+          if (sectionCountNode) sectionCountNode.textContent = String(sectionCount);
+        });
+
+        navItems.forEach(function (item) {
+          if (!(item instanceof HTMLElement)) return;
+          const subjectId = item.dataset.subjectNav;
+          const section = sections.find(function (candidate) {
+            return candidate instanceof HTMLElement && candidate.id === "subject-" + subjectId;
+          });
+          const sectionCount = section instanceof HTMLElement ? visibleCardsIn(section) : 0;
+          item.hidden = sectionCount === 0;
+          const navCountNode = item.querySelector("[data-nav-count]");
+          if (navCountNode) navCountNode.textContent = String(sectionCount);
+        });
+
+        if (countNode) countNode.textContent = String(visible);
+        if (emptyNode instanceof HTMLElement) emptyNode.classList.toggle("hidden", visible > 0);
+        updateUrl();
+      }
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+      });
+      selects.forEach(function (select) {
+        select.addEventListener("change", update);
+      });
+      update();
+    })();
+  </script>
 
   <ShareBlock year={year} factsCount={totalCount} />
 

@@ -2,7 +2,19 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
-const SUBJECT = z.enum(["astronomy", "biology", "geography", "history", "physics"]);
+const SUBJECT = z.enum([
+  "astronomy",
+  "biology",
+  "geography",
+  "history",
+  "physics",
+  "tech",
+  "medicine",
+  "economy",
+  "culture",
+  "sport",
+  "ecology",
+]);
 const ERA = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
 const REGION = z.enum(["world", "ukraine"]);
 const IMPACT = z.enum(["low", "medium", "high"]);

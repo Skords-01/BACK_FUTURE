@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { SubjectId } from "../config/site";
 import type { Fact } from "./filterFacts";
 import {
   eraCountsForSubject,
@@ -11,7 +12,7 @@ import {
 
 interface FactStub {
   id: string;
-  subject: "astronomy" | "biology" | "geography" | "history" | "physics";
+  subject: SubjectId;
   yearOfEvent: number;
   relevantForEras: ReadonlyArray<1 | 2 | 3 | 4 | 5>;
   draft?: boolean;

@@ -3,6 +3,7 @@ import { render } from "astro:content";
 
 import type { Fact } from "../lib/filterFacts";
 import { formatUkShortDate, isoDate } from "../lib/format";
+import { factUrl } from "../lib/url";
 
 interface Props {
   fact: Fact;
@@ -11,6 +12,7 @@ interface Props {
 const { fact } = Astro.props;
 const { Content } = await render(fact);
 const updatedAt = fact.data.updatedAt;
+const detailUrl = factUrl(fact.id);
 ---
 
 <article
@@ -83,6 +85,14 @@ const updatedAt = fact.data.updatedAt;
   </div>
 
   <p class="text-ink-700 dark:text-ink-200 mt-3 text-base leading-relaxed">{fact.data.short}</p>
+
+  <a
+    href={detailUrl}
+    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 mt-3 inline-flex items-center gap-1 text-sm font-medium underline-offset-2 hover:underline"
+    aria-label={`Відкрити постійну сторінку факту: ${fact.data.title}`}
+  >
+    Постійна сторінка →
+  </a>
 
   {
     (fact.data.before || fact.data.after) && (
