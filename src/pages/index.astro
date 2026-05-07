@@ -8,6 +8,20 @@ import { getCollection } from "astro:content";
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const totalFacts = allFacts.length;
 
+const DEFAULT_YEAR = 2003;
+const currentYear = new Date().getFullYear();
+const defaultYearsPassed = currentYear - DEFAULT_YEAR;
+const defaultFactsSince = allFacts.filter((f) => f.data.yearOfEvent >= DEFAULT_YEAR).length;
+
+function pluralizeYears(n: number): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return "рік";
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
+  return "років";
+}
+const yearsPassedLabel = pluralizeYears(defaultYearsPassed);
+
 // Quick-jump chips: середини декад + поточний рік. Допомагає тим, хто
 // не хоче друкувати на мобілці й сумнівається в точному році.
 const quickYears: number[] = [];
@@ -40,12 +54,12 @@ const websiteLd: Record<string, unknown> = {
       <p
         class="text-accent-700 dark:text-accent-300 mb-3 text-sm font-medium tracking-widest uppercase"
       >
-        Українською. Без підписки.
+        Українською · Без підписки · {totalFacts} фактів
       </p>
       <h1
         class="font-display text-ink-900 dark:text-ink-50 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
       >
-        Що ти пропустив після випускного?
+        Що ти пропустив <em class="text-accent-700 dark:text-accent-300 italic">після</em> випускного?
       </h1>
       <p class="text-ink-700 dark:text-ink-200 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
         Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
@@ -59,7 +73,24 @@ const websiteLd: Record<string, unknown> = {
         </p>
       </div>
 
-      <Timeline facts={allFacts} />
+      <div class="mt-8 border-t border-[color:var(--card-edge)] pt-6">
+        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <span
+            class="text-ink-400 dark:text-ink-500 font-mono text-[11px] tracking-widest uppercase"
+          >
+            Шкала часу · {SITE.yearMin} → {SITE.yearMax}
+          </span>
+          <span class="text-ink-500 dark:text-ink-400 font-mono text-xs">
+            З твого випуску минуло <strong class="text-ink-700 dark:text-ink-200"
+              >{defaultYearsPassed}</strong
+            >{" "}
+            {yearsPassedLabel} · <strong class="text-ink-700 dark:text-ink-200"
+              >{defaultFactsSince}</strong
+            > фактів
+          </span>
+        </div>
+        <Timeline facts={allFacts} selectedYear={DEFAULT_YEAR} />
+      </div>
 
       <div class="pb-16">
         <p class="text-ink-500 dark:text-ink-400 mb-2 text-xs tracking-wider uppercase">
@@ -87,8 +118,7 @@ const websiteLd: Record<string, unknown> = {
               class="border-accent-200 bg-accent-50 text-accent-800 hover:border-accent-700 hover:bg-accent-100 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition"
               aria-label="Відкрити випадковий рік"
             >
-              <span aria-hidden="true" class="text-accent-700 font-display">※</span>
-              Випадковий рік
+              🎲 Сюрприз
             </button>
           </li>
         </ul>
@@ -120,8 +150,8 @@ const websiteLd: Record<string, unknown> = {
       <li>
         <span class="text-ink-900 dark:text-ink-50 font-semibold">2. Отримаєш стрічку оновлень</span
         >
-        по 5 предметах: астрономія, біологія, географія, історія, фізика. Те, що змінилось у науці й світі
-        від твого випускного року.
+        по 11 предметах: астрономія, біологія, географія, історія, фізика, технологія, медицина, економіка,
+        культура, спорт, екологія. Те, що змінилось у науці й світі від твого випускного року.
       </li>
       <li>
         <span class="text-ink-900 dark:text-ink-50 font-semibold">3. Кожен факт — з джерелом.</span>
@@ -132,14 +162,19 @@ const websiteLd: Record<string, unknown> = {
 
   <section class="container-prose mt-16">
     <h2 class="font-display text-ink-900 dark:text-ink-50 text-xl font-bold">Тематичні блоки</h2>
-    <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
+    <ul
+      class="mt-4 grid gap-2"
+      style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))"
+    >
       {
         SUBJECTS.map((s) => (
-          <li class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 flex flex-col items-start rounded-2xl border bg-white p-4">
-            <span class="text-accent-700 dark:text-accent-300 font-display text-2xl font-bold tracking-[0.18em]">
+          <li class="border-ink-100 hover:border-accent-400 dark:border-ink-700 dark:bg-ink-800 dark:hover:border-accent-500 flex items-baseline gap-2.5 rounded-2xl border bg-white px-4 py-3.5 transition">
+            <span class="text-accent-700 dark:text-accent-300 shrink-0 font-mono text-[11px] font-semibold tracking-[0.14em] uppercase">
               {s.mark}
             </span>
-            <span class="text-ink-900 dark:text-ink-100 mt-2 font-medium">{s.label}</span>
+            <span class="text-ink-900 dark:text-ink-100 font-display text-base leading-snug font-semibold tracking-tight">
+              {s.label}
+            </span>
           </li>
         ))
       }

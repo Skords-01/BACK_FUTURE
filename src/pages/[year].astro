@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import SupportBlock from "../components/SupportBlock.astro";
 import ShareBlock from "../components/ShareBlock.astro";
+import Timeline from "../components/Timeline.astro";
 import YearInput from "../components/YearInput.astro";
 import FactCard from "../components/FactCard.astro";
 import FeatureFactCard from "../components/FeatureFactCard.astro";
@@ -45,6 +46,19 @@ const groups = groupBySubject(featuredAndMedium);
 const era = eraById(eraForGraduationYear(year));
 
 const totalCount = matched.length;
+
+const yearNow = new Date().getFullYear();
+const yearsPassed = yearNow - year;
+const factsSinceYear = allFacts.filter((f) => !f.data.draft && f.data.yearOfEvent >= year).length;
+
+function pluralizeYears(n: number): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return "рік";
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
+  return "років";
+}
+const yearsPassedLabel = pluralizeYears(yearsPassed);
 
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
 const ogImage = new URL(`/og/${year}.png`, SITE.defaultUrl).toString();
@@ -191,6 +205,25 @@ const breadcrumbsLd: Record<string, unknown> = {
         {totalCount === 1 ? "факт" : totalCount >= 2 && totalCount < 5 ? "факти" : "фактів"}
       </p>
       <p class="text-ink-700 dark:text-ink-200 mt-3 max-w-prose text-base">{era.summary}</p>
+
+      <div class="mt-8 border-t border-[color:var(--card-edge)] pt-6">
+        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <span
+            class="text-ink-400 dark:text-ink-500 font-mono text-[11px] tracking-widest uppercase"
+          >
+            Шкала часу · {SITE.yearMin} → {SITE.yearMax}
+          </span>
+          <span class="text-ink-500 dark:text-ink-400 font-mono text-xs">
+            З твого випуску минуло <strong class="text-ink-700 dark:text-ink-200"
+              >{yearsPassed}</strong
+            >{" "}
+            {yearsPassedLabel} · <strong class="text-ink-700 dark:text-ink-200"
+              >{factsSinceYear}</strong
+            > фактів
+          </span>
+        </div>
+        <Timeline facts={allFacts} selectedYear={year} />
+      </div>
     </div>
   </section>
 
