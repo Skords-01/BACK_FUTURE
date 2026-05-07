@@ -22,6 +22,7 @@ Recommended flow:
 2. Save it as draft.
 3. Move it to review after sources are filled.
 4. Publish only after CI passes: `npm run validate:content`, `npm run lint`, `npm run build`.
+5. Source URLs are checked in the `Link check` workflow: CI runs `npm run dump:source-urls` and validates `dist/.fact-source-urls.md` with Lychee.
 
 ## Local checks
 
@@ -32,4 +33,5 @@ npm run validate:content
 npm run coverage:content
 npm run lint:md
 npm run build
+npm run dump:source-urls
 ```

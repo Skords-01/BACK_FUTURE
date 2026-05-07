@@ -3,6 +3,7 @@ import { render } from "astro:content";
 
 import type { Fact } from "../lib/filterFacts";
 import { formatUkShortDate, isoDate } from "../lib/format";
+import { factUrl } from "../lib/url";
 
 interface Props {
   fact: Fact;
@@ -11,6 +12,7 @@ interface Props {
 const { fact } = Astro.props;
 const { Content } = await render(fact);
 const updatedAt = fact.data.updatedAt;
+const detailUrl = factUrl(fact.id);
 ---
 
 <article
@@ -40,7 +42,12 @@ const updatedAt = fact.data.updatedAt;
     <h3
       class="font-display text-ink-900 dark:text-ink-50 text-xl leading-snug font-bold sm:text-2xl"
     >
-      {fact.data.title}
+      <a
+        href={detailUrl}
+        class="hover:text-accent-700 dark:hover:text-accent-300 underline-offset-4 transition hover:underline"
+      >
+        {fact.data.title}
+      </a>
     </h3>
     <div class="flex shrink-0 flex-col items-end gap-1">
       <div class="flex items-center gap-1.5">

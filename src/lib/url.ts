@@ -15,3 +15,15 @@ export function pageUrl(slug: string): string {
 export function yearUrl(year: number): string {
   return pageUrl(String(year));
 }
+
+export function factSlug(id: string): string {
+  return id.split("/").at(-1) ?? id;
+}
+
+export function factUrl(id: string): string {
+  return pageUrl(`fact/${factSlug(id)}`);
+}
+
+export function eraUrl(slug: string): string {
+  return pageUrl(`era/${slug}`);
+}

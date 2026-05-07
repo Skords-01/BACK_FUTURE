@@ -26,6 +26,12 @@ export const SUBJECTS = [
   { id: "geography", label: "Географія", emoji: "🌍" },
   { id: "history", label: "Історія", emoji: "📜" },
   { id: "physics", label: "Фізика", emoji: "⚛️" },
+  { id: "tech", label: "Технологія", emoji: "💻" },
+  { id: "medicine", label: "Медицина", emoji: "🏥" },
+  { id: "economy", label: "Економіка", emoji: "💰" },
+  { id: "culture", label: "Культура", emoji: "🎭" },
+  { id: "sport", label: "Спорт", emoji: "⚽" },
+  { id: "ecology", label: "Екологія", emoji: "🌱" },
 ] as const;
 
 export type SubjectId = (typeof SUBJECTS)[number]["id"];

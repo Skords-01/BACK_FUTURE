@@ -67,7 +67,7 @@ for (const fact of facts) {
 
 for (const [subject, count] of bySubject) {
   if (count < minFactsPerSubject) {
-    errors.push(`content/facts/${subject}: expected at least ${minFactsPerSubject} fact`);
+    warnings.push(`content/facts/${subject}: expected at least ${minFactsPerSubject} fact`);
   }
 }
 

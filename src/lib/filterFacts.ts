@@ -3,17 +3,56 @@ import { ERAS, eraForGraduationYear, type EraId } from "./eras";
 import { SUBJECTS, type SubjectId } from "../config/site";
 
 export type Fact = CollectionEntry<"facts">;
+export type Region = "world" | "ukraine";
+export type Impact = "low" | "medium" | "high";
+
+export interface FactFilters {
+  region?: Region;
+  era?: EraId;
+  subject?: SubjectId;
+  impact?: Impact;
+}
+
+function sortFacts(a: Fact, b: Fact): number {
+  if (b.data.yearOfEvent !== a.data.yearOfEvent) {
+    return b.data.yearOfEvent - a.data.yearOfEvent;
+  }
+  return a.id.localeCompare(b.id);
+}
+
+function matchesFilters(fact: Fact, filters: FactFilters): boolean {
+  if (filters.region && (fact.data.region ?? "world") !== filters.region) return false;
+  if (filters.era && !fact.data.relevantForEras.includes(filters.era)) return false;
+  if (filters.subject && fact.data.subject !== filters.subject) return false;
+  if (filters.impact && (fact.data.impact ?? "medium") !== filters.impact) return false;
+  return true;
+}
 
 /**
  * Returns facts that are "new" for someone who graduated in `year`.
  * A fact is shown if its `relevantForEras` contains the user's era id.
  */
-export function factsForYear(facts: readonly Fact[], year: number): Fact[] {
+export function factsForYear(
+  facts: readonly Fact[],
+  year: number,
+  filters: FactFilters = {},
+): Fact[] {
   const era: EraId = eraForGraduationYear(year);
   return facts
     .filter((f) => !f.data.draft)
     .filter((f) => f.data.relevantForEras.includes(era))
-    .sort((a, b) => b.data.yearOfEvent - a.data.yearOfEvent);
+    .filter((f) => matchesFilters(f, filters))
+    .slice()
+    .sort(sortFacts);
+}
+
+export function factsForEra(facts: readonly Fact[], era: EraId, filters: FactFilters = {}): Fact[] {
+  return facts
+    .filter((f) => !f.data.draft)
+    .filter((f) => f.data.relevantForEras.includes(era))
+    .filter((f) => matchesFilters(f, filters))
+    .slice()
+    .sort(sortFacts);
 }
 
 /**
@@ -24,12 +63,7 @@ export function factsForSubject(facts: readonly Fact[], subject: SubjectId): Fac
   return facts
     .filter((f) => !f.data.draft && f.data.subject === subject)
     .slice()
-    .sort((a, b) => {
-      if (b.data.yearOfEvent !== a.data.yearOfEvent) {
-        return b.data.yearOfEvent - a.data.yearOfEvent;
-      }
-      return a.id.localeCompare(b.id);
-    });
+    .sort(sortFacts);
 }
 
 /**
@@ -121,11 +155,6 @@ export function sampleFacts(facts: readonly Fact[], n: number): Fact[] {
   return facts
     .filter((f) => !f.data.draft)
     .slice()
-    .sort((a, b) => {
-      if (b.data.yearOfEvent !== a.data.yearOfEvent) {
-        return b.data.yearOfEvent - a.data.yearOfEvent;
-      }
-      return a.id.localeCompare(b.id);
-    })
+    .sort(sortFacts)
     .slice(0, Math.max(0, n));
 }
