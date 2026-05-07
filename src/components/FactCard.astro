@@ -19,11 +19,24 @@ const { Content } = await render(fact);
     >
       {fact.data.title}
     </h3>
-    <span
-      class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 shrink-0 rounded-full px-3 py-1 font-mono text-xs font-medium tabular-nums"
-    >
-      {fact.data.yearOfEvent}
-    </span>
+    <div class="flex shrink-0 items-center gap-1.5">
+      {
+        fact.data.region === "ukraine" && (
+          <span
+            class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium"
+            title="Український внесок"
+          >
+            <span aria-hidden="true">🇺🇦</span>
+            <span>Україна</span>
+          </span>
+        )
+      }
+      <span
+        class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs font-medium tabular-nums"
+      >
+        {fact.data.yearOfEvent}
+      </span>
+    </div>
   </div>
 
   <p class="text-ink-700 dark:text-ink-200 mt-3 text-base leading-relaxed">{fact.data.short}</p>
