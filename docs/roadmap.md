@@ -4,7 +4,7 @@
 > Цей документ описує **технічні** PR-и (інфра, контент-схема, UX, фічі) — як їх логічно розбити, у якій послідовності й з якими залежностями.
 > Список ідей-першоджерел: [`ideas.md`](./ideas.md).
 
-Останнє оновлення: травень 2026.
+Останнє оновлення: травень 2026 (після фази 1 — PR-и #29, #30, #31, #32, #33).
 
 ---
 
@@ -22,21 +22,35 @@
 
 ### Лишилось зробити (узагальнено)
 
-| Напрям        | Що бракує                                                                                                                                                        |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Тести         | Юніт-тести (Vitest) для `src/lib/` (`eras.ts`, `filterFacts.ts`, `url.ts`). Зараз — тільки Playwright e2e.                                                       |
-| Контент-схема | Поля `before` / `after` (порівняння «тоді vs зараз»), `region`, `updatedAt`, `impact`. Розширення `SUBJECTS` (tech, medicine, economy, culture, sport, ecology). |
-| OG            | PNG-варіант (рендер SVG у растер) для платформ, що погано працюють із SVG (LinkedIn, частково Telegram).                                                         |
-| Навігація     | Хлібні крихти, мобільне меню в Header, sticky-підсумок з якорями-чіпами на секції предметів, fallback для років без фактів.                                      |
-| Сторінки      | `/subject/[id]`, `/era/[slug]`, `/timeline`, `/compare?a=…&b=…`, `/quiz`, кастомний 404.                                                                         |
-| Пошук         | Pagefind (build-time index, без беку).                                                                                                                           |
-| Залучення     | Шер-кнопки, кнопка «Сюрприз» (рандомний рік), JSON-LD (`Article`, `BreadcrumbList`).                                                                             |
-| PWA / a11y    | Manifest + сервіс-воркер (офлайн перегляд), audit через axe.                                                                                                     |
-| Аналітика     | Plausible / Umami (privacy-friendly).                                                                                                                            |
-| Спільнота     | Action: issue з шаблону «Запропонувати факт» → draft PR. Сторінки `/contributors`, `/support`. Email-дайджест.                                                   |
-| Бренд         | SVG-іконки замість emoji (опційно), офіційний шрифтовий пакет, перетворити `/themes` на справжній перемикач теми.                                                |
-| i18n          | Routing (`/en/[year]`), ICU plurals у форматерах кількості.                                                                                                      |
-| Тех-борг      | Видалити `docs/proposed-ci/` (CI вже мігрований). Підключити Vitest. Налаштувати pre-commit hook для prettier + markdownlint (опційно).                          |
+| Напрям        | Що бракує                                                                                                       |
+| ------------- | --------------------------------------------------------------------------------------------------------------- |
+| Контент-схема | Поля `region`, `updatedAt`, `impact`. Розширення `SUBJECTS` (tech, medicine, economy, culture, sport, ecology). |
+| OG            | PNG-варіант (рендер SVG у растер) для платформ, що погано працюють із SVG (LinkedIn, частково Telegram).        |
+| Навігація     | Fallback для років без фактів (частково в #23 — є дек-чіпи; CTA-розширення лишається).                          |
+| Сторінки      | `/subject/[id]`, `/era/[slug]`, `/timeline`, `/compare?a=…&b=…`, `/quiz`.                                       |
+| Пошук         | Pagefind (build-time index, без беку).                                                                          |
+| PWA / a11y    | Manifest + сервіс-воркер (офлайн перегляд), audit через axe.                                                    |
+| Аналітика     | Plausible / Umami (privacy-friendly).                                                                           |
+| Спільнота     | Action: issue з шаблону «Запропонувати факт» → draft PR. Сторінки `/contributors`, `/support`. Email-дайджест.  |
+| Бренд         | SVG-іконки замість emoji (опційно), офіційний шрифтовий пакет.                                                  |
+| i18n          | Routing (`/en/[year]`), ICU plurals у форматерах кількості.                                                     |
+| Тех-борг      | Налаштувати pre-commit hook для prettier + markdownlint (опційно).                                              |
+
+### Нещодавно виконано (фаза 0–2)
+
+| #   | PR                                                      | Що                                                                           |
+| --- | ------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 0.1 | [#26](https://github.com/Skords-01/BACK_FUTURE/pull/26) | Прибрано `docs/proposed-ci/`, фікс Prettier на `roadmap.md`.                 |
+| 0.2 | [#27](https://github.com/Skords-01/BACK_FUTURE/pull/27) | Vitest + 25 юніт-тестів для `src/lib/`.                                      |
+| 1.1 | [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22) | Header: лічильник «N фактів» + breadcrumb (разом із #1.5).                   |
+| 1.2 | [#33](https://github.com/Skords-01/BACK_FUTURE/pull/33) | Темна тема (class-based, ThemeToggle, pre-paint script).                     |
+| 1.4 | [#31](https://github.com/Skords-01/BACK_FUTURE/pull/31) | JSON-LD `Article` + `BreadcrumbList` на `/[year]`.                           |
+| 1.5 | [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22) | Хлібні крихти (об'єднано з #1.1).                                            |
+| 1.6 | [#32](https://github.com/Skords-01/BACK_FUTURE/pull/32) | Sticky-підсумок з якорями-чіпами на предмети.                                |
+| 1.7 | [#29](https://github.com/Skords-01/BACK_FUTURE/pull/29) | Кастомний 404.                                                               |
+| 1.8 | [#30](https://github.com/Skords-01/BACK_FUTURE/pull/30) | Кнопка «Сюрприз» (рандомний рік).                                            |
+| 2.1 | [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28) | Поля `before` / `after` у схемі + рендер у FactCard.                         |
+| 6.1 | [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21) | Шер-кнопки (Telegram, X, FB, copy, native share) — раніше за залежність 3.4. |
 
 ---
 
