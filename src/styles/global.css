@@ -274,10 +274,16 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  /* IMPORTANT: НЕ ставити `overflow-x: clip|hidden` на <body>. Якщо одна
+     вісь body має non-visible overflow, інша автоматично стає `auto`
+     (CSS Overflow L3). У Chromium це робить body окремим scroll
+     container-ом, і `position: sticky` на хедері (його прямому нащадку)
+     ламається на мобільних — sticky-елемент скролиться разом зі сторінкою
+     замість прилипати до viewport-у. Горизонтальний overflow вже клейпає
+     `html { overflow-x: clip }` вище — цього достатньо для всієї сторінки. */
   body {
     max-width: 100%;
     min-height: 100dvh;
-    overflow-x: clip;
   }
   ::selection {
     background: var(--accent-200);
