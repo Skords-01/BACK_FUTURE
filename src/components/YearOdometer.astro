@@ -43,7 +43,10 @@ const digits = String(defaultYear).padStart(4, "0").split("").map(Number);
     odometer.setAttribute("data-year", String(year));
     const strips = odometer.querySelectorAll<HTMLElement>("[data-col]");
     const digits = String(year).padStart(4, "0").split("").map(Number);
+    // Cascade: rightmost digit (units) rolls first, then tens, hundreds, thousands.
+    // Mirrors a real mechanical counter where carries propagate from right to left.
     strips.forEach((strip, i) => {
+      strip.style.transitionDelay = `${(3 - i) * 45}ms`;
       strip.style.transform = `translateY(${-(digits[i] ?? 0) * 10}%)`;
     });
   });

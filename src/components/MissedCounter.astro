@@ -35,6 +35,7 @@ function pluralize(n: number): string {
   data-facts-map={JSON.stringify(factsFromYear)}
   data-eras={JSON.stringify(erasForClient)}
   data-year-max={currentYear}
+  data-initial-count={defaultCount}
 >
   <div
     class="font-display text-[clamp(3rem,12vw,6rem)] leading-none font-extrabold tracking-tight text-[color:var(--accent)] tabular-nums"
@@ -90,6 +91,57 @@ function pluralize(n: number): string {
     // ignore parse errors
   }
   const yearMax = parseInt(container?.dataset.yearMax ?? "2026", 10);
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let rafId: number | null = null;
+  // Start at SSR-rendered value so silent year:change updates stay in sync.
+  let displayedCount = parseInt(container?.dataset.initialCount ?? "0", 10);
+
+  function animateTo(target: number, fast: boolean = false): void {
+    if (!numEl) return;
+    if (reducedMotion) {
+      numEl.textContent = String(target);
+      displayedCount = target;
+      return;
+    }
+    if (rafId !== null) cancelAnimationFrame(rafId);
+    const from = displayedCount;
+    const duration = fast ? 220 : 680;
+    const start = performance.now();
+    function tick(now: number) {
+      const t = Math.min((now - start) / duration, 1);
+      // easeOutCubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      const current = Math.round(from + (target - from) * eased);
+      numEl!.textContent = String(current);
+      if (t < 1) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        displayedCount = target;
+        rafId = null;
+      }
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  // year:change fires immediately on init (before the counter enters viewport).
+  // While seenOnce=false: silently track the target without animating, so the
+  // IntersectionObserver always gets the correct current value to animate from 0.
+  let seenOnce = false;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0]?.isIntersecting && !seenOnce) {
+        seenOnce = true;
+        observer.disconnect();
+        const target = displayedCount;
+        displayedCount = 0;
+        if (numEl) numEl.textContent = "0";
+        animateTo(target, false);
+      }
+    },
+    { threshold: 0.4 },
+  );
+  if (container) observer.observe(container);
 
   document.addEventListener("year:change", (e) => {
     const year = (e as CustomEvent<{ year: number }>).detail.year;
@@ -97,7 +149,13 @@ function pluralize(n: number): string {
     const yearsAgo = yearMax - year;
     const era = eraOf(year);
 
-    if (numEl) numEl.textContent = String(count);
+    if (!seenOnce) {
+      // Counter not yet revealed — update silently to track current target.
+      displayedCount = count;
+      if (numEl) numEl.textContent = String(count);
+    } else {
+      animateTo(count, true);
+    }
     if (yearsEl) yearsEl.textContent = String(yearsAgo);
     if (yearsWordEl) yearsWordEl.textContent = pluralize(yearsAgo);
     if (baseYearEl) baseYearEl.textContent = String(year);

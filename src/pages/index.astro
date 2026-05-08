@@ -19,6 +19,15 @@ for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
   factsFromYear[y] = allFacts.filter((f) => f.data.yearOfEvent >= y).length;
 }
 
+// Featured fact title per year — highest-impact fact (impact=high preferred), else first by id.
+const featuredByYear: Record<number, string> = {};
+for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
+  const yearFacts = allFacts.filter((f) => f.data.yearOfEvent === y);
+  if (yearFacts.length === 0) continue;
+  const top = yearFacts.find((f) => f.data.impact === "high") ?? yearFacts[0]!;
+  featuredByYear[y] = top.data.title;
+}
+
 const websiteLd: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -72,7 +81,7 @@ const websiteLd: Record<string, unknown> = {
           висота смужки = кількість фактів того року
         </span>
       </div>
-      <DensityStrip />
+      <DensityStrip featuredByYear={featuredByYear} />
     </section>
 
     <!-- Як це працює -->
