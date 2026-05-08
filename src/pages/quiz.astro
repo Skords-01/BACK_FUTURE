@@ -25,7 +25,7 @@ const QUESTIONS_COUNT = 5;
       {SITE.name} · квіз
     </span>
     <h1
-      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-tight tracking-[-0.03em] text-[color:var(--ink)]"
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
     >
       Вгадай рік<br />відкриття
     </h1>
@@ -44,9 +44,7 @@ const QUESTIONS_COUNT = 5;
     >
       <!-- Start screen -->
       <div id="quiz-start" class="quiz-screen">
-        <button id="quiz-start-btn" type="button" class="quiz-cta-btn">
-          Почати квіз →
-        </button>
+        <button id="quiz-start-btn" type="button" class="quiz-cta-btn"> Почати квіз → </button>
         <p class="mt-4 font-mono text-xs text-[color:var(--muted)]">
           {allFacts.length} фактів у пулі · нові питання щоразу
         </p>
@@ -54,26 +52,36 @@ const QUESTIONS_COUNT = 5;
 
       <!-- Question screen (hidden until JS shows it) -->
       <div id="quiz-question" class="quiz-screen" hidden>
-        <div class="quiz-progress-wrap" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} id="quiz-progress-bar">
+        <div
+          class="quiz-progress-wrap"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={0}
+          id="quiz-progress-bar"
+        >
           <div class="quiz-progress-fill" id="quiz-progress-fill" style="width:0%"></div>
         </div>
         <div class="mt-3 flex items-center justify-between">
-          <span
-            id="quiz-q-num"
-            class="font-mono text-xs text-[color:var(--muted)]"
-          >Питання 1 з {QUESTIONS_COUNT}</span>
-          <span id="quiz-score-live" class="font-mono text-xs text-[color:var(--muted)]">0 правильних</span>
+          <span id="quiz-q-num" class="font-mono text-xs text-[color:var(--muted)]"
+            >Питання 1 з {QUESTIONS_COUNT}</span
+          >
+          <span id="quiz-score-live" class="font-mono text-xs text-[color:var(--muted)]"
+            >0 правильних</span
+          >
         </div>
 
         <div class="quiz-fact-card mt-5" id="quiz-card">
           <div
             id="quiz-subject"
-            class="font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-[color:var(--accent)]"
-          ></div>
+            class="font-mono text-[11px] font-bold tracking-[0.18em] text-[color:var(--accent)] uppercase"
+          >
+          </div>
           <h2
             id="quiz-title"
-            class="font-display mt-3 text-2xl font-bold leading-snug tracking-tight text-[color:var(--ink)] sm:text-3xl"
-          ></h2>
+            class="font-display mt-3 text-2xl leading-snug font-bold tracking-tight text-[color:var(--ink)] sm:text-3xl"
+          >
+          </h2>
           <p id="quiz-short" class="mt-4 text-base leading-relaxed text-[color:var(--ink-2)]"></p>
         </div>
 
@@ -83,33 +91,29 @@ const QUESTIONS_COUNT = 5;
           class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4"
           role="group"
           aria-label="Варіанти відповіді"
-        ></div>
+        >
+        </div>
 
-        <div
-          id="quiz-feedback"
-          class="quiz-feedback"
-          hidden
-          aria-live="polite"
-        ></div>
+        <div id="quiz-feedback" class="quiz-feedback" hidden aria-live="polite"></div>
       </div>
 
       <!-- Result screen -->
       <div id="quiz-result" class="quiz-screen" hidden>
         <div class="quiz-result-card">
           <div
-            class="font-display text-[clamp(3.5rem,12vw,6rem)] font-extrabold leading-none tabular-nums text-[color:var(--accent)]"
+            class="font-display text-[clamp(3.5rem,12vw,6rem)] leading-none font-extrabold text-[color:var(--accent)] tabular-nums"
             id="result-score"
-          ></div>
+          >
+          </div>
           <div
             id="result-label"
             class="font-display mt-4 text-2xl font-bold tracking-tight text-[color:var(--ink)]"
-          ></div>
+          >
+          </div>
           <p id="result-sub" class="mt-2 text-base text-[color:var(--ink-2)]"></p>
 
           <div class="mt-8 flex flex-wrap gap-3">
-            <button id="quiz-retry-btn" type="button" class="quiz-cta-btn">
-              Спробувати ще
-            </button>
+            <button id="quiz-retry-btn" type="button" class="quiz-cta-btn"> Спробувати ще </button>
             <a
               href="/"
               class="inline-flex items-center rounded-sm border-2 border-[color:var(--card-edge)] px-6 py-3 font-mono text-sm font-semibold text-[color:var(--ink-2)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
@@ -289,6 +293,12 @@ const QUESTIONS_COUNT = 5;
     var currentQ = 0;
     var score = 0;
 
+    // Mask any 4-digit year (1900–2099) so the question doesn't reveal the answer
+    function maskYears(text) {
+      if (typeof text !== "string") return text;
+      return text.replace(/\b(?:19|20)\d{2}\b/g, "????");
+    }
+
     function shuffle(arr) {
       var a = arr.slice();
       for (var i = a.length - 1; i > 0; i--) {
@@ -359,8 +369,8 @@ const QUESTIONS_COUNT = 5;
       if (numEl) numEl.textContent = "Питання " + (currentQ + 1) + " з " + QUESTIONS_COUNT;
       if (scoreEl) scoreEl.textContent = score + " правильних";
       if (subjectEl) subjectEl.textContent = SUBJECT_MARKS[q.subject] ?? q.subject;
-      if (titleEl) titleEl.textContent = q.title;
-      if (shortEl) shortEl.textContent = q.short;
+      if (titleEl) titleEl.textContent = maskYears(q.title);
+      if (shortEl) shortEl.textContent = maskYears(q.short);
       if (feedbackEl) feedbackEl.hidden = true;
 
       updateProgress();

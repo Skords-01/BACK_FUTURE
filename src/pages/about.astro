@@ -14,7 +14,7 @@ const factsCount = allFacts.length;
     </span>
 
     <h1
-      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-tight tracking-[-0.03em] text-[color:var(--ink)]"
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
       data-reveal
     >
       Про проєкт
@@ -32,7 +32,7 @@ const factsCount = allFacts.length;
           ] as { n: string; l: string }[]
         ).map((stat) => (
           <div class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-4">
-            <div class="font-display text-[clamp(1.75rem,4vw,2.25rem)] font-extrabold leading-none tabular-nums text-[color:var(--accent)]">
+            <div class="font-display text-[clamp(1.75rem,4vw,2.25rem)] leading-none font-extrabold text-[color:var(--accent)] tabular-nums">
               {stat.n}
             </div>
             <div class="mt-1.5 font-mono text-[10px] tracking-wider text-[color:var(--muted)] uppercase">
@@ -48,10 +48,15 @@ const factsCount = allFacts.length;
       class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-700 mt-12 max-w-none"
     >
       <p data-reveal>
-        <strong>{SITE.name}</strong> — безкоштовний некомерційний сайт для тих, хто хоче оновити
-        картину світу: заповнити прогалину між тим, що залишилось у пам'яті після школи, і тим, що
-        змінилось у науці, географії та історії відтоді. Ти вводиш рік свого випуску — отримуєш
-        персоналізовану стрічку відкриттів і подій, написаних українською, з першоджерелами.
+        <strong>{SITE.name}</strong> — безкоштовний некомерційний сайт для тих, хто хоче оновити картину
+        світу: заповнити прогалину між тим, що залишилось у пам'яті після школи, і тим, що змінилось у
+        науці, географії та історії відтоді. Ти вводиш рік свого випуску — отримуєш персоналізовану стрічку
+        відкриттів і подій, написаних українською, з першоджерелами.
+      </p>
+
+      <p data-reveal>
+        Це проєкт від ветерана. Усе, що ти тут читаєш, зібрано українською руками — без редакції,
+        без реклами, без політики.
       </p>
 
       <h2 data-reveal>Навіщо</h2>
@@ -62,12 +67,12 @@ const factsCount = allFacts.length;
         саме такі оновлення: короткі, перевірені, прив'язані до конкретного шкільного предмету.
       </p>
 
-      <h2 data-reveal>Що це не</h2>
+      <h2 data-reveal>Наші принципи</h2>
       <ul data-reveal>
-        <li>Не конспект шкільного курсу.</li>
-        <li>Не вичерпна енциклопедія.</li>
-        <li>Не новинний ресурс — тільки стабільні, консенсусні факти.</li>
-        <li>Не трибуна для думок редакції.</li>
+        <li>Стабільні, консенсусні факти — без новинного шуму.</li>
+        <li>Кожне твердження — з першоджерелом, яке можна відкрити й перевірити.</li>
+        <li>Українською мовою, без перекладів через кальку.</li>
+        <li>Без реклами, без трекерів, без думок редакції.</li>
       </ul>
 
       <h2 data-reveal>Як влаштований сайт</h2>

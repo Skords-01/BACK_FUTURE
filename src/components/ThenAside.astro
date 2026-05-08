@@ -28,13 +28,15 @@ function ordinal(y: number): string {
 
 {
   items.length > 0 && (
-    <aside class="then container-wide mt-0 mb-0 py-8" aria-label={`Контекст ${displayYear} року`}>
+    <aside class="then container-wide mt-0 mb-0 py-8" aria-label={`Контекст ${year} року`}>
       <div class="then__inner">
         <div class="then__head">
-          <span class="then__year">{ordinal(displayYear)}</span>
+          <span class="then__year">{ordinal(year)}</span>
           <span class="then__sub">
             контекст · епіграф епохи
-            {displayYear !== year && <span class="ml-2 opacity-60">(дані {displayYear} р.)</span>}
+            {displayYear !== year && (
+              <span class="ml-2 opacity-60">(найближчі дані — {displayYear} р.)</span>
+            )}
           </span>
         </div>
         <dl class="then__grid">
