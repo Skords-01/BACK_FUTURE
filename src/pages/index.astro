@@ -57,11 +57,11 @@ const websiteLd: Record<string, unknown> = {
         Українською · Без підписки · {totalFacts} фактів
       </p>
       <h1
-        class="font-display text-ink-900 dark:text-ink-900 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+        class="font-display text-ink-900 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
       >
         Що ти пропустив <em class="text-accent-700 dark:text-accent-300 italic">після</em> випускного?
       </h1>
-      <p class="text-ink-700 dark:text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
+      <p class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
         Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
         науково-популярно, з джерелами.
       </p>
@@ -81,12 +81,8 @@ const websiteLd: Record<string, unknown> = {
             Шкала часу · {SITE.yearMin} → {SITE.yearMax}
           </span>
           <span class="text-ink-500 dark:text-ink-400 font-mono text-xs">
-            З твого випуску минуло <strong class="text-ink-700 dark:text-ink-700"
-              >{defaultYearsPassed}</strong
-            >{" "}
-            {yearsPassedLabel} · <strong class="text-ink-700 dark:text-ink-700"
-              >{defaultFactsSince}</strong
-            > фактів
+            З твого випуску минуло <strong class="text-ink-700">{defaultYearsPassed}</strong>{" "}
+            {yearsPassedLabel} · <strong class="text-ink-700">{defaultFactsSince}</strong> фактів
           </span>
         </div>
         <Timeline facts={allFacts} selectedYear={DEFAULT_YEAR} />
@@ -102,7 +98,7 @@ const websiteLd: Record<string, unknown> = {
               <li>
                 <a
                   href={`/${y}/`}
-                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 items-center rounded-full border px-4 py-2 font-mono text-sm font-medium tabular-nums transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 items-center rounded-full border px-4 py-2 font-mono text-sm font-medium tabular-nums transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
                 >
                   {y}
                 </a>
@@ -141,29 +137,25 @@ const websiteLd: Record<string, unknown> = {
   </script>
 
   <section class="container-prose mt-20">
-    <h2 class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">Як це працює</h2>
-    <ol class="text-ink-700 dark:text-ink-700 mt-4 space-y-3">
+    <h2 class="font-display text-ink-900 text-xl font-bold">Як це працює</h2>
+    <ol class="text-ink-700 mt-4 space-y-3">
       <li>
-        <span class="text-ink-900 dark:text-ink-900 font-semibold">1. Введи рік випуску.</span> Від 1991
-        до сьогодні.
+        <span class="text-ink-900 font-semibold">1. Введи рік випуску.</span> Від 1991 до сьогодні.
       </li>
       <li>
-        <span class="text-ink-900 dark:text-ink-900 font-semibold"
-          >2. Отримаєш стрічку оновлень</span
-        >
+        <span class="text-ink-900 font-semibold">2. Отримаєш стрічку оновлень</span>
         по 11 предметах: астрономія, біологія, географія, історія, фізика, технологія, медицина, економіка,
         культура, спорт, екологія. Те, що змінилось у науці й світі від твого випускного року.
       </li>
       <li>
-        <span class="text-ink-900 dark:text-ink-900 font-semibold">3. Кожен факт — з джерелом.</span
-        >
+        <span class="text-ink-900 font-semibold">3. Кожен факт — з джерелом.</span>
         Можна розгорнути деталі в науково-популярному форматі.
       </li>
     </ol>
   </section>
 
   <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">Тематичні блоки</h2>
+    <h2 class="font-display text-ink-900 text-xl font-bold">Тематичні блоки</h2>
     <ul
       class="mt-4 grid gap-2"
       style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))"
@@ -174,7 +166,7 @@ const websiteLd: Record<string, unknown> = {
             <span class="text-accent-700 dark:text-accent-300 shrink-0 font-mono text-[11px] font-semibold tracking-[0.14em] uppercase">
               {s.mark}
             </span>
-            <span class="text-ink-900 dark:text-ink-900 font-display text-base leading-snug font-semibold tracking-tight">
+            <span class="text-ink-900 font-display text-base leading-snug font-semibold tracking-tight">
               {s.label}
             </span>
           </li>
@@ -182,9 +174,7 @@ const websiteLd: Record<string, unknown> = {
       }
     </ul>
     <p class="text-ink-500 dark:text-ink-400 mt-4 text-sm">
-      Зараз у базі: <span class="text-ink-700 dark:text-ink-700 font-semibold">{totalFacts}</span>{
-        " "
-      }
+      Зараз у базі: <span class="text-ink-700 font-semibold">{totalFacts}</span>{" "}
       {totalFacts === 1 ? "факт" : "фактів"}. Поповнюємо постійно.
     </p>
   </section>

@@ -5,9 +5,7 @@ import { ERAS } from "../lib/eras";
 
 <Base title="Методологія">
   <section class="container-prose pt-16">
-    <h1
-      class="font-display text-ink-900 dark:text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl"
-    >
+    <h1 class="font-display text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
       Методологія
     </h1>
 
@@ -39,8 +37,8 @@ import { ERAS } from "../lib/eras";
         {
           ERAS.map((e) => (
             <li class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-              <div class="font-display text-ink-900 dark:text-ink-900 font-bold">{e.label}</div>
-              <div class="text-ink-600 dark:text-ink-600 mt-1 text-sm">{e.summary}</div>
+              <div class="font-display text-ink-900 font-bold">{e.label}</div>
+              <div class="text-ink-600 mt-1 text-sm">{e.summary}</div>
             </li>
           ))
         }

@@ -49,10 +49,7 @@ const mark = subject?.mark ?? "—";
         {mark}
       </span>
       <span class="text-ink-400 dark:text-ink-600" aria-hidden="true">·</span>
-      <span
-        class="text-ink-600 dark:text-ink-600 font-mono text-[12px] font-medium tabular-nums"
-        title="Рік події"
-      >
+      <span class="text-ink-600 font-mono text-[12px] font-medium tabular-nums" title="Рік події">
         {fact.data.yearOfEvent}
       </span>
       {
@@ -80,12 +77,12 @@ const mark = subject?.mark ?? "—";
   </header>
 
   <h3
-    class="font-display text-ink-900 dark:text-ink-900 mt-4 text-2xl leading-tight font-bold tracking-tight sm:text-3xl"
+    class="font-display text-ink-900 mt-4 text-2xl leading-tight font-bold tracking-tight sm:text-3xl"
   >
     {fact.data.title}
   </h3>
 
-  <p class="text-ink-700 dark:text-ink-700 mt-3 max-w-prose text-base leading-relaxed">
+  <p class="text-ink-700 mt-3 max-w-prose text-base leading-relaxed">
     {fact.data.short}
   </p>
 
@@ -97,9 +94,7 @@ const mark = subject?.mark ?? "—";
             <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
               Було
             </dt>
-            <dd class="text-ink-700 dark:text-ink-700 text-sm leading-relaxed">
-              {fact.data.before}
-            </dd>
+            <dd class="text-ink-700 text-sm leading-relaxed">{fact.data.before}</dd>
           </div>
         ) : (
           <div />
@@ -113,9 +108,7 @@ const mark = subject?.mark ?? "—";
             <dt class="text-accent-700 dark:text-accent-300 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
               Стало
             </dt>
-            <dd class="text-ink-900 dark:text-ink-900 text-sm leading-relaxed">
-              {fact.data.after}
-            </dd>
+            <dd class="text-ink-900 text-sm leading-relaxed">{fact.data.after}</dd>
           </div>
         ) : (
           <div />
@@ -185,8 +178,10 @@ const mark = subject?.mark ?? "—";
 
 <style>
   /* Subtle paper-card tilt — чергується між парними/непарними картками,
-     як справжній стос паперів. На мобільних вимкнено: iOS Safari horizontal scroll. */
-  @media (min-width: 640px) {
+     як справжній стос паперів. Активний лише на пристроях зі справжнім
+     hover-курсором: інакше планшети в портреті (iPad ≥640px з touch)
+     отримували випадковий rotate без можливості його "зняти" hover-ом. */
+  @media (hover: hover) {
     .fact-card:nth-of-type(odd) {
       transform: rotate(-0.35deg);
       transform-origin: 50% 50%;
@@ -199,7 +194,7 @@ const mark = subject?.mark ?? "—";
       transform: rotate(0deg) translateY(-2px);
     }
   }
-  @media (min-width: 640px) and (prefers-reduced-motion: reduce) {
+  @media (hover: hover) and (prefers-reduced-motion: reduce) {
     .fact-card {
       transition: none;
     }

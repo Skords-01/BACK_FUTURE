@@ -8,7 +8,8 @@ interface Props {
 
 const { year, factsCount } = Astro.props;
 
-const url = new URL(`/${year}/`, SITE.defaultUrl).toString();
+const shareUrl = new URL(`/${year}/`, SITE.defaultUrl);
+const url = shareUrl.toString();
 const messageBase =
   factsCount > 0
     ? `Я випустився ${year}-го й пропустив ${factsCount} оновлень у науці й історії.`
@@ -17,6 +18,12 @@ const message = `${messageBase} ${SITE.tagline} — ${SITE.name}.`;
 
 const shareEncoded = encodeURIComponent(message);
 const urlEncoded = encodeURIComponent(url);
+
+// Preview metadata — mirrors what Telegram / X / FB will scrape from <head>.
+const previewHost = shareUrl.host.replace(/^www\./, "");
+const previewTitle = `Випуск ${year} — ${SITE.name}`;
+const previewDescription = messageBase;
+const previewImage = new URL(`/og/${year}.png`, SITE.defaultUrl).toString();
 
 const targets = [
   {
@@ -43,13 +50,46 @@ const targets = [
   >
     <h2
       id="share-heading"
-      class="font-display text-ink-900 dark:text-ink-900 text-lg font-bold tracking-tight sm:text-xl"
+      class="font-display text-ink-900 text-lg font-bold tracking-tight sm:text-xl"
     >
       Поділись цим випуском
     </h2>
-    <p class="text-ink-600 dark:text-ink-600 mt-2 text-sm">
+    <p class="text-ink-600 mt-2 text-sm">
       Хтось зі знайомих теж {year}-го? Надішли їм цей рік.
     </p>
+
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Відкрити сторінку ${year}-го у новій вкладці (превʼю того, як вона виглядатиме при шерингу)`}
+      class="border-ink-200 hover:border-accent-700 dark:border-ink-700 dark:bg-ink-900 group mt-5 block overflow-hidden rounded-2xl border bg-white transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+    >
+      <div class="bg-paper-100 dark:bg-ink-800 aspect-[1200/630] w-full overflow-hidden">
+        <img
+          src={previewImage}
+          alt={`Превʼю Open Graph: ${previewTitle}`}
+          loading="lazy"
+          decoding="async"
+          width="1200"
+          height="630"
+          class="h-full w-full object-cover"
+        />
+      </div>
+      <div class="border-ink-100 dark:border-ink-700 border-t px-4 py-3 sm:px-5">
+        <p class="text-ink-500 dark:text-ink-400 font-mono text-[11px] tracking-widest uppercase">
+          {previewHost}
+        </p>
+        <p
+          class="font-display text-ink-900 group-hover:text-accent-700 dark:group-hover:text-accent-300 mt-1 text-base font-bold tracking-tight transition-colors"
+        >
+          {previewTitle}
+        </p>
+        <p class="text-ink-600 mt-1 line-clamp-2 text-sm">
+          {previewDescription}
+        </p>
+      </div>
+    </a>
 
     <div
       id="share-buttons"
@@ -63,7 +103,7 @@ const targets = [
             href={t.href}
             target="_blank"
             rel="noopener noreferrer"
-            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <span aria-hidden="true">↗</span>
             {t.label}
@@ -73,7 +113,7 @@ const targets = [
       <button
         id="share-copy-btn"
         type="button"
-        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
       >
         <span aria-hidden="true">⎘</span>
         <span data-state="idle">Скопіювати посилання</span>
@@ -82,7 +122,7 @@ const targets = [
         id="share-native-btn"
         type="button"
         hidden
-        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
       >
         <span aria-hidden="true">↗</span>
         Поділитись…
