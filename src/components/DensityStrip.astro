@@ -44,10 +44,7 @@ const { activeYear } = Astro.props;
           aria-label={`${year} рік, ${count} ${count === 1 ? "факт" : "фактів"}`}
           title={`${year} · ${count} фактів`}
         >
-          <span
-            class="density__cap"
-            style={`--h: ${hPct}%`}
-          />
+          <span class="density__cap" style={`--h: ${hPct}%`} />
           {showTick && (
             <span
               class={`pointer-events-none absolute bottom-[-22px] left-1/2 -translate-x-1/2 font-mono text-[11px]${isActive ? " font-semibold text-[color:var(--accent)]" : " text-[color:var(--muted)]"}`}

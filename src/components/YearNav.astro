@@ -1,0 +1,67 @@
+---
+// YearNav — bottom 3-column nav: ← prev year | змінити рік | next year →
+import { SITE } from "../config/site";
+
+interface Props {
+  year: number;
+}
+const { year } = Astro.props;
+
+const prev = year > SITE.yearMin ? year - 1 : null;
+const next = year < SITE.yearMax ? year + 1 : null;
+---
+
+<nav aria-label="Навігація між роками" class="mt-16 border-t border-[color:var(--rule)]">
+  <div class="container-wide">
+    <div class="grid grid-cols-3 items-center gap-4 py-8">
+      <!-- Prev year -->
+      <div class="text-left">
+        {
+          prev ? (
+            <a
+              href={`/${prev}/`}
+              class="group inline-flex flex-col gap-0.5 font-mono text-sm text-[color:var(--muted)] transition hover:text-[color:var(--ink)]"
+            >
+              <span class="text-xl leading-none transition group-hover:text-[color:var(--accent)]">
+                ←
+              </span>
+              <span>{prev}</span>
+            </a>
+          ) : (
+            <span class="font-mono text-sm text-[color:var(--muted)] opacity-30">←</span>
+          )
+        }
+      </div>
+
+      <!-- Change year -->
+      <div class="text-center">
+        <a
+          href="/"
+          class="inline-flex flex-col items-center gap-1 font-mono text-xs tracking-widest text-[color:var(--muted)] uppercase transition hover:text-[color:var(--accent)]"
+        >
+          <span class="font-display text-base font-semibold text-[color:var(--ink)]">{year}</span>
+          <span>змінити рік</span>
+        </a>
+      </div>
+
+      <!-- Next year -->
+      <div class="text-right">
+        {
+          next ? (
+            <a
+              href={`/${next}/`}
+              class="group inline-flex flex-col items-end gap-0.5 font-mono text-sm text-[color:var(--muted)] transition hover:text-[color:var(--ink)]"
+            >
+              <span class="text-xl leading-none transition group-hover:text-[color:var(--accent)]">
+                →
+              </span>
+              <span>{next}</span>
+            </a>
+          ) : (
+            <span class="self-end font-mono text-sm text-[color:var(--muted)] opacity-30">→</span>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</nav>

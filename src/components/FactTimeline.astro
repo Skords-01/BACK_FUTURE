@@ -1,0 +1,145 @@
+---
+// FactTimeline — vertical timeline of facts grouped by subject.
+// Left rail (180px): year + delta + colored dot. Center: 1px line. Right: FactCard.
+import FactCard from "./FactCard.astro";
+import { groupBySubject } from "../lib/filterFacts";
+import type { Fact } from "../lib/filterFacts";
+
+interface Props {
+  facts: Fact[];
+  fromYear: number;
+}
+const { facts, fromYear } = Astro.props;
+
+const groups = groupBySubject(facts);
+---
+
+{
+  facts.length === 0 ? (
+    <div class="container-wide py-16 text-center">
+      <p class="font-display text-xl font-semibold text-[color:var(--ink)]">
+        Поки що для цього року тихо.
+      </p>
+      <p class="mt-2 text-[color:var(--ink-2)]">Ми постійно додаємо факти. Спробуй інший рік.</p>
+    </div>
+  ) : (
+    <div class="container-wide pb-16">
+      {groups.map((g) => (
+        <section
+          data-timeline-subject={g.subject}
+          class="mt-14 scroll-mt-20 first:mt-10"
+          id={`subject-${g.subject}`}
+        >
+          <header class="mb-6 flex items-baseline gap-3">
+            <span
+              class="font-mono text-sm font-bold tracking-[0.18em] uppercase"
+              style={`color: var(--subject-${g.subject})`}
+            >
+              {g.mark}
+            </span>
+            <h2 class="font-display text-2xl font-semibold tracking-tight text-[color:var(--ink)]">
+              {g.label}
+            </h2>
+            <span class="ml-auto font-mono text-xs text-[color:var(--muted)]">
+              {g.items.length} {g.items.length === 1 ? "факт" : "фактів"}
+            </span>
+          </header>
+
+          <div class="timeline">
+            {g.items.map((fact) => {
+              const delta = fact.data.yearOfEvent - fromYear;
+              return (
+                <div class="timeline__row" data-reveal>
+                  <div class="timeline__rail" style={`--dot-color: var(--subject-${g.subject})`}>
+                    <span class="timeline__year">{fact.data.yearOfEvent}</span>
+                    {delta > 0 && <span class="timeline__delta">+{delta} р.</span>}
+                    <span class="timeline__dot" />
+                  </div>
+
+                  <div class="timeline__body">
+                    <FactCard fact={fact} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .timeline {
+    position: relative;
+    padding-left: 0;
+  }
+
+  .timeline__row {
+    display: grid;
+    grid-template-columns: 140px 1px 1fr;
+    gap: 0 24px;
+    align-items: start;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 640px) {
+    .timeline__row {
+      grid-template-columns: 80px 1px 1fr;
+      gap: 0 12px;
+    }
+  }
+
+  .timeline__rail {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-top: 20px;
+    gap: 2px;
+    position: relative;
+  }
+
+  /* Vertical connector from dot up to previous row */
+  .timeline__row::after {
+    content: "";
+    grid-column: 2;
+    grid-row: 1;
+    width: 1px;
+    height: 100%;
+    background: var(--rule-2);
+    align-self: stretch;
+    margin-top: 0;
+  }
+
+  .timeline__year {
+    font-family: var(--font-mono, monospace);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    tabular-nums: true;
+  }
+
+  .timeline__delta {
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    color: var(--muted);
+    tabular-nums: true;
+    letter-spacing: 0.05em;
+  }
+
+  .timeline__dot {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dot-color, var(--accent));
+    margin-top: 6px;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+
+  .timeline__body {
+    padding-top: 8px;
+    min-width: 0;
+  }
+</style>

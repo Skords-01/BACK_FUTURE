@@ -1,0 +1,50 @@
+---
+// ThenAside — paper panel showing context of the era: president, exchange rate,
+// hit song, gadget, etc. from content/epoch/<year>.json.
+// Falls back to the nearest available epoch year if the exact year is absent.
+import { getCollection } from "astro:content";
+
+interface Props {
+  year: number;
+}
+const { year } = Astro.props;
+
+const epochEntries = await getCollection("epoch");
+
+// Find closest epoch year (prefer same year, then nearest)
+const sorted = epochEntries.slice().sort((a, b) => {
+  return Math.abs(a.data.year - year) - Math.abs(b.data.year - year);
+});
+const entry = sorted[0];
+const items = entry?.data.items ?? [];
+const displayYear = entry?.data.year ?? year;
+---
+
+{
+  items.length > 0 && (
+    <aside class="container-wide mt-0 mb-0 py-10" aria-label={`Контекст ${displayYear} року`}>
+      <div class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-6 sm:p-8">
+        <div class="mb-6 flex items-baseline justify-between gap-4">
+          <h2 class="font-display text-xl font-semibold tracking-tight text-[color:var(--ink)]">
+            Тоді…
+          </h2>
+          {displayYear !== year && (
+            <span class="font-mono text-xs text-[color:var(--muted)]">дані {displayYear} року</span>
+          )}
+        </div>
+        <dl class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+          {items.map((item) => (
+            <div>
+              <dt class="font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+                {item.k}
+              </dt>
+              <dd class="mt-1 text-sm leading-snug font-medium text-[color:var(--ink)]">
+                {item.v}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </aside>
+  )
+}

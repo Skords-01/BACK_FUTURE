@@ -20,11 +20,7 @@ const digits = String(defaultYear).padStart(4, "0").split("").map(Number);
   {
     digits.map((d, i) => (
       <div class="odo__col">
-        <div
-          class="odo__strip"
-          data-col={i}
-          style={`transform: translateY(${-d * 10}%)`}
-        >
+        <div class="odo__strip" data-col={i} style={`transform: translateY(${-d * 10}%)`}>
           {Array.from({ length: 10 }, (_, n) => (
             <span aria-hidden="true">{n}</span>
           ))}

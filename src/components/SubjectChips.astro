@@ -13,11 +13,7 @@ const counts = Object.fromEntries(
 <div class="flex flex-wrap gap-2.5">
   {
     SUBJECTS.map((s) => (
-      <a
-        href={`/subject/${s.id}/`}
-        class="chip"
-        style={`--chip-color: var(--subject-${s.id})`}
-      >
+      <a href={`/subject/${s.id}/`} class="chip" style={`--chip-color: var(--subject-${s.id})`}>
         <span class="chip__code">{s.mark}</span>
         <span class="chip__name">{s.label}</span>
         <span class="chip__count">{counts[s.id]}</span>

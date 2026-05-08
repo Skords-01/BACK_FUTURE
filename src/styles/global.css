@@ -287,10 +287,10 @@
 
   /* Dark mode — теплі кремові, не сині сталеві. */
   html.dark {
-    /* Surfaces — підняті на 2-3 ступені яскравості для теплого коричневого відчуття */
-    --paper: #2a2218;
-    --paper-2: #32291c;
-    --paper-3: #3c3021;
+    /* Surfaces — темніший фон щоб картки (#2c2418) чітко відокремлювались */
+    --paper: #1c1812;
+    --paper-2: #28211a;
+    --paper-3: #342b1e;
 
     --ink: #f0e8d2;
     --ink-2: #e6d9be;
@@ -320,8 +320,8 @@
 
     --hl: #f59e0b;
 
-    /* Cards — помітно світліші за фон, але в тій самій теплій гамі */
-    --card: #342a1c;
+    /* Cards — на ~10 одиниць L* світліші за фон */
+    --card: #2c2418;
     --card-edge: rgba(240, 232, 210, 0.1);
 
     --rule: rgba(240, 232, 210, 0.1);
@@ -356,6 +356,13 @@
     --color-bg: var(--paper);
     --color-fg: var(--ink);
     color-scheme: dark;
+  }
+  html.dark body {
+    background-image: radial-gradient(
+      ellipse 80% 40% at 50% 0%,
+      rgba(217, 119, 6, 0.05) 0%,
+      transparent 60%
+    );
   }
 
   html {
@@ -763,7 +770,7 @@
     }
   }
 
-  /* Stamp — mono border badge with optional rotation via inline style. */
+  /* Stamp — mono border badge with optional rotation via --stamp-rotate. */
   .stamp {
     display: inline-block;
     font-family: var(--font-mono);
@@ -776,6 +783,10 @@
     font-weight: 700;
     background: color-mix(in oklab, var(--accent) 8%, transparent);
     text-transform: uppercase;
+    transform: rotate(var(--stamp-rotate, 0deg));
+    transform-origin: center center;
+    user-select: none;
+    pointer-events: none;
   }
 
   /* DensityStrip bar — height and color driven by CSS custom props. */

@@ -1,0 +1,166 @@
+---
+// SubjectFilters — sticky chip bar for filtering the fact timeline by subject.
+// State is stored in URL hash (#biology) so share-links work.
+// CSS :target on sections provides no-JS basic functionality.
+import { SUBJECTS } from "../config/site";
+import type { SubjectId } from "../config/site";
+
+interface SubjectCount {
+  id: SubjectId;
+  count: number;
+}
+
+interface Props {
+  counts: SubjectCount[];
+}
+const { counts } = Astro.props;
+
+const available = SUBJECTS.filter((s) => {
+  const c = counts.find((x) => x.id === s.id);
+  return c && c.count > 0;
+});
+---
+
+{
+  available.length > 1 && (
+    <div
+      class="sticky top-0 z-30 border-b border-[color:var(--rule)] bg-[color:var(--paper)]/90 backdrop-blur-sm"
+      id="subject-filter-bar"
+    >
+      <div class="container-wide">
+        <div class="scrollbar-none flex items-center gap-1.5 overflow-x-auto py-3">
+          <button
+            type="button"
+            class="filter-chip filter-chip--all font-mono text-xs"
+            data-filter-all
+          >
+            Усі
+          </button>
+          {available.map((s) => {
+            const c = counts.find((x) => x.id === s.id)?.count ?? 0;
+            return (
+              <button
+                type="button"
+                class="filter-chip font-mono text-xs"
+                data-filter-subject={s.id}
+                style={`--chip-color: var(--subject-${s.id})`}
+              >
+                <span class="chip__code">{s.mark}</span>
+                <span class="chip__name hidden sm:inline">{s.label}</span>
+                <span class="chip__count">{c}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--card-edge);
+    background: var(--card);
+    color: var(--ink-2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    min-height: 32px;
+  }
+  .filter-chip:hover,
+  .filter-chip.is-active {
+    border-color: var(--chip-color, var(--accent));
+    color: var(--chip-color, var(--accent));
+    background: color-mix(in srgb, var(--chip-color, var(--accent)) 10%, var(--card));
+  }
+  .filter-chip--all {
+    --chip-color: var(--accent);
+  }
+  .filter-chip--all.is-active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--card));
+  }
+  .chip__code {
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .chip__count {
+    font-size: 10px;
+    opacity: 0.7;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initFilters() {
+    const bar = document.getElementById("subject-filter-bar");
+    if (!bar) return;
+
+    const allBtn = bar.querySelector("[data-filter-all]") as HTMLButtonElement | null;
+    const subjectBtns = Array.from(
+      bar.querySelectorAll<HTMLButtonElement>("[data-filter-subject]"),
+    );
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-timeline-subject]"));
+
+    function getActiveSubject(): string | null {
+      const hash = location.hash.slice(1);
+      return hash || null;
+    }
+
+    function applyFilter(subject: string | null) {
+      sections.forEach((sec) => {
+        const id = sec.dataset.timelineSubject ?? "";
+        sec.hidden = subject !== null && id !== subject;
+      });
+
+      subjectBtns.forEach((btn) => {
+        btn.classList.toggle("is-active", btn.dataset.filterSubject === subject);
+      });
+      if (allBtn) allBtn.classList.toggle("is-active", subject === null);
+    }
+
+    allBtn?.addEventListener("click", () => {
+      history.replaceState(null, "", location.pathname);
+      applyFilter(null);
+    });
+
+    subjectBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const subject = btn.dataset.filterSubject ?? null;
+        const current = getActiveSubject();
+        if (current === subject) {
+          history.replaceState(null, "", location.pathname);
+          applyFilter(null);
+        } else {
+          history.replaceState(null, "", `#${subject}`);
+          applyFilter(subject);
+        }
+      });
+    });
+
+    // On load, restore from hash
+    applyFilter(getActiveSubject());
+
+    // Handle browser back/forward
+    window.addEventListener("hashchange", () => {
+      applyFilter(getActiveSubject());
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initFilters);
+  } else {
+    initFilters();
+  }
+</script>

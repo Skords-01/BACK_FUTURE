@@ -20,27 +20,26 @@ function pluralize(n: number): string {
 ---
 
 <div
-  class="flex items-center gap-7 border-l-4 border-[color:var(--accent)] bg-[color:var(--paper-2)] px-7 py-6 mb-6"
+  class="mb-6 flex items-center gap-7 border-l-4 border-[color:var(--accent)] bg-[color:var(--paper-2)] px-7 py-6"
   id="missed-counter"
   data-facts-map={JSON.stringify(factsFromYear)}
   data-year-max={currentYear}
 >
   <div
-    class="font-display text-[clamp(4rem,10vw,6rem)] font-extrabold leading-none tracking-tight text-[color:var(--accent)] tabular-nums"
+    class="font-display text-[clamp(4rem,10vw,6rem)] leading-none font-extrabold tracking-tight text-[color:var(--accent)] tabular-nums"
     id="counter-num"
   >
     {defaultCount}
   </div>
   <div class="text-lg leading-snug text-[color:var(--ink-2)]">
     <strong class="text-[color:var(--ink)]">відкриттів</strong> ти пропустив<br />
-    за <em class="italic text-[color:var(--accent)]" id="counter-years">{defaultYearsAgo}</em>
+    за <em class="text-[color:var(--accent)] italic" id="counter-years">{defaultYearsAgo}</em>
     <span id="counter-years-word">{pluralize(defaultYearsAgo)}</span> після
     <span id="counter-base-year">{defaultYear}</span>-го.
     <span
       class="mt-1.5 block font-mono text-xs tracking-wider"
       id="counter-era"
-      style="color: var(--era-color, var(--muted))"
-    ></span>
+      style="color: var(--era-color, var(--muted))"></span>
   </div>
 </div>
 

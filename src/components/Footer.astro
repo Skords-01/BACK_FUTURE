@@ -3,20 +3,105 @@ import { SITE } from "../config/site";
 const year = new Date().getFullYear();
 ---
 
-<footer
-  class="border-ink-100 border-t bg-white dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
->
-  <div
-    class="container-wide text-ink-500 dark:text-ink-400 flex flex-col items-start justify-between gap-3 py-8 text-sm sm:flex-row sm:items-center"
-  >
-    <div>
-      © {year}
-      {SITE.name}. Зроблено в Україні.
-    </div>
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <a class="hover:text-ink-900 dark:hover:text-ink-900" href="/metodologia/">Методологія</a>
-      <a class="hover:text-ink-900 dark:hover:text-ink-900" href="/about/">Про проєкт</a>
-      <a class="hover:text-ink-900 dark:hover:text-ink-900" href={SITE.repoUrl}>GitHub</a>
+<footer class="border-t border-[color:var(--rule)] bg-[color:var(--paper-2)]">
+  <div class="container-wide py-12">
+    <div class="grid gap-10 sm:grid-cols-3">
+      <!-- Brand column -->
+      <div>
+        <p class="font-display text-xl font-bold tracking-tight text-[color:var(--ink)]">
+          {SITE.name}
+        </p>
+        <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">
+          {SITE.tagline}
+        </p>
+        <p class="mt-4 font-mono text-xs text-[color:var(--muted)]">
+          © {year} · Зроблено в Україні
+        </p>
+      </div>
+
+      <!-- Project column -->
+      <div>
+        <p class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+          Проєкт
+        </p>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a
+              href="/metodologia/"
+              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+            >
+              Методологія
+            </a>
+          </li>
+          <li>
+            <a
+              href="/about/"
+              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+            >
+              Про проєкт
+            </a>
+          </li>
+          <li>
+            <a
+              href="/all/"
+              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+            >
+              Усі факти
+            </a>
+          </li>
+          <li>
+            <a
+              href="/rss.xml"
+              class="inline-flex items-center gap-1.5 text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"
+                ></path>
+              </svg>
+              RSS
+            </a>
+          </li>
+          <li>
+            <a
+              href={SITE.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+            >
+              GitHub ↗
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Support column -->
+      <div>
+        <p class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+          Підтримати
+        </p>
+        <p class="mb-4 text-sm leading-relaxed text-[color:var(--ink-2)]">
+          Проєкт безкоштовний і без реклами. Якщо подобається — пригости кавою.
+        </p>
+        {
+          SITE.monobankJarUrl && (
+            <a
+              href={SITE.monobankJarUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-sm border border-[color:var(--accent)] bg-transparent px-4 py-2.5 font-mono text-sm font-semibold text-[color:var(--accent)] transition hover:bg-[color:var(--accent)] hover:text-white"
+            >
+              monobank · банка →
+            </a>
+          )
+        }
+      </div>
     </div>
   </div>
 </footer>
