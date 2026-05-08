@@ -4,7 +4,7 @@
  *
  * Опціональний — якщо env-змінні не задані, нічого не рендеримо.
  *
- * Підтримуються два провайдери (вибрати один через PUBLIC_ANALYTICS_PROVIDER):
+ * Підтримуються три провайдери (вибрати один через PUBLIC_ANALYTICS_PROVIDER):
  *
  * - "plausible":
  *     PUBLIC_ANALYTICS_PROVIDER=plausible
@@ -17,6 +17,11 @@
  *     PUBLIC_UMAMI_WEBSITE_ID=00000000-0000-0000-0000-000000000000  (обов'язково)
  *     PUBLIC_UMAMI_SCRIPT_URL=https://umami.example.com/script.js   (обов'язково)
  *
+ * - "posthog":
+ *     PUBLIC_ANALYTICS_PROVIDER=posthog
+ *     PUBLIC_POSTHOG_KEY=phc_...                                    (обов'язково)
+ *     PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com                  (опційно, default — eu.i)
+ *
  * Префікс PUBLIC_ потрібен, щоб Astro прокинув змінну в client-side bundle
  * (https://docs.astro.build/en/guides/environment-variables/).
  */
@@ -25,7 +30,8 @@ const provider = import.meta.env.PUBLIC_ANALYTICS_PROVIDER;
 
 type PlausibleConfig = { kind: "plausible"; src: string; domain: string };
 type UmamiConfig = { kind: "umami"; src: string; websiteId: string };
-type AnalyticsConfig = PlausibleConfig | UmamiConfig | null;
+type PosthogConfig = { kind: "posthog"; key: string; host: string };
+type AnalyticsConfig = PlausibleConfig | UmamiConfig | PosthogConfig | null;
 
 function resolveConfig(): AnalyticsConfig {
   if (provider === "plausible") {
@@ -40,10 +46,23 @@ function resolveConfig(): AnalyticsConfig {
     if (!websiteId || !src) return null;
     return { kind: "umami", src, websiteId };
   }
+  if (provider === "posthog") {
+    const key = import.meta.env.PUBLIC_POSTHOG_KEY;
+    if (!key) return null;
+    const host = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
+    return { kind: "posthog", key, host };
+  }
   return null;
 }
 
 const config = resolveConfig();
+
+// PostHog снipet екранований під JSON.stringify, щоб уникнути ін'єкцій
+// з env-значень (host може бути self-hosted) і подвійних лапок.
+const posthogSnippet =
+  config?.kind === "posthog"
+    ? `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p=t.createElement("script"),p.type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init Te us le we Ne ke De Ce Le ke Pe Me Re ue Ee xe Ie Os ws Ts Es Cs Ls Rs Ps Ms je Ae He Be Fe ze Ye Je Ve $e Xe Qe et tt rt nt st".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init(${JSON.stringify(config.key)},{api_host:${JSON.stringify(config.host)},person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true});`
+    : "";
 ---
 
 {
@@ -56,3 +75,4 @@ const config = resolveConfig();
     <script is:inline defer data-website-id={config.websiteId} src={config.src} />
   )
 }
+{config?.kind === "posthog" && <script is:inline set:html={posthogSnippet} />}
