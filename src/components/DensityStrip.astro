@@ -25,48 +25,48 @@ interface Props {
 const { activeYear } = Astro.props;
 ---
 
-<div class="overflow-x-auto pb-8 -mx-4 sm:mx-0 px-4 sm:px-0">
-<div
-  class="density-strip-wrap relative flex h-[160px] items-end gap-px overflow-visible border-b border-[color:var(--rule-2)] px-1 pb-7 min-w-[540px]"
-  role="list"
-  aria-label="Густина фактів по роках"
->
-  {
-    years.map((year) => {
-      const count = counts[year] ?? 0;
-      const era = eraOf(year);
-      const hPct = Math.max(count > 0 ? 8 : 2, (count / maxCount) * 100);
-      const isActive = year === activeYear;
-      const showTick = year % 5 === 0;
-      return (
-        <a
-          href={`/${year}/`}
-          role="listitem"
-          class={`density__bar group relative flex flex-1 items-end${isActive ? " is-on" : ""}`}
-          data-ds-year={year}
-          data-ds-count={count}
-          data-ds-color={era.color}
-          aria-label={`${year} рік, ${count} ${(() => {
-            const m10 = count % 10,
-              m100 = count % 100;
-            if (m10 === 1 && m100 !== 11) return "факт";
-            if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
-            return "фактів";
-          })()}`}
-        >
-          <span class="density__cap" style={`--h: ${hPct}%; --c: ${era.color}`} />
-          {showTick && (
-            <span
-              class={`pointer-events-none absolute bottom-[-22px] left-1/2 -translate-x-1/2 font-mono text-[11px]${isActive ? " font-semibold text-[color:var(--accent)]" : " text-[color:var(--muted)]"}`}
-            >
-              {year}
-            </span>
-          )}
-        </a>
-      );
-    })
-  }
-</div>
+<div class="-mx-4 overflow-x-auto px-4 pb-8 sm:mx-0 sm:px-0">
+  <div
+    class="density-strip-wrap relative flex h-[160px] min-w-[540px] items-end gap-px overflow-visible border-b border-[color:var(--rule-2)] px-1 pb-7"
+    role="list"
+    aria-label="Густина фактів по роках"
+  >
+    {
+      years.map((year) => {
+        const count = counts[year] ?? 0;
+        const era = eraOf(year);
+        const hPct = Math.max(count > 0 ? 8 : 2, (count / maxCount) * 100);
+        const isActive = year === activeYear;
+        const showTick = year % 5 === 0;
+        return (
+          <a
+            href={`/${year}/`}
+            role="listitem"
+            class={`density__bar group relative flex flex-1 items-end${isActive ? " is-on" : ""}`}
+            data-ds-year={year}
+            data-ds-count={count}
+            data-ds-color={era.color}
+            aria-label={`${year} рік, ${count} ${(() => {
+              const m10 = count % 10,
+                m100 = count % 100;
+              if (m10 === 1 && m100 !== 11) return "факт";
+              if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
+              return "фактів";
+            })()}`}
+          >
+            <span class="density__cap" style={`--h: ${hPct}%; --c: ${era.color}`} />
+            {showTick && (
+              <span
+                class={`pointer-events-none absolute bottom-[-22px] left-1/2 -translate-x-1/2 font-mono text-[11px]${isActive ? " font-semibold text-[color:var(--accent)]" : " text-[color:var(--muted)]"}`}
+              >
+                {year}
+              </span>
+            )}
+          </a>
+        );
+      })
+    }
+  </div>
 </div>
 
 <!-- Rich tooltip: only visible on hover-capable devices (CSS pointer:fine guard) -->

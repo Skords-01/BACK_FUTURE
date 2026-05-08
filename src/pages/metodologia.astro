@@ -11,7 +11,7 @@ import { SUBJECTS, SITE } from "../config/site";
     </span>
 
     <h1
-      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-tight tracking-[-0.03em] text-[color:var(--ink)]"
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
       data-reveal
     >
       Методологія
@@ -77,9 +77,9 @@ import { SUBJECTS, SITE } from "../config/site";
         П'ять ер шкільних програм
       </h2>
       <p class="mt-3 text-[color:var(--ink-2)]" data-reveal>
-        Замість того, щоб робити окремий контент для кожного з ~35 років, ми ділимо 1991–сьогодні
-        на п'ять ер державних стандартів і програм. Факт позначений ерою — це означає, що він
-        «новий» для всіх, хто закінчив школу в межах тієї ери.
+        Замість того, щоб робити окремий контент для кожного з ~35 років, ми ділимо 1991–сьогодні на
+        п'ять ер державних стандартів і програм. Факт позначений ерою — це означає, що він «новий»
+        для всіх, хто закінчив школу в межах тієї ери.
       </p>
       <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {
@@ -90,7 +90,10 @@ import { SUBJECTS, SITE } from "../config/site";
               data-reveal
               style={`--era-color: ${era.color}; --reveal-delay: ${i * 70}ms`}
             >
-              <span class="font-mono text-[11px] font-semibold tracking-[0.15em] uppercase" style="color: var(--era-color)">
+              <span
+                class="font-mono text-[11px] font-semibold tracking-[0.15em] uppercase"
+                style="color: var(--era-color)"
+              >
                 {era.short}
               </span>
               <strong class="font-display mt-2 block text-lg font-semibold tracking-tight text-[color:var(--ink)]">
@@ -148,10 +151,14 @@ import { SUBJECTS, SITE } from "../config/site";
       >
         <p>Історія — політично чутлива тема. Ми керуємось такими принципами:</p>
         <ul>
-          <li>Спираємось на офіційні документи (резолюції парламентів, рішення судів, держархіви).</li>
+          <li>
+            Спираємось на офіційні документи (резолюції парламентів, рішення судів, держархіви).
+          </li>
           <li>Розрізняємо «факт» і «інтерпретацію»; явно маркуємо другу.</li>
           <li>Не використовуємо проєкт як політичну трибуну.</li>
-          <li>Терміни й назви — відповідно до українського законодавства та академічного стандарту.</li>
+          <li>
+            Терміни й назви — відповідно до українського законодавства та академічного стандарту.
+          </li>
         </ul>
       </div>
     </section>
@@ -159,8 +166,12 @@ import { SUBJECTS, SITE } from "../config/site";
     <!-- Report error + quiz CTA -->
     <section class="mt-16 pb-4">
       <div class="grid gap-4 sm:grid-cols-2" data-reveal>
-        <div class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--paper-2)] p-6">
-          <h2 class="font-display text-lg font-bold text-[color:var(--ink)]">Помилка чи неточність?</h2>
+        <div
+          class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--paper-2)] p-6"
+        >
+          <h2 class="font-display text-lg font-bold text-[color:var(--ink)]">
+            Помилка чи неточність?
+          </h2>
           <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">
             Якщо ти знайшов фактичну помилку або маєш кращий формулювання — відкрий issue або pull
             request у репозиторії.
@@ -174,13 +185,11 @@ import { SUBJECTS, SITE } from "../config/site";
             GitHub репозиторій ↗
           </a>
         </div>
-        <div
-          class="rounded-sm border-2 border-[color:var(--accent)] bg-[color:var(--card)] p-6"
-        >
+        <div class="rounded-sm border-2 border-[color:var(--accent)] bg-[color:var(--card)] p-6">
           <h2 class="font-display text-lg font-bold text-[color:var(--ink)]">Перевір себе</h2>
           <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">
-            Вгадай рік 5 відкриттів — дізнайся, наскільки добре знаєш, що змінилось у науці після твого
-            випуску.
+            Вгадай рік 5 відкриттів — дізнайся, наскільки добре знаєш, що змінилось у науці після
+            твого випуску.
           </p>
           <a
             href="/quiz/"
