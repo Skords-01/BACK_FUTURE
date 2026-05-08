@@ -262,6 +262,8 @@ const subjectCounts = SUBJECTS.map((s) => ({
     var tag = e.target && e.target.tagName;
     if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // Don't navigate when a dialog (e.g. search) is open
+    if (document.querySelector("dialog[open]")) return;
     if (e.key === "ArrowLeft" && prevYear) {
       window.location.href = "/" + prevYear + "/";
     } else if (e.key === "ArrowRight" && nextYear) {
