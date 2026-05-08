@@ -1,0 +1,524 @@
+---
+/**
+ * /timeline — повна хронологічна стрічка всіх фактів від 1991 до сьогодні
+ * у вигляді вертикальної осі (Variant A з мокапу).
+ *
+ * Структура:
+ *   1) Hero з лічильниками (всього фактів, років, UA, ВЕХ)
+ *   2) Якорі ер (sticky-нав на десктопі, плоска стрічка на мобілці)
+ *   3) Vertical axis: для кожного року — баджик з роком на осі, факти
+ *      чергуються left/right (на десктопі), на мобілці колапсуються в одну
+ *      колонку з осью зліва.
+ *   4) Era bands проривають вісь горизонтальною стрічкою з підписом ери.
+ */
+import Base from "../layouts/Base.astro";
+import TimelineFactCard from "../components/TimelineFactCard.astro";
+import SupportBlock from "../components/SupportBlock.astro";
+import { getCollection } from "astro:content";
+import type { Fact } from "../lib/filterFacts";
+import { ERAS, eraForGraduationYear, type EraId } from "../lib/eras";
+import { SITE } from "../config/site";
+import { eraUrl } from "../lib/url";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+
+// Sort всіх фактів від найстарішого до найновішого (стрічка читається згори
+// вниз як хронологія). Тай-брейк по id для детермінованого білда.
+const sortedFacts = [...allFacts].sort((a, b) => {
+  if (a.data.yearOfEvent !== b.data.yearOfEvent) {
+    return a.data.yearOfEvent - b.data.yearOfEvent;
+  }
+  return a.id.localeCompare(b.id);
+});
+
+// Групуємо по роках — для рендера year-маркерів на осі.
+const factsByYear = new Map<number, Fact[]>();
+for (const f of sortedFacts) {
+  const arr = factsByYear.get(f.data.yearOfEvent) ?? [];
+  arr.push(f);
+  factsByYear.set(f.data.yearOfEvent, arr);
+}
+const orderedYears = Array.from(factsByYear.keys()).sort((a, b) => a - b);
+
+// Для кожної ери — список років, що входять в неї (для рендера era-бендів).
+type EraSection = {
+  era: (typeof ERAS)[number];
+  years: number[];
+};
+const eraSections: EraSection[] = ERAS.map((era) => ({
+  era,
+  years: orderedYears.filter((y) => y >= era.yearStart && y <= era.yearEnd),
+})).filter((s) => s.years.length > 0);
+
+// Лічильники для hero.
+const totalFacts = allFacts.length;
+const ukraineFacts = allFacts.filter((f) => f.data.region === "ukraine").length;
+const highImpactFacts = allFacts.filter((f) => f.data.impact === "high").length;
+const yearsCovered = orderedYears.length;
+
+const description = `Повна хронологічна стрічка ${totalFacts} фактів про науку, історію й світ від ${SITE.yearMin} до ${SITE.yearMax} року. ${ukraineFacts} українських внесків, ${highImpactFacts} переломних подій. Українською.`;
+const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
+const homeUrl = `${SITE.defaultUrl}/`;
+const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+
+const collectionLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `Хронологія — ${SITE.name}`,
+  description,
+  inLanguage: "uk",
+  url: canonical,
+  isPartOf: {
+    "@type": "WebSite",
+    name: SITE.name,
+    url: SITE.defaultUrl,
+  },
+};
+
+const breadcrumbsLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Головна",
+      item: homeUrl,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Хронологія",
+      item: canonical,
+    },
+  ],
+};
+
+function pluralizeFacts(n: number): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return "факт";
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
+  return "фактів";
+}
+
+function eraIdForYear(y: number): EraId {
+  return eraForGraduationYear(y);
+}
+---
+
+<Base
+  title="Хронологія"
+  description={description}
+  ogImage={ogImage}
+  jsonLd={[collectionLd, breadcrumbsLd]}
+>
+  <section class="ruled-hero">
+    <div class="container-prose pt-12 pb-10 sm:pt-16">
+      <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
+        <ol class="flex flex-wrap items-center gap-1.5">
+          <li>
+            <a
+              href="/"
+              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+            >
+              Головна
+            </a>
+          </li>
+          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
+          <li>
+            <span class="text-ink-700 dark:text-ink-700 font-medium" aria-current="page"
+              >Хронологія</span
+            >
+          </li>
+        </ol>
+      </nav>
+
+      <p
+        class="text-accent-700 dark:text-accent-300 mt-4 text-sm font-medium tracking-widest uppercase"
+      >
+        / TIMELINE · Хронологія всіх фактів
+      </p>
+      <h1
+        class="font-display text-ink-900 dark:text-ink-900 mt-2 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+      >
+        Світ між {SITE.yearMin} і {SITE.yearMax}
+      </h1>
+      <p class="text-ink-700 dark:text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
+        {totalFacts} фактів про науку, історію й світ — розкладені по роках, від року здобуття незалежності
+        до сьогодні. Прокручуй донизу або стрибай до своєї ери.
+      </p>
+
+      <dl
+        class="text-ink-500 dark:text-ink-400 mt-8 flex flex-wrap gap-x-8 gap-y-3 font-mono text-sm"
+      >
+        <div>
+          <dt class="sr-only">Усього фактів</dt>
+          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+            {totalFacts}
+          </dd>
+          <span class="ml-1.5">{pluralizeFacts(totalFacts)}</span>
+        </div>
+        <div>
+          <dt class="sr-only">Років з контентом</dt>
+          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+            {yearsCovered}
+          </dd>
+          <span class="ml-1.5">років з контентом</span>
+        </div>
+        <div>
+          <dt class="sr-only">Українських внесків</dt>
+          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+            {ukraineFacts}
+          </dd>
+          <span class="ml-1.5">UA внесків</span>
+        </div>
+        <div>
+          <dt class="sr-only">Переломних подій</dt>
+          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+            {highImpactFacts}
+          </dd>
+          <span class="ml-1.5">★ вех</span>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Era jump-strip: на десктопі sticky згори, на мобілці статичний з горизонтальним скролом. -->
+  <nav
+    class="border-ink-100 dark:border-ink-700 bg-paper-50/85 dark:bg-paper-100/85 supports-[backdrop-filter]:bg-paper-50/70 dark:supports-[backdrop-filter]:bg-paper-100/70 sticky top-0 z-30 border-y backdrop-blur"
+    aria-label="Стрибок до ери"
+  >
+    <div
+      class="container-prose flex flex-nowrap items-center gap-1.5 overflow-x-auto py-2.5 sm:flex-wrap sm:overflow-visible"
+    >
+      <span
+        class="text-ink-400 dark:text-ink-500 mr-1 hidden font-mono text-[10px] tracking-widest whitespace-nowrap uppercase sm:inline"
+      >
+        Ера →
+      </span>
+      {
+        eraSections.map((s) => (
+          <a
+            href={`#era-${s.era.id}`}
+            class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium whitespace-nowrap transition"
+          >
+            <span class="font-mono text-[11px] tabular-nums">{s.era.yearStart}</span>
+            <span class="text-ink-300 dark:text-ink-600">·</span>
+            <span class="text-xs">{s.era.label.split(" (")[0]}</span>
+            <span class="text-ink-500 dark:text-ink-400 font-mono text-[10px] tabular-nums">
+              {s.years.reduce((acc, y) => acc + (factsByYear.get(y)?.length ?? 0), 0)}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </nav>
+
+  <section class="va-wrap" aria-label="Хронологічна стрічка фактів">
+    <div class="va-axis" aria-hidden="true"></div>
+
+    {
+      eraSections.map((section, sIdx) => (
+        <div class="va-era" id={`era-${section.era.id}`} data-era-id={section.era.id}>
+          <header class="va-era-band">
+            <div class="va-era-band-inner">
+              <span class="va-era-tag">Ера {section.era.id}</span>
+              <h2 class="va-era-title">{section.era.label}</h2>
+              <p class="va-era-summary">{section.era.summary}</p>
+              <a class="va-era-link" href={eraUrl(section.era.slug)}>
+                Сторінка ери →
+              </a>
+            </div>
+          </header>
+
+          {section.years.map((year, yIdx) => {
+            const yearFacts = factsByYear.get(year) ?? [];
+            return (
+              <div class="va-year-block">
+                <div class="va-year-marker" aria-hidden="true">
+                  <span class="va-year-pill">{year}</span>
+                </div>
+
+                {yearFacts.map((fact, fIdx) => {
+                  // Чергування left/right на десктопі. Глобальний індекс щоб
+                  // факти йшли zig-zag через всі роки/ери, а не скидались
+                  // на початку року.
+                  const globalIdx =
+                    eraSections
+                      .slice(0, sIdx)
+                      .flatMap((s) => s.years)
+                      .reduce((acc, prevY) => acc + (factsByYear.get(prevY)?.length ?? 0), 0) +
+                    section.years
+                      .slice(0, yIdx)
+                      .reduce((acc, prevY) => acc + (factsByYear.get(prevY)?.length ?? 0), 0) +
+                    fIdx;
+                  const side = globalIdx % 2 === 0 ? "left" : "right";
+                  return (
+                    <div
+                      class:list={["va-row", `va-${side}`]}
+                      data-year={year}
+                      data-era={eraIdForYear(year)}
+                    >
+                      <div class="va-dot" aria-hidden="true" />
+                      <div class="va-card-wrap">
+                        <TimelineFactCard fact={fact} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      ))
+    }
+  </section>
+
+  <SupportBlock />
+</Base>
+
+<style>
+  /* ============================================================
+     Variant A — vertical axis з чергуванням left/right
+     ============================================================
+     Десктоп (≥800px): grid 1fr · 80px · 1fr — вісь по центру, картки
+     по боках. Year-pill сидить на осі.
+     Мобілка (<800px): grid 60px · 1fr — вісь зсунута до 30px зліва,
+     всі картки в одній колонці справа. Year-pill зліва на осі.
+     ============================================================ */
+
+  .va-wrap {
+    position: relative;
+    max-width: 1100px;
+    margin: 24px auto 0;
+    padding: 32px 16px 80px;
+  }
+
+  .va-axis {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--card-edge) 64px,
+      var(--card-edge) calc(100% - 64px),
+      transparent
+    );
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  /* ---- Era band: розриває вісь полосою з підписом ери ---- */
+  .va-era {
+    position: relative;
+  }
+  .va-era-band {
+    position: relative;
+    margin: 32px 0 16px;
+    padding: 0 16px;
+  }
+  .va-era-band-inner {
+    position: relative;
+    z-index: 2;
+    background: var(--paper-2);
+    border-left: 4px solid var(--accent-500);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    box-shadow: var(--shadow);
+  }
+  .va-era-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-700);
+  }
+  :global(html.dark) .va-era-tag {
+    color: var(--accent-300);
+  }
+  .va-era-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    margin: 4px 0 4px;
+    color: var(--ink-900);
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+  }
+  .va-era-summary {
+    color: var(--ink-700);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 4px 0 8px;
+    max-width: 60ch;
+  }
+  .va-era-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent-700);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-underline-offset: 2px;
+  }
+  .va-era-link:hover {
+    text-decoration: underline;
+    color: var(--accent-800);
+  }
+  :global(html.dark) .va-era-link {
+    color: var(--accent-300);
+  }
+  :global(html.dark) .va-era-link:hover {
+    color: var(--accent-200);
+  }
+
+  /* ---- Year marker — пілюля з роком прибита до осі ---- */
+  .va-year-block {
+    position: relative;
+    margin-top: 28px;
+  }
+  .va-year-marker {
+    position: relative;
+    text-align: center;
+    margin: 24px 0 12px;
+  }
+  .va-year-pill {
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+    background: var(--paper);
+    border: 1px solid var(--card-edge);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-700);
+    letter-spacing: 0.05em;
+    box-shadow: var(--shadow);
+  }
+
+  /* ---- Row з фактом — desktop (≥800px) ---- */
+  @media (min-width: 800px) {
+    .va-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 80px 1fr;
+      align-items: start;
+      column-gap: 0;
+      margin: 18px 0;
+      min-height: 60px;
+    }
+    .va-row.va-left .va-card-wrap {
+      grid-column: 1;
+      padding-right: 32px;
+    }
+    .va-row.va-right .va-card-wrap {
+      grid-column: 3;
+      padding-left: 32px;
+    }
+    .va-dot {
+      position: absolute;
+      left: 50%;
+      top: 24px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent-500);
+      border: 3px solid var(--paper);
+      transform: translateX(-50%);
+      z-index: 1;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-500) 18%, transparent);
+    }
+    /* Конектор від картки до осі */
+    .va-row.va-left .va-card-wrap::after,
+    .va-row.va-right .va-card-wrap::after {
+      content: "";
+      position: absolute;
+      top: 30px;
+      width: 32px;
+      height: 1px;
+      background: var(--card-edge);
+      z-index: 0;
+    }
+    .va-row.va-left .va-card-wrap {
+      position: relative;
+    }
+    .va-row.va-right .va-card-wrap {
+      position: relative;
+    }
+    .va-row.va-left .va-card-wrap::after {
+      right: 0;
+    }
+    .va-row.va-right .va-card-wrap::after {
+      left: 0;
+    }
+  }
+
+  /* ---- Row з фактом — mobile (<800px) ---- */
+  @media (max-width: 799.98px) {
+    .va-wrap {
+      padding: 24px 16px 64px;
+    }
+    .va-axis {
+      left: 28px;
+    }
+    .va-year-marker {
+      text-align: left;
+      padding-left: 56px;
+    }
+    .va-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      align-items: start;
+      margin: 14px 0;
+    }
+    .va-row .va-card-wrap {
+      grid-column: 2;
+      padding: 0;
+      position: relative;
+    }
+    .va-dot {
+      position: absolute;
+      left: 28px;
+      top: 22px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent-500);
+      border: 3px solid var(--paper);
+      transform: translateX(-50%);
+      z-index: 1;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-500) 18%, transparent);
+    }
+    .va-card-wrap::after {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: -20px;
+      width: 20px;
+      height: 1px;
+      background: var(--card-edge);
+      z-index: 0;
+    }
+    .va-era-band {
+      margin: 24px 0 10px;
+      padding: 0 0 0 56px;
+    }
+  }
+
+  /* prefers-reduced-motion: вимикаємо hover-translate (відлунюється у TimelineFactCard) */
+  @media (prefers-reduced-motion: reduce) {
+    .va-wrap :global(.tl-fc) {
+      transition: none;
+    }
+  }
+</style>

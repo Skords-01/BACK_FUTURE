@@ -1,0 +1,101 @@
+---
+/**
+ * Compact fact card used on the /timeline page. Unlike FactCard.astro it does
+ * not embed the full markdown body — rendering 165 of those would balloon the
+ * page weight. Just the meta row + title + short description, with a link to
+ * the dedicated fact page for the full read.
+ */
+import type { Fact } from "../lib/filterFacts";
+import { factUrl } from "../lib/url";
+import { SUBJECTS } from "../config/site";
+
+interface Props {
+  fact: Fact;
+}
+
+const { fact } = Astro.props;
+const detailUrl = factUrl(fact.id);
+const subject = SUBJECTS.find((s) => s.id === fact.data.subject);
+const mark = subject?.mark ?? "—";
+const subjectLabel = subject?.label ?? "Предмет";
+const isHighImpact = fact.data.impact === "high";
+const isUkraine = fact.data.region === "ukraine";
+---
+
+<article
+  class:list={[
+    "tl-fc shadow-card hover:shadow-card-hover relative isolate rounded-2xl border bg-[color:var(--card)] px-5 py-4 transition hover:-translate-y-0.5",
+    isHighImpact
+      ? "border-[color:var(--hl)] ring-1 ring-[color:var(--hl)]/30"
+      : "border-[color:var(--card-edge)]",
+  ]}
+>
+  <header>
+    <div class="mb-2 flex flex-wrap items-center gap-2">
+      <span
+        class="text-ink-900 dark:text-ink-900 font-mono text-[12px] font-semibold tracking-[0.05em] tabular-nums"
+      >
+        {fact.data.yearOfEvent}
+      </span>
+      <span class="text-ink-300 dark:text-ink-600" aria-hidden="true">·</span>
+      <span
+        class="text-accent-700 dark:text-accent-300 font-display text-[11px] font-semibold tracking-[0.18em] uppercase"
+        title={subjectLabel}
+      >
+        {mark}
+      </span>
+      {
+        isUkraine && (
+          <span
+            class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 ml-1 inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider uppercase"
+            title="Український внесок"
+          >
+            UA
+          </span>
+        )
+      }
+      {
+        isHighImpact && (
+          <span
+            class="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider text-amber-900 uppercase dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200"
+            title="Переломний факт"
+          >
+            ★ ВЕХА
+          </span>
+        )
+      }
+    </div>
+  </header>
+
+  <h3
+    class="font-display text-ink-900 dark:text-ink-900 text-lg leading-tight font-bold tracking-tight sm:text-xl"
+  >
+    <a
+      href={detailUrl}
+      class="hover:text-accent-700 dark:hover:text-accent-300 underline-offset-2 hover:underline"
+    >
+      {fact.data.title}
+    </a>
+  </h3>
+
+  <p class="text-ink-700 dark:text-ink-700 mt-2 line-clamp-3 text-sm leading-relaxed">
+    {fact.data.short}
+  </p>
+
+  <a
+    href={detailUrl}
+    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 mt-3 inline-flex min-h-11 items-center gap-1 font-mono text-[11px] tracking-wider uppercase underline-offset-2 hover:underline"
+    aria-label={`Відкрити сторінку факту: ${fact.data.title}`}
+  >
+    Докладніше →
+  </a>
+</article>
+
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
