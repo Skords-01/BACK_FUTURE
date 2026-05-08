@@ -69,4 +69,20 @@ const facts = defineCollection({
   }),
 });
 
-export const collections = { facts };
+const epoch = defineCollection({
+  loader: glob({ pattern: "**/*.json", base: "./content/epoch" }),
+  schema: z.object({
+    year: z.number().int().min(1991).max(2026),
+    items: z
+      .array(
+        z.object({
+          k: z.string().min(1).max(40),
+          v: z.string().min(1).max(80),
+        }),
+      )
+      .min(4)
+      .max(12),
+  }),
+});
+
+export const collections = { facts, epoch };

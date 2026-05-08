@@ -6,6 +6,10 @@ export interface Era {
   id: EraId;
   slug: string;
   label: string;
+  name: string;
+  short: string;
+  color: string;
+  tone: string;
   yearStart: number;
   yearEnd: number;
   summary: string;
@@ -26,4 +30,9 @@ export function eraById(id: EraId): Era {
   const era = ERAS.find((e) => e.id === id);
   if (!era) throw new Error(`Unknown era id: ${id}`);
   return era;
+}
+
+/** Shorthand alias — returns the full Era object for a graduation year. */
+export function eraOf(year: number): Era {
+  return eraById(eraForGraduationYear(year));
 }
