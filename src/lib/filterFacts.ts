@@ -20,6 +20,13 @@ function sortFacts(a: Fact, b: Fact): number {
   return a.id.localeCompare(b.id);
 }
 
+function sortFactsAsc(a: Fact, b: Fact): number {
+  if (a.data.yearOfEvent !== b.data.yearOfEvent) {
+    return a.data.yearOfEvent - b.data.yearOfEvent;
+  }
+  return a.id.localeCompare(b.id);
+}
+
 function matchesFilters(fact: Fact, filters: FactFilters): boolean {
   if (filters.region && (fact.data.region ?? "world") !== filters.region) return false;
   if (filters.era && !fact.data.relevantForEras.includes(filters.era)) return false;
@@ -44,7 +51,7 @@ export function factsForYear(
     .filter((f) => f.data.relevantForEras.includes(era))
     .filter((f) => matchesFilters(f, filters))
     .slice()
-    .sort(sortFacts);
+    .sort(sortFactsAsc);
 }
 
 export function factsForEra(facts: readonly Fact[], era: EraId, filters: FactFilters = {}): Fact[] {
