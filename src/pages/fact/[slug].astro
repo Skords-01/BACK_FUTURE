@@ -143,7 +143,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <li>
               <a
                 href="/"
-                class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+                class="hover:text-ink-900 dark:hover:text-ink-900 underline-offset-2 hover:underline"
                 aria-label="На головну"
               >
                 Головна
@@ -153,7 +153,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <li>
               <a
                 href={`/subject/${subject.id}/`}
-                class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+                class="hover:text-ink-900 dark:hover:text-ink-900 underline-offset-2 hover:underline"
               >
                 {subject.label}
               </a>
@@ -197,7 +197,7 @@ const breadcrumbsLd: Record<string, unknown> = {
 
         <dl class="mt-6 grid gap-3 sm:grid-cols-3">
           <div
-            class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
+            class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
               Регіон
@@ -205,7 +205,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">{regionLabel}</dd>
           </div>
           <div
-            class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
+            class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
               Вплив
@@ -213,7 +213,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">{impactLabel}</dd>
           </div>
           <div
-            class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
+            class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
               Оновлено
@@ -229,7 +229,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             relatedEras.map((era) => (
               <a
                 href={eraUrl(era.slug)}
-                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center rounded-full border bg-white px-4 py-2 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
               >
                 {era.label}
               </a>
@@ -241,11 +241,11 @@ const breadcrumbsLd: Record<string, unknown> = {
 
     <section class="container-prose mt-12">
       <div
-        class="shadow-card dark:bg-ink-800 border-ink-100 dark:border-ink-700 rounded-3xl border bg-white p-6 sm:p-8"
+        class="shadow-card border-ink-100 rounded-3xl border bg-white p-6 sm:p-8 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
       >
         {
           (fact.data.before || fact.data.after) && (
-            <dl class="border-ink-100 bg-ink-50/40 dark:border-ink-700 dark:bg-ink-900/40 mb-8 grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 sm:gap-4">
+            <dl class="border-ink-100 bg-ink-50/40 mb-8 grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 sm:gap-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]/40">
               {fact.data.before && (
                 <div>
                   <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
@@ -261,7 +261,7 @@ const breadcrumbsLd: Record<string, unknown> = {
                   <dt class="text-accent-700 dark:text-accent-300 text-xs font-medium tracking-wider uppercase">
                     Стало
                   </dt>
-                  <dd class="text-ink-800 dark:text-ink-800 mt-1 text-sm leading-relaxed">
+                  <dd class="text-ink-800 dark:text-ink-900 mt-1 text-sm leading-relaxed">
                     {fact.data.after}
                   </dd>
                 </div>
@@ -280,7 +280,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           fact.data.tags.length > 0 && (
             <div class="mt-8 flex flex-wrap gap-2" aria-label="Теги">
               {fact.data.tags.map((tag) => (
-                <span class="bg-ink-50 text-ink-600 dark:bg-ink-900 dark:text-ink-600 rounded-full px-3 py-1 text-xs font-medium">
+                <span class="bg-ink-50 text-ink-600 dark:text-ink-600 rounded-full px-3 py-1 text-xs font-medium dark:bg-[color:var(--card)]">
                   #{tag}
                 </span>
               ))}
@@ -288,7 +288,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           )
         }
 
-        <div class="border-ink-100 dark:border-ink-700 mt-8 border-t pt-5">
+        <div class="border-ink-100 mt-8 border-t pt-5 dark:border-[color:var(--card-edge)]">
           <h2 class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
             Джерела
           </h2>
@@ -314,7 +314,7 @@ const breadcrumbsLd: Record<string, unknown> = {
 
     <section class="container-prose mt-12" aria-labelledby="share-heading">
       <div
-        class="border-ink-100 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border p-6 sm:p-8"
+        class="border-ink-100 bg-paper-50 rounded-3xl border p-6 sm:p-8 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
       >
         <h2
           id="share-heading"
@@ -337,7 +337,7 @@ const breadcrumbsLd: Record<string, unknown> = {
                 href={target.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
+                class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
               >
                 <span aria-hidden="true">↗</span>
                 {target.label}
@@ -347,7 +347,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           <button
             id="fact-share-copy-btn"
             type="button"
-            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <span aria-hidden="true">⎘</span>
             <span data-state="idle">Скопіювати посилання</span>
@@ -356,7 +356,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             id="fact-share-native-btn"
             type="button"
             hidden
-            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <span aria-hidden="true">↗</span>
             Поділитись…
