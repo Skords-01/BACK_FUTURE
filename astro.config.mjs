@@ -7,7 +7,10 @@ import tailwindcss from "@tailwindcss/vite";
 const site = process.env.PUBLIC_SITE_URL ?? "https://back-future.example.com";
 
 // Опціональний Sentry: без DSN — інтеграція не підключається взагалі.
-const sentryDsn = process.env.SENTRY_DSN;
+// Runtime SDK-опції (dsn, sampleRate тощо) винесено у `sentry.client.config.ts`
+// та `sentry.server.config.ts` — це рекомендований шлях у @sentry/astro v10
+// (передавати `dsn` напряму в інтеграцію deprecated).
+const sentryDsn = process.env.PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const sentryProject = process.env.SENTRY_PROJECT ?? "back-future";
 const sentryOrg = process.env.SENTRY_ORG;
@@ -15,11 +18,19 @@ const sentryOrg = process.env.SENTRY_ORG;
 const sentryIntegration = sentryDsn
   ? [
       sentry({
-        dsn: sentryDsn,
-        sourceMapsUploadOptions:
-          sentryAuthToken && sentryOrg
-            ? { project: sentryProject, org: sentryOrg, authToken: sentryAuthToken }
-            : undefined,
+        // Source-maps upload (build-time) — тільки якщо є auth token + org.
+        ...(sentryAuthToken && sentryOrg
+          ? {
+              org: sentryOrg,
+              project: sentryProject,
+              authToken: sentryAuthToken,
+            }
+          : {}),
+        // Явний glob — Astro в static-only режимі не завжди коректно
+        // підставляє дефолтну директорію для першого проходу плагіна.
+        sourcemaps: {
+          assets: ["./dist/**/*.js", "./dist/**/*.mjs"],
+        },
       }),
     ]
   : [];
