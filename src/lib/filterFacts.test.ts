@@ -69,14 +69,14 @@ describe("factsForYear", () => {
     expect(result.map((f) => f.id)).toEqual(["live"]);
   });
 
-  it("sorts results by yearOfEvent descending (most recent first)", () => {
+  it("sorts results by yearOfEvent ascending (oldest first from graduation year)", () => {
     const facts = [
       makeFact({ id: "old", subject: "physics", yearOfEvent: 2004, relevantForEras: [1, 2] }),
       makeFact({ id: "new", subject: "physics", yearOfEvent: 2024, relevantForEras: [1, 2] }),
       makeFact({ id: "mid", subject: "physics", yearOfEvent: 2012, relevantForEras: [1, 2] }),
     ];
 
-    expect(factsForYear(facts, 2003).map((f) => f.id)).toEqual(["new", "mid", "old"]);
+    expect(factsForYear(facts, 2003).map((f) => f.id)).toEqual(["old", "mid", "new"]);
   });
 
   it("returns an empty array if nothing matches", () => {
