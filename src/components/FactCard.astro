@@ -178,8 +178,10 @@ const mark = subject?.mark ?? "—";
 
 <style>
   /* Subtle paper-card tilt — чергується між парними/непарними картками,
-     як справжній стос паперів. На мобільних вимкнено: iOS Safari horizontal scroll. */
-  @media (min-width: 640px) {
+     як справжній стос паперів. Активний лише на пристроях зі справжнім
+     hover-курсором: інакше планшети в портреті (iPad ≥640px з touch)
+     отримували випадковий rotate без можливості його "зняти" hover-ом. */
+  @media (hover: hover) {
     .fact-card:nth-of-type(odd) {
       transform: rotate(-0.35deg);
       transform-origin: 50% 50%;
@@ -192,7 +194,7 @@ const mark = subject?.mark ?? "—";
       transform: rotate(0deg) translateY(-2px);
     }
   }
-  @media (min-width: 640px) and (prefers-reduced-motion: reduce) {
+  @media (hover: hover) and (prefers-reduced-motion: reduce) {
     .fact-card {
       transition: none;
     }
