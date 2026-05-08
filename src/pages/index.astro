@@ -1,8 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
+import EraGrid from "../components/EraGrid.astro";
+import DensityStrip from "../components/DensityStrip.astro";
+import SubjectChips from "../components/SubjectChips.astro";
 import Presets from "../components/Presets.astro";
-import { SITE, SUBJECTS } from "../config/site";
+import { SITE } from "../config/site";
 import { getCollection } from "astro:content";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
@@ -36,7 +39,31 @@ const websiteLd: Record<string, unknown> = {
   <div class="container-wide">
     <Hero totalFacts={totalFacts} factsFromYear={factsFromYear} defaultYear={DEFAULT_YEAR} />
 
-    <!-- Ери, DensityStrip, SubjectChips will be added in Epic 3 -->
+    <!-- П'ять епох -->
+    <section class="border-t border-[color:var(--rule)] pt-20 pb-6">
+      <div class="flex items-baseline justify-between gap-6 mb-8">
+        <h2 class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-none tracking-tight text-[color:var(--ink)]">
+          П'ять епох
+        </h2>
+        <span class="hidden font-mono text-xs tracking-widest uppercase text-[color:var(--muted)] sm:inline">
+          шкільні програми &amp; покоління, 1991—сьогодні
+        </span>
+      </div>
+      <EraGrid />
+    </section>
+
+    <!-- Густина часу -->
+    <section class="border-t border-[color:var(--rule)] pt-20 pb-10">
+      <div class="flex items-baseline justify-between gap-6 mb-8">
+        <h2 class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-none tracking-tight text-[color:var(--ink)]">
+          Густина часу
+        </h2>
+        <span class="hidden font-mono text-xs tracking-widest uppercase text-[color:var(--muted)] sm:inline">
+          висота смужки = кількість фактів того року
+        </span>
+      </div>
+      <DensityStrip />
+    </section>
 
     <!-- Як це працює -->
     <section class="border-t border-[color:var(--rule)] pt-20 pb-6">
@@ -115,25 +142,7 @@ const websiteLd: Record<string, unknown> = {
           11 предметів
         </span>
       </div>
-      <ul class="flex flex-wrap gap-2.5">
-        {
-          SUBJECTS.map((s) => (
-            <li>
-              <a
-                href={`/subject/${s.id}/`}
-                class="chip"
-                style={`--chip-color: var(--subject-${s.id})`}
-              >
-                <span class="chip__code">{s.mark}</span>
-                <span class="chip__name">{s.label}</span>
-                <span class="chip__count">
-                  {allFacts.filter((f) => f.data.subject === s.id).length}
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+      <SubjectChips />
     </section>
   </div>
 </Base>

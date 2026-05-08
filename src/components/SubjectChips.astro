@@ -1,0 +1,27 @@
+---
+// SubjectChips — all 11 subject chips with fact counts.
+import { getCollection } from "astro:content";
+import { SUBJECTS } from "../config/site";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+
+const counts = Object.fromEntries(
+  SUBJECTS.map((s) => [s.id, allFacts.filter((f) => f.data.subject === s.id).length]),
+);
+---
+
+<div class="flex flex-wrap gap-2.5">
+  {
+    SUBJECTS.map((s) => (
+      <a
+        href={`/subject/${s.id}/`}
+        class="chip"
+        style={`--chip-color: var(--subject-${s.id})`}
+      >
+        <span class="chip__code">{s.mark}</span>
+        <span class="chip__name">{s.label}</span>
+        <span class="chip__count">{counts[s.id]}</span>
+      </a>
+    ))
+  }
+</div>

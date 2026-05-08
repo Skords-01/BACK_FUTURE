@@ -1,0 +1,66 @@
+---
+// EraGrid — 5 era cards in a responsive grid. Active card filled with era color.
+// Clicking navigates to /era/<slug>/
+import { ERAS } from "../lib/eras";
+
+interface Props {
+  activeEraId?: number;
+}
+const { activeEraId } = Astro.props;
+---
+
+<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+  {
+    ERAS.map((era) => {
+      const isActive = era.id === activeEraId;
+      return (
+        <a
+          href={`/era/${era.slug}/`}
+          class="era-card"
+          style={`--era-color: ${era.color}`}
+          aria-current={isActive ? "page" : undefined}
+          data-active={isActive || undefined}
+        >
+          <span class="font-mono text-xs font-semibold tracking-[0.15em]" style={isActive ? "color: rgba(255,247,236,.7)" : "color: var(--era-color)"}>
+            0{era.id}
+          </span>
+          <span class="font-display text-[18px] font-semibold leading-snug tracking-[-0.01em]">
+            {era.name}
+          </span>
+          <span class="font-mono text-[13px]" style={isActive ? "color: rgba(255,247,236,.7)" : "color: var(--muted)"}>
+            {era.short}
+          </span>
+        </a>
+      );
+    })
+  }
+</div>
+
+<style>
+  .era-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 22px 20px;
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-top: 4px solid var(--era-color);
+    border-radius: 4px;
+    text-align: left;
+    transition: all 0.2s;
+    min-height: 140px;
+    justify-content: space-between;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .era-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+  .era-card[data-active] {
+    background: var(--era-color);
+    color: #fff7ec;
+    border-color: var(--era-color);
+  }
+</style>
