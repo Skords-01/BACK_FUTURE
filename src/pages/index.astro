@@ -102,7 +102,7 @@ const websiteLd: Record<string, unknown> = {
               <li>
                 <a
                   href={`/${y}/`}
-                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 dark:bg-ink-800 inline-flex min-h-11 items-center rounded-full border px-4 py-2 font-mono text-sm font-medium tabular-nums transition"
+                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 items-center rounded-full border px-4 py-2 font-mono text-sm font-medium tabular-nums transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
                 >
                   {y}
                 </a>
@@ -170,11 +170,11 @@ const websiteLd: Record<string, unknown> = {
     >
       {
         SUBJECTS.map((s) => (
-          <li class="border-ink-100 hover:border-accent-400 dark:border-ink-700 dark:bg-ink-800 dark:hover:border-accent-500 bg-paper-50 flex items-baseline gap-2.5 rounded-2xl border px-4 py-3.5 transition">
+          <li class="border-ink-100 hover:border-accent-400 dark:hover:border-accent-500 bg-paper-50 flex items-baseline gap-2.5 rounded-2xl border px-4 py-3.5 transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
             <span class="text-accent-700 dark:text-accent-300 shrink-0 font-mono text-[11px] font-semibold tracking-[0.14em] uppercase">
               {s.mark}
             </span>
-            <span class="text-ink-900 dark:text-ink-800 font-display text-base leading-snug font-semibold tracking-tight">
+            <span class="text-ink-900 dark:text-ink-900 font-display text-base leading-snug font-semibold tracking-tight">
               {s.label}
             </span>
           </li>

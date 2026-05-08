@@ -90,7 +90,7 @@ const serial = serialFromId(fact.id);
 
     {
       (fact.data.before || fact.data.after) && (
-        <dl class="border-ink-200 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 mt-6 grid gap-3 rounded-2xl border border-dashed p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4">
+        <dl class="border-ink-200 bg-paper-50 mt-6 grid gap-3 rounded-2xl border border-dashed p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
           {fact.data.before ? (
             <div>
               <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
@@ -169,7 +169,7 @@ const serial = serialFromId(fact.id);
       </div>
       {
         fact.data.sources.length > 0 && (
-          <div class="border-ink-100 text-ink-500 dark:border-ink-700 dark:text-ink-400 mt-4 border-t pt-3 text-xs">
+          <div class="border-ink-100 text-ink-500 dark:text-ink-400 mt-4 border-t pt-3 text-xs dark:border-[color:var(--card-edge)]">
             <div class="text-ink-400 dark:text-ink-500 mb-1 font-mono tracking-wider uppercase">
               Джерела
             </div>
@@ -177,7 +177,7 @@ const serial = serialFromId(fact.id);
               {fact.data.sources.map((s) => (
                 <li>
                   <a
-                    class="hover:text-ink-900 dark:hover:text-ink-100"
+                    class="hover:text-ink-900 dark:hover:text-ink-900"
                     href={s.url}
                     rel="noopener noreferrer"
                     target="_blank"
@@ -218,7 +218,7 @@ const serial = serialFromId(fact.id);
     {
       quote && (
         <blockquote class="border-accent-500 border-l-2 pl-4">
-          <p class="text-ink-800 dark:text-ink-800 font-display text-sm leading-snug italic">
+          <p class="text-ink-800 dark:text-ink-900 font-display text-sm leading-snug italic">
             «{quote.text}»
           </p>
           <footer class="text-ink-500 dark:text-ink-400 mt-1 font-mono text-[10px] tracking-wider uppercase">
