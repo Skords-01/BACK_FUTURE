@@ -44,6 +44,7 @@ const websiteLd: Record<string, unknown> = {
       <div class="mb-8 flex items-baseline justify-between gap-6">
         <h2
           class="font-display text-[clamp(2rem,4.5vw,3.5rem)] leading-none font-semibold tracking-tight text-[color:var(--ink)]"
+          data-reveal
         >
           П'ять епох
         </h2>
@@ -61,6 +62,7 @@ const websiteLd: Record<string, unknown> = {
       <div class="mb-8 flex items-baseline justify-between gap-6">
         <h2
           class="font-display text-[clamp(2rem,4.5vw,3.5rem)] leading-none font-semibold tracking-tight text-[color:var(--ink)]"
+          data-reveal
         >
           Густина часу
         </h2>
@@ -78,6 +80,7 @@ const websiteLd: Record<string, unknown> = {
       <div class="mb-8 flex items-baseline justify-between gap-6">
         <h2
           class="font-display text-[clamp(2rem,4.5vw,3.5rem)] leading-none font-semibold tracking-tight text-[color:var(--ink)]"
+          data-reveal
         >
           Як це працює
         </h2>
@@ -105,8 +108,8 @@ const websiteLd: Record<string, unknown> = {
               title: "Кожен факт — з джерелом.",
               text: "Розгорни деталі або поділись як вирізкою.",
             },
-          ].map((step) => (
-            <li class="rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-6 text-base leading-relaxed text-[color:var(--ink-2)]">
+          ].map((step, i) => (
+            <li class="rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-6 text-base leading-relaxed text-[color:var(--ink-2)]" data-reveal style={`--reveal-delay: ${i * 80}ms`}>
               <span class="font-mono text-xs font-bold tracking-[0.15em] text-[color:var(--accent)]">
                 {step.n}
               </span>
@@ -125,6 +128,7 @@ const websiteLd: Record<string, unknown> = {
       <div class="mb-8 flex items-baseline justify-between gap-6">
         <h2
           class="font-display text-[clamp(2rem,4.5vw,3.5rem)] leading-none font-semibold tracking-tight text-[color:var(--ink)]"
+          data-reveal
         >
           Або одразу
         </h2>
@@ -145,6 +149,7 @@ const websiteLd: Record<string, unknown> = {
       <div class="mb-8 flex items-baseline justify-between gap-6">
         <h2
           class="font-display text-[clamp(2rem,4.5vw,3.5rem)] leading-none font-semibold tracking-tight text-[color:var(--ink)]"
+          data-reveal
         >
           Тематичні рубрики
         </h2>

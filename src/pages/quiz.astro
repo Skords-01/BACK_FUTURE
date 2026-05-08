@@ -1,0 +1,444 @@
+---
+// Quiz — 5-question "guess the year" game. Facts are embedded as JSON;
+// all quiz logic (shuffle, scoring, transitions) is client-side vanilla JS.
+import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { SITE } from "../config/site";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+
+// Embed minimal fact data — only what the quiz needs (no body/sources)
+const factsData = allFacts.map((f) => ({
+  id: f.id,
+  title: f.data.title,
+  short: f.data.short,
+  year: f.data.yearOfEvent,
+  subject: f.data.subject,
+}));
+
+const QUESTIONS_COUNT = 5;
+---
+
+<Base title="Квіз: вгадай рік">
+  <div class="container-prose pt-16 pb-20">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · квіз
+    </span>
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-tight tracking-[-0.03em] text-[color:var(--ink)]"
+    >
+      Вгадай рік<br />відкриття
+    </h1>
+    <p class="mt-4 max-w-[520px] text-lg text-[color:var(--ink-2)]">
+      Прочитай факт і обери, коли саме це сталось. 5 питань — нові факти щоразу.
+    </p>
+
+    <!-- Quiz shell — all interactivity handled by <script> below -->
+    <div
+      id="quiz-app"
+      class="mt-12"
+      data-facts={JSON.stringify(factsData)}
+      data-count={QUESTIONS_COUNT}
+      data-year-min={SITE.yearMin}
+      data-year-max={SITE.yearMax}
+    >
+      <!-- Start screen -->
+      <div id="quiz-start" class="quiz-screen">
+        <button id="quiz-start-btn" type="button" class="quiz-cta-btn">
+          Почати квіз →
+        </button>
+        <p class="mt-4 font-mono text-xs text-[color:var(--muted)]">
+          {allFacts.length} фактів у пулі · нові питання щоразу
+        </p>
+      </div>
+
+      <!-- Question screen (hidden until JS shows it) -->
+      <div id="quiz-question" class="quiz-screen" hidden>
+        <div class="quiz-progress-wrap" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} id="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quiz-progress-fill" style="width:0%"></div>
+        </div>
+        <div class="mt-3 flex items-center justify-between">
+          <span
+            id="quiz-q-num"
+            class="font-mono text-xs text-[color:var(--muted)]"
+          >Питання 1 з {QUESTIONS_COUNT}</span>
+          <span id="quiz-score-live" class="font-mono text-xs text-[color:var(--muted)]">0 правильних</span>
+        </div>
+
+        <div class="quiz-fact-card mt-5" id="quiz-card">
+          <div
+            id="quiz-subject"
+            class="font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-[color:var(--accent)]"
+          ></div>
+          <h2
+            id="quiz-title"
+            class="font-display mt-3 text-2xl font-bold leading-snug tracking-tight text-[color:var(--ink)] sm:text-3xl"
+          ></h2>
+          <p id="quiz-short" class="mt-4 text-base leading-relaxed text-[color:var(--ink-2)]"></p>
+        </div>
+
+        <p class="mt-6 font-mono text-sm text-[color:var(--muted)]">Коли це сталось?</p>
+        <div
+          id="quiz-choices"
+          class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4"
+          role="group"
+          aria-label="Варіанти відповіді"
+        ></div>
+
+        <div
+          id="quiz-feedback"
+          class="quiz-feedback"
+          hidden
+          aria-live="polite"
+        ></div>
+      </div>
+
+      <!-- Result screen -->
+      <div id="quiz-result" class="quiz-screen" hidden>
+        <div class="quiz-result-card">
+          <div
+            class="font-display text-[clamp(3.5rem,12vw,6rem)] font-extrabold leading-none tabular-nums text-[color:var(--accent)]"
+            id="result-score"
+          ></div>
+          <div
+            id="result-label"
+            class="font-display mt-4 text-2xl font-bold tracking-tight text-[color:var(--ink)]"
+          ></div>
+          <p id="result-sub" class="mt-2 text-base text-[color:var(--ink-2)]"></p>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <button id="quiz-retry-btn" type="button" class="quiz-cta-btn">
+              Спробувати ще
+            </button>
+            <a
+              href="/"
+              class="inline-flex items-center rounded-sm border-2 border-[color:var(--card-edge)] px-6 py-3 font-mono text-sm font-semibold text-[color:var(--ink-2)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+            >
+              На головну →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .quiz-screen {
+    animation: quiz-fade-in 0.25s ease both;
+  }
+  @keyframes quiz-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-screen {
+      animation: none;
+    }
+  }
+
+  .quiz-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 14px 32px;
+    background: var(--accent);
+    color: #fff7ec;
+    border: none;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .quiz-cta-btn:hover {
+    background: var(--accent-2);
+  }
+
+  .quiz-progress-wrap {
+    height: 4px;
+    background: var(--card-edge);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.35s ease;
+  }
+
+  .quiz-fact-card {
+    padding: 24px 28px;
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .quiz-choice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 12px;
+    border: 2px solid var(--card-edge);
+    border-radius: 8px;
+    background: var(--card);
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+      border-color 0.15s,
+      background 0.15s,
+      color 0.15s,
+      transform 0.15s;
+    min-height: 64px;
+  }
+  .quiz-choice:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .quiz-choice:disabled {
+    cursor: default;
+    transform: none;
+  }
+  .quiz-choice.is-correct {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #15803d;
+  }
+  .quiz-choice.is-wrong {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+  :where(.dark) .quiz-choice.is-correct {
+    background: #052e16;
+    color: #4ade80;
+    border-color: #16a34a;
+  }
+  :where(.dark) .quiz-choice.is-wrong {
+    background: #450a0a;
+    color: #f87171;
+    border-color: #dc2626;
+  }
+
+  .quiz-feedback {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-left: 4px solid var(--accent);
+    background: var(--paper-2);
+    font-mono: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink-2);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .quiz-result-card {
+    padding: 36px 40px;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    box-shadow: var(--shadow-hi);
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var app = document.getElementById("quiz-app");
+    if (!app) return;
+
+    var allFacts = JSON.parse(app.dataset.facts ?? "[]");
+    var QUESTIONS_COUNT = parseInt(app.dataset.count ?? "5", 10);
+    var YEAR_MIN = parseInt(app.dataset.yearMin ?? "1991", 10);
+    var YEAR_MAX = parseInt(app.dataset.yearMax ?? "2026", 10);
+
+    var SUBJECT_MARKS = {
+      astronomy: "АСТ",
+      biology: "БІО",
+      geography: "ГЕО",
+      history: "ІСТ",
+      physics: "ФІЗ",
+      tech: "ТЕХ",
+      medicine: "МЕД",
+      economy: "ЕКН",
+      culture: "КУЛ",
+      sport: "СПР",
+      ecology: "ЕКЛ",
+    };
+
+    var RESULT_COPY = [
+      ["0/5", "Ще є куди рости!", "Спробуй свій рік на головній — і заповни прогалини."],
+      ["1/5", "Не погано, але можна краще.", "Введи рік і дізнайся, що пропустив."],
+      ["2/5", "Знаєш більше, ніж здається.", "Більше відкриттів чекає в стрічці."],
+      ["3/5", "Непогано!", "Три з п'яти — ти в темі. Дивись далі."],
+      ["4/5", "Відмінно!", "Ти добре знаєш, що змінилось у науці."],
+      ["5/5", "Бездоганно! Усі правильно.", "Справжній знавець. Поділись результатом."],
+    ];
+
+    var questions = [];
+    var currentQ = 0;
+    var score = 0;
+
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+      }
+      return a;
+    }
+
+    function generateChoices(correctYear) {
+      var choices = [correctYear];
+      var range = YEAR_MAX - YEAR_MIN;
+      var attempts = 0;
+      while (choices.length < 4 && attempts < 200) {
+        attempts++;
+        var candidate = Math.floor(Math.random() * (range + 1)) + YEAR_MIN;
+        var tooClose = false;
+        for (var i = 0; i < choices.length; i++) {
+          if (Math.abs(candidate - choices[i]) < 2) {
+            tooClose = true;
+            break;
+          }
+        }
+        if (!tooClose) choices.push(candidate);
+      }
+      return shuffle(choices);
+    }
+
+    function initQuiz() {
+      questions = shuffle(allFacts)
+        .slice(0, QUESTIONS_COUNT)
+        .map(function (f) {
+          return Object.assign({}, f, { choices: generateChoices(f.year) });
+        });
+      currentQ = 0;
+      score = 0;
+    }
+
+    function showScreen(id) {
+      ["quiz-start", "quiz-question", "quiz-result"].forEach(function (s) {
+        var el = document.getElementById(s);
+        if (el) el.hidden = s !== id;
+      });
+    }
+
+    function updateProgress() {
+      var fill = document.getElementById("quiz-progress-fill");
+      var bar = document.getElementById("quiz-progress-bar");
+      var pct = Math.round((currentQ / QUESTIONS_COUNT) * 100);
+      if (fill) fill.style.width = pct + "%";
+      if (bar) bar.setAttribute("aria-valuenow", String(pct));
+    }
+
+    function showQuestion() {
+      var q = questions[currentQ];
+      if (!q) return;
+
+      var numEl = document.getElementById("quiz-q-num");
+      var scoreEl = document.getElementById("quiz-score-live");
+      var subjectEl = document.getElementById("quiz-subject");
+      var titleEl = document.getElementById("quiz-title");
+      var shortEl = document.getElementById("quiz-short");
+      var choicesEl = document.getElementById("quiz-choices");
+      var feedbackEl = document.getElementById("quiz-feedback");
+
+      if (numEl) numEl.textContent = "Питання " + (currentQ + 1) + " з " + QUESTIONS_COUNT;
+      if (scoreEl) scoreEl.textContent = score + " правильних";
+      if (subjectEl) subjectEl.textContent = SUBJECT_MARKS[q.subject] ?? q.subject;
+      if (titleEl) titleEl.textContent = q.title;
+      if (shortEl) shortEl.textContent = q.short;
+      if (feedbackEl) feedbackEl.hidden = true;
+
+      updateProgress();
+
+      if (choicesEl) {
+        choicesEl.innerHTML = "";
+        q.choices.forEach(function (year) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "quiz-choice";
+          btn.textContent = String(year);
+          btn.dataset.year = String(year);
+          btn.addEventListener("click", function () {
+            handleAnswer(year, q.year);
+          });
+          choicesEl.appendChild(btn);
+        });
+      }
+
+      showScreen("quiz-question");
+    }
+
+    function handleAnswer(chosen, correct) {
+      var allBtns = document.querySelectorAll(".quiz-choice");
+      allBtns.forEach(function (btn) {
+        btn.disabled = true;
+        var y = parseInt(btn.dataset.year ?? "", 10);
+        if (y === correct) btn.classList.add("is-correct");
+        else if (y === chosen && chosen !== correct) btn.classList.add("is-wrong");
+      });
+
+      var isCorrect = chosen === correct;
+      if (isCorrect) score++;
+
+      var feedbackEl = document.getElementById("quiz-feedback");
+      if (feedbackEl) {
+        feedbackEl.hidden = false;
+        feedbackEl.textContent = isCorrect
+          ? "Правильно! " + correct + " рік."
+          : "Неправильно. Правильна відповідь — " + correct + " рік.";
+      }
+
+      setTimeout(function () {
+        currentQ++;
+        if (currentQ < questions.length) {
+          showQuestion();
+        } else {
+          showResult();
+        }
+      }, 1400);
+    }
+
+    function showResult() {
+      var fill = document.getElementById("quiz-progress-fill");
+      var bar = document.getElementById("quiz-progress-bar");
+      if (fill) fill.style.width = "100%";
+      if (bar) bar.setAttribute("aria-valuenow", "100");
+
+      var scoreEl = document.getElementById("result-score");
+      var labelEl = document.getElementById("result-label");
+      var subEl = document.getElementById("result-sub");
+
+      var copy = RESULT_COPY[score] ?? RESULT_COPY[0];
+      if (scoreEl) scoreEl.textContent = copy[0];
+      if (labelEl) labelEl.textContent = copy[1];
+      if (subEl) subEl.textContent = copy[2];
+
+      showScreen("quiz-result");
+    }
+
+    document.getElementById("quiz-start-btn")?.addEventListener("click", function () {
+      initQuiz();
+      showQuestion();
+    });
+
+    document.getElementById("quiz-retry-btn")?.addEventListener("click", function () {
+      initQuiz();
+      showQuestion();
+    });
+  })();
+</script>
