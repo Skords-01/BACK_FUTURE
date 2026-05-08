@@ -195,12 +195,22 @@ const navLinks = [
     const iconOpen = toggle.querySelector('[data-icon="open"]');
     const iconClose = toggle.querySelector('[data-icon="close"]');
 
+    function getFocusable() {
+      return Array.from(nav.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      ));
+    }
+
     function setState(open) {
       nav.dataset.state = open ? "open" : "closed";
       toggle.setAttribute("aria-expanded", String(open));
       toggle.setAttribute("aria-label", open ? "Закрити меню" : "Відкрити меню");
       if (iconOpen instanceof SVGElement) iconOpen.classList.toggle("hidden", open);
       if (iconClose instanceof SVGElement) iconClose.classList.toggle("hidden", !open);
+      if (open) {
+        var focusable = getFocusable();
+        if (focusable.length) focusable[0].focus();
+      }
     }
 
     toggle.addEventListener("click", function () {
@@ -216,11 +226,24 @@ const navLinks = [
       setState(false);
     });
 
-    // Esc закриває меню; повертаємо фокус на toggle для KB-користувачів.
+    // Esc закриває меню; Tab трапає фокус усередині відкритого меню.
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && nav.dataset.state === "open") {
+      if (nav.dataset.state !== "open") return;
+      if (e.key === "Escape") {
         setState(false);
         toggle.focus();
+        return;
+      }
+      if (e.key === "Tab") {
+        var focusable = getFocusable();
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
       }
     });
 
