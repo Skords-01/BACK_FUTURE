@@ -193,7 +193,13 @@ const breadcrumbsLd: Record<string, unknown> = {
           totalCount > 0 ? (
             <>
               Ти пропустив{" "}
-              <em class="text-accent-700 dark:text-accent-300 not-italic">{totalCount}</em>{" "}
+              <em
+                class="text-accent-700 dark:text-accent-300 not-italic tabular-nums"
+                data-countup
+                data-countup-target={totalCount}
+              >
+                {totalCount}
+              </em>{" "}
               {updatesLabel}
             </>
           ) : (
@@ -492,6 +498,36 @@ const breadcrumbsLd: Record<string, unknown> = {
   }
 
   <script is:inline>
+    // Count-up animation for the hero "Ти пропустив N оновлень" headline.
+    // Skips entirely under prefers-reduced-motion so the number stays as-is.
+    (function () {
+      const node = document.querySelector("[data-countup]");
+      if (!(node instanceof HTMLElement)) return;
+      const target = Number(node.dataset.countupTarget ?? node.textContent ?? "0");
+      if (!Number.isFinite(target) || target <= 0) return;
+      const reduceMotion =
+        window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduceMotion) {
+        node.textContent = String(target);
+        return;
+      }
+      // Tune duration to count size — small numbers shouldn't drag, big ones
+      // shouldn't blur past unreadably. Capped at ~1.4s.
+      const duration = Math.min(1400, 400 + Math.log10(target + 1) * 320);
+      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+      let start = null;
+      function tick(now) {
+        if (start === null) start = now;
+        const t = Math.min(1, (now - start) / duration);
+        const value = Math.round(easeOutCubic(t) * target);
+        node.textContent = String(value);
+        if (t < 1) requestAnimationFrame(tick);
+        else node.textContent = String(target);
+      }
+      node.textContent = "0";
+      requestAnimationFrame(tick);
+    })();
+
     (function () {
       const form = document.querySelector("[data-year-filters]");
       if (!(form instanceof HTMLFormElement)) return;
