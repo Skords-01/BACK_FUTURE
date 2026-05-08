@@ -32,9 +32,7 @@ const isUkraine = fact.data.region === "ukraine";
 >
   <header>
     <div class="mb-2 flex flex-wrap items-center gap-2">
-      <span
-        class="text-ink-900 dark:text-ink-900 font-mono text-[12px] font-semibold tracking-[0.05em] tabular-nums"
-      >
+      <span class="text-ink-900 font-mono text-[12px] font-semibold tracking-[0.05em] tabular-nums">
         {fact.data.yearOfEvent}
       </span>
       <span class="text-ink-300 dark:text-ink-600" aria-hidden="true">·</span>
@@ -67,9 +65,7 @@ const isUkraine = fact.data.region === "ukraine";
     </div>
   </header>
 
-  <h3
-    class="font-display text-ink-900 dark:text-ink-900 text-lg leading-tight font-bold tracking-tight sm:text-xl"
-  >
+  <h3 class="font-display text-ink-900 text-lg leading-tight font-bold tracking-tight sm:text-xl">
     <a
       href={detailUrl}
       class="hover:text-accent-700 dark:hover:text-accent-300 underline-offset-2 hover:underline"
@@ -78,7 +74,7 @@ const isUkraine = fact.data.region === "ukraine";
     </a>
   </h3>
 
-  <p class="text-ink-700 dark:text-ink-700 mt-2 line-clamp-3 text-sm leading-relaxed">
+  <p class="text-ink-700 mt-2 line-clamp-3 text-sm leading-relaxed">
     {fact.data.short}
   </p>
 

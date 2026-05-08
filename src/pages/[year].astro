@@ -157,9 +157,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           </li>
           <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
           <li>
-            <span class="text-ink-700 dark:text-ink-700 font-medium" aria-current="page"
-              >Випуск {year}</span
-            >
+            <span class="text-ink-700 font-medium" aria-current="page">Випуск {year}</span>
           </li>
           <li aria-hidden="true" class="text-ink-300 dark:text-ink-600 ml-2">·</li>
           <li>
@@ -183,12 +181,12 @@ const breadcrumbsLd: Record<string, unknown> = {
         <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
         <a
           href={eraUrl(era.slug)}
-          class="text-ink-600 hover:text-accent-700 dark:text-ink-600 dark:hover:text-accent-300 text-xs uppercase underline-offset-2 hover:underline"
+          class="text-ink-600 hover:text-accent-700 dark:hover:text-accent-300 text-xs uppercase underline-offset-2 hover:underline"
           >{era.label}</a
         >
       </p>
       <h1
-        class="font-display text-ink-900 dark:text-ink-900 mt-3 leading-[1.05] font-bold tracking-tight"
+        class="font-display text-ink-900 mt-3 leading-[1.05] font-bold tracking-tight"
         style="font-size: clamp(2rem, 7vw, 3.5rem);"
       >
         {
@@ -207,7 +205,7 @@ const breadcrumbsLd: Record<string, unknown> = {
         {era.label} · {totalCount}{" "}
         {updatesLabel}
       </p>
-      <p class="text-ink-700 dark:text-ink-700 mt-3 max-w-prose text-base">{era.summary}</p>
+      <p class="text-ink-700 mt-3 max-w-prose text-base">{era.summary}</p>
 
       <div class="mt-8 border-t border-[color:var(--card-edge)] pt-6">
         <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
@@ -217,11 +215,8 @@ const breadcrumbsLd: Record<string, unknown> = {
             Шкала часу · {SITE.yearMin} → {SITE.yearMax}
           </span>
           <span class="text-ink-500 dark:text-ink-400 font-mono text-xs">
-            З твого випуску минуло <strong class="text-ink-700 dark:text-ink-700"
-              >{yearsPassed}</strong
-            >{" "}
-            {yearsPassedLabel} · <strong class="text-ink-700 dark:text-ink-700">{totalCount}</strong
-            >{" "}
+            З твого випуску минуло <strong class="text-ink-700">{yearsPassed}</strong>{" "}
+            {yearsPassedLabel} · <strong class="text-ink-700">{totalCount}</strong>{" "}
             {updatesLabel}
           </span>
         </div>
@@ -262,7 +257,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="subject"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
               >
                 <option value="">Усі предмети</option>
                 {SUBJECTS.map((s) => (
@@ -276,7 +271,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="era"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
               >
                 <option value="">Усі ери</option>
                 {ERAS.map((e) => (
@@ -290,7 +285,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="region"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
               >
                 <option value="">Усі регіони</option>
                 {regionOptions.map((option) => (
@@ -304,7 +299,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               </span>
               <select
                 name="impact"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 dark:text-ink-900 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
+                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
               >
                 <option value="">Усі рівні</option>
                 {impactOptions.map((option) => (
@@ -332,7 +327,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <a
               href={`#subject-${g.subject}`}
               data-subject-nav={g.subject}
-              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-600 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition dark:bg-[color:var(--card)]"
+              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-600 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition dark:bg-[color:var(--card)]"
             >
               <span
                 class="text-accent-700 font-display text-[11px] font-bold tracking-[0.18em] uppercase"
@@ -363,7 +358,7 @@ const breadcrumbsLd: Record<string, unknown> = {
               >
                 {g.mark}
               </span>
-              <h2 class="font-display text-ink-900 dark:text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              <h2 class="font-display text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
                 {g.label}
               </h2>
               <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
@@ -398,7 +393,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <header class="mb-5 flex items-baseline gap-3">
               <h2
                 id="low-facts-heading"
-                class="font-display text-ink-900 dark:text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl"
+                class="font-display text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl"
               >
                 Решта подій
               </h2>
@@ -418,10 +413,8 @@ const breadcrumbsLd: Record<string, unknown> = {
     ) : (
       <section class="container-prose mt-12">
         <div class="border-ink-200 rounded-3xl border border-dashed bg-white p-8 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-          <p class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">
-            Поки що для цього року тихо.
-          </p>
-          <p class="text-ink-600 dark:text-ink-600 mt-2 text-base">
+          <p class="font-display text-ink-900 text-xl font-bold">Поки що для цього року тихо.</p>
+          <p class="text-ink-600 mt-2 text-base">
             Ми постійно додаємо факти. Поки що — спробуй ери, де у нас точно є про що розказати:
           </p>
 
@@ -434,7 +427,7 @@ const breadcrumbsLd: Record<string, unknown> = {
                     class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:hover:border-accent-400 group flex items-center justify-between gap-3 rounded-2xl border bg-white px-4 py-2.5 transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)] dark:hover:bg-[color:var(--paper-3)]"
                   >
                     <span class="flex flex-col">
-                      <span class="text-ink-900 dark:text-ink-900 font-mono text-base font-semibold tabular-nums">
+                      <span class="text-ink-900 font-mono text-base font-semibold tabular-nums">
                         {f.year}
                       </span>
                       <span class="text-ink-500 dark:text-ink-400 text-xs">{f.eraLabel}</span>
@@ -601,7 +594,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   <SupportBlock />
 
   <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">Спробуй інший рік</h2>
+    <h2 class="font-display text-ink-900 text-xl font-bold">Спробуй інший рік</h2>
     <div class="mt-4">
       <YearInput defaultYear={year} size="md" />
     </div>

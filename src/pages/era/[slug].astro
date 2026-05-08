@@ -89,9 +89,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           </li>
           <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
           <li>
-            <span class="text-ink-700 dark:text-ink-700 font-medium" aria-current="page"
-              >{era.label}</span
-            >
+            <span class="text-ink-700 font-medium" aria-current="page">{era.label}</span>
           </li>
           <li aria-hidden="true" class="text-ink-300 dark:text-ink-600 ml-2">·</li>
           <li>
@@ -113,16 +111,16 @@ const breadcrumbsLd: Record<string, unknown> = {
           >ЕРА {era.id}</span
         >
         <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
-        <span class="text-ink-600 dark:text-ink-600 text-xs uppercase">
+        <span class="text-ink-600 text-xs uppercase">
           {era.yearStart}–{era.yearEnd > SITE.yearMax ? "сьогодні" : era.yearEnd}
         </span>
       </p>
       <h1
-        class="font-display text-ink-900 dark:text-ink-900 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
+        class="font-display text-ink-900 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
       >
         {era.label}
       </h1>
-      <p class="text-ink-700 dark:text-ink-700 mt-4 max-w-prose text-lg">{era.summary}</p>
+      <p class="text-ink-700 mt-4 max-w-prose text-lg">{era.summary}</p>
       <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
         {totalCount}
         {totalCount === 1 ? "факт" : "фактів"} у цій ері, згруповано за предметами.
@@ -162,7 +160,7 @@ const breadcrumbsLd: Record<string, unknown> = {
                 subject={g.subject}
                 class="text-accent-700 dark:text-accent-300 text-3xl"
               />
-              <h2 class="font-display text-ink-900 dark:text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              <h2 class="font-display text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
                 {g.label}
               </h2>
               <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
@@ -183,7 +181,7 @@ const breadcrumbsLd: Record<string, unknown> = {
     ) : (
       <section class="container-prose mt-12">
         <div class="border-ink-200 rounded-3xl border border-dashed bg-white p-8 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-          <p class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">
+          <p class="font-display text-ink-900 text-xl font-bold">
             Поки що для цієї ери немає фактів.
           </p>
         </div>
@@ -194,7 +192,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   <SupportBlock />
 
   <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">Інші ери</h2>
+    <h2 class="font-display text-ink-900 text-xl font-bold">Інші ери</h2>
     <div class="mt-4 grid gap-2 sm:grid-cols-2">
       {
         otherEras.map((e) => (

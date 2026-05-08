@@ -127,9 +127,7 @@ function eraIdForYear(y: number): EraId {
           </li>
           <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
           <li>
-            <span class="text-ink-700 dark:text-ink-700 font-medium" aria-current="page"
-              >Хронологія</span
-            >
+            <span class="text-ink-700 font-medium" aria-current="page">Хронологія</span>
           </li>
         </ol>
       </nav>
@@ -140,11 +138,11 @@ function eraIdForYear(y: number): EraId {
         / TIMELINE · Хронологія всіх фактів
       </p>
       <h1
-        class="font-display text-ink-900 dark:text-ink-900 mt-2 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+        class="font-display text-ink-900 mt-2 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
       >
         Світ між {SITE.yearMin} і {SITE.yearMax}
       </h1>
-      <p class="text-ink-700 dark:text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
+      <p class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
         {totalFacts} фактів про науку, історію й світ — розкладені по роках, від року здобуття незалежності
         до сьогодні. Прокручуй донизу або стрибай до своєї ери.
       </p>
@@ -154,28 +152,28 @@ function eraIdForYear(y: number): EraId {
       >
         <div>
           <dt class="sr-only">Усього фактів</dt>
-          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+          <dd class="text-ink-900 inline text-base font-semibold">
             {totalFacts}
           </dd>
           <span class="ml-1.5">{pluralizeFacts(totalFacts)}</span>
         </div>
         <div>
           <dt class="sr-only">Років з контентом</dt>
-          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+          <dd class="text-ink-900 inline text-base font-semibold">
             {yearsCovered}
           </dd>
           <span class="ml-1.5">років з контентом</span>
         </div>
         <div>
           <dt class="sr-only">Українських внесків</dt>
-          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+          <dd class="text-ink-900 inline text-base font-semibold">
             {ukraineFacts}
           </dd>
           <span class="ml-1.5">UA внесків</span>
         </div>
         <div>
           <dt class="sr-only">Переломних подій</dt>
-          <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
+          <dd class="text-ink-900 inline text-base font-semibold">
             {highImpactFacts}
           </dd>
           <span class="ml-1.5">★ віх</span>
@@ -235,7 +233,7 @@ function eraIdForYear(y: number): EraId {
               ·
             </span>
             <span class="text-xs">{s.era.label.split(" (")[0]}</span>
-            <span class="text-ink-500 dark:text-ink-500 font-mono text-[10px] tabular-nums">
+            <span class="text-ink-500 font-mono text-[10px] tabular-nums">
               {s.years.reduce((acc, y) => acc + (factsByYear.get(y)?.length ?? 0), 0)}
             </span>
           </a>
