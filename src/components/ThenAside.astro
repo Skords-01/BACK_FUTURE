@@ -1,6 +1,6 @@
 ---
-// ThenAside — paper panel showing context of the era: president, exchange rate,
-// hit song, gadget, etc. from content/epoch/<year>.json.
+// ThenAside — paper snapshot of the graduation year: president, exchange rate,
+// hit song, gadget, etc. Styled like a torn calendar page.
 // Falls back to the nearest available epoch year if the exact year is absent.
 import { getCollection } from "astro:content";
 
@@ -11,7 +11,6 @@ const { year } = Astro.props;
 
 const epochEntries = await getCollection("epoch");
 
-// Find closest epoch year (prefer same year, then nearest)
 const sorted = epochEntries.slice().sort((a, b) => {
   const da = Math.abs(a.data.year - year);
   const db = Math.abs(b.data.year - year);
@@ -20,29 +19,34 @@ const sorted = epochEntries.slice().sort((a, b) => {
 const entry = sorted[0];
 const items = entry?.data.items ?? [];
 const displayYear = entry?.data.year ?? year;
+
+// Ukrainian ordinal suffix for display year (2012 → «2012-й»)
+function ordinal(y: number): string {
+  const last2 = y % 100;
+  const last1 = y % 10;
+  if (last2 >= 11 && last2 <= 19) return `${y}-й`;
+  if (last1 === 1) return `${y}-й`;
+  if (last1 === 2 || last1 === 3 || last1 === 4) return `${y}-й`;
+  return `${y}-й`;
+}
 ---
 
 {
   items.length > 0 && (
-    <aside class="container-wide mt-0 mb-0 py-10" aria-label={`Контекст ${displayYear} року`}>
-      <div class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-6 sm:p-8">
-        <div class="mb-6 flex items-baseline justify-between gap-4">
-          <h2 class="font-display text-xl font-semibold tracking-tight text-[color:var(--ink)]">
-            Тоді…
-          </h2>
-          {displayYear !== year && (
-            <span class="font-mono text-xs text-[color:var(--muted)]">дані {displayYear} року</span>
-          )}
+    <aside class="then container-wide mt-0 mb-0 py-8" aria-label={`Контекст ${displayYear} року`}>
+      <div class="then__inner">
+        <div class="then__head">
+          <span class="then__year">{ordinal(displayYear)}</span>
+          <span class="then__sub">
+            контекст · епіграф епохи
+            {displayYear !== year && <span class="ml-2 opacity-60">(дані {displayYear} р.)</span>}
+          </span>
         </div>
-        <dl class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+        <dl class="then__grid">
           {items.map((item) => (
-            <div>
-              <dt class="font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
-                {item.k}
-              </dt>
-              <dd class="mt-1 text-sm leading-snug font-medium text-[color:var(--ink)]">
-                {item.v}
-              </dd>
+            <div class="then__item">
+              <dt>{item.k}</dt>
+              <dd>{item.v}</dd>
             </div>
           ))}
         </dl>
@@ -50,3 +54,83 @@ const displayYear = entry?.data.year ?? year;
     </aside>
   )
 }
+
+<style>
+  .then__inner {
+    position: relative;
+    padding: 28px;
+    background: var(--paper-2);
+    border: 1px solid var(--card-edge);
+    border-radius: 4px;
+  }
+
+  /* Decorative perforated-tape strip across the top edge */
+  .then__inner::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 32px;
+    width: 80px;
+    height: 16px;
+    background: repeating-linear-gradient(90deg, var(--accent) 0 8px, transparent 8px 16px);
+    opacity: 0.35;
+  }
+
+  .then__head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--card-edge);
+  }
+
+  .then__year {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .then__sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .then__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px 28px;
+    margin: 0;
+  }
+
+  @media (max-width: 639px) {
+    .then__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .then__item dt {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .then__item dd {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+</style>
