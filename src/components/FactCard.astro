@@ -83,7 +83,7 @@ const isVikha = fact.data.impact === "high";
         updatedAt && (
           <time
             datetime={isoDate(updatedAt)}
-            class="text-ink-400 dark:text-ink-500 ml-auto inline-flex items-center gap-1 text-[10px] font-medium tabular-nums"
+            class="text-ink-400 dark:text-ink-500 mt-0.5 basis-full text-[10px] font-medium tabular-nums sm:mt-0 sm:basis-auto sm:ml-auto sm:inline-flex sm:items-center sm:gap-1"
             title="Дата останнього оновлення цього факту"
           >
             оновл. {formatUkShortDate(updatedAt)}
@@ -149,13 +149,13 @@ const isVikha = fact.data.impact === "high";
 
   <a
     href={detailUrl}
-    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 mt-5 inline-flex items-center gap-1 font-mono text-xs tracking-wider uppercase underline-offset-2 hover:underline"
+    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 mt-5 inline-flex min-h-[44px] items-center gap-1 font-mono text-xs tracking-wider uppercase underline-offset-2 hover:underline"
     aria-label={`Відкрити постійну сторінку факту: ${fact.data.title}`}
   >
     Постійна сторінка →
   </a>
 
-  <details class="group/details mt-5">
+  <details class="group/details mt-5" data-scroll-on-open>
     <summary
       class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 inline-flex min-h-[44px] cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"
     >
@@ -186,11 +186,11 @@ const isVikha = fact.data.impact === "high";
           <div class="text-ink-400 dark:text-ink-500 mb-1 font-mono tracking-wider uppercase">
             Джерела
           </div>
-          <ul class="space-y-1">
+          <ul class="space-y-0.5">
             {fact.data.sources.map((s) => (
               <li>
                 <a
-                  class="hover:text-ink-900 dark:hover:text-ink-900"
+                  class="hover:text-ink-900 dark:hover:text-ink-900 block py-1.5"
                   href={s.url}
                   rel="noopener noreferrer"
                   target="_blank"
@@ -220,7 +220,24 @@ const isVikha = fact.data.impact === "high";
 
       if (reducedMotion) return;
 
+      const details = card.querySelector<HTMLDetailsElement>("details");
+
+      // Freeze tilt when expanded so text is readable
+      if (details) {
+        details.addEventListener("toggle", () => {
+          if (details.open) {
+            card.style.setProperty("--tilt-x", "0deg");
+            card.style.setProperty("--tilt-y", "0deg");
+            card.style.setProperty("--idle-rot", "0deg");
+            card.style.setProperty("--lift", "0px");
+          } else {
+            card.style.setProperty("--idle-rot", `${idleRot}deg`);
+          }
+        });
+      }
+
       card.addEventListener("mousemove", (e: MouseEvent) => {
+        if (details?.open) return;
         const r = card.getBoundingClientRect();
         const dx = ((e.clientX - r.left) / r.width - 0.5) * 2;
         const dy = ((e.clientY - r.top) / r.height - 0.5) * 2;
@@ -233,11 +250,25 @@ const isVikha = fact.data.impact === "high";
       card.addEventListener("mouseleave", () => {
         card.style.setProperty("--tilt-x", "0deg");
         card.style.setProperty("--tilt-y", "0deg");
-        card.style.setProperty("--idle-rot", `${idleRot}deg`);
+        if (!details?.open) {
+          card.style.setProperty("--idle-rot", `${idleRot}deg`);
+        }
         card.style.setProperty("--lift", "0px");
       });
     });
   })();
+
+  // Scroll expanded content into view on touch devices
+  document.querySelectorAll<HTMLDetailsElement>("details[data-scroll-on-open]").forEach((det) => {
+    det.addEventListener("toggle", () => {
+      if (!det.open) return;
+      const noHover = !window.matchMedia("(hover: hover)").matches;
+      const noMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (noHover) {
+        det.scrollIntoView({ behavior: noMotion ? "instant" : "smooth", block: "nearest" });
+      }
+    });
+  });
 </script>
 
 <style>

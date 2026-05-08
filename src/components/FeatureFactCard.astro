@@ -169,11 +169,11 @@ const serial = serialFromId(fact.id);
             <div class="text-ink-400 dark:text-ink-500 mb-1 font-mono tracking-wider uppercase">
               Джерела
             </div>
-            <ul class="space-y-1">
+            <ul class="space-y-0.5">
               {fact.data.sources.map((s) => (
                 <li>
                   <a
-                    class="hover:text-ink-900 dark:hover:text-ink-900"
+                    class="hover:text-ink-900 dark:hover:text-ink-900 block py-1.5"
                     href={s.url}
                     rel="noopener noreferrer"
                     target="_blank"
