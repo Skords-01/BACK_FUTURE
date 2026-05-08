@@ -4,7 +4,7 @@
  * у вигляді вертикальної осі (Variant A з мокапу).
  *
  * Структура:
- *   1) Hero з лічильниками (всього фактів, років, UA, ВЕХ)
+ *   1) Hero з лічильниками (всього фактів, років, UA, ВІХ)
  *   2) Якорі ер (sticky-нав на десктопі, плоска стрічка на мобілці)
  *   3) Vertical axis: для кожного року — баджик з роком на осі, факти
  *      чергуються left/right (на десктопі), на мобілці колапсуються в одну
@@ -178,9 +178,36 @@ function eraIdForYear(y: number): EraId {
           <dd class="text-ink-900 dark:text-ink-900 inline text-base font-semibold">
             {highImpactFacts}
           </dd>
-          <span class="ml-1.5">★ вех</span>
+          <span class="ml-1.5">★ віх</span>
         </div>
       </dl>
+
+      <!--
+        Легенда позначок — пояснює, що означають бейджі ★ ВІХА і UA, які
+        зустрічаються на картках нижче. Розташована в hero (а не між sticky
+        era-nav і стрічкою), щоб не їхати під nav при скролі.
+      -->
+      <aside
+        aria-label="Легенда позначок"
+        class="text-ink-600 dark:text-ink-400 mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[11px]"
+      >
+        <span class="inline-flex items-center gap-1.5">
+          <span
+            class="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-medium tracking-wider text-amber-900 uppercase dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200"
+          >
+            ★ ВІХА
+          </span>
+          <span>— переломний факт, що змінив ширшу картину</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <span
+            class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wider uppercase"
+          >
+            UA
+          </span>
+          <span>— український внесок у факт або відкриття</span>
+        </span>
+      </aside>
     </div>
   </section>
 

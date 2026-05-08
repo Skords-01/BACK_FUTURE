@@ -66,6 +66,18 @@ const serial = serialFromId(fact.id);
       }
     </div>
 
+    <!--
+      Інлайн-розшифровка для бейджа ★ Віха. FeatureFactCard рендериться
+      лише для `impact === "high"` (див. src/pages/[year].astro), тож текст
+      завжди в контексті. На мобільному `title`-tooltip недоступний — без
+      цього рядка користувач не зрозуміє маркер.
+    -->
+    <p
+      class="text-ink-500 dark:text-ink-400 mt-2 font-mono text-[10.5px] leading-snug tracking-wide italic"
+    >
+      ★ Віха — переломний факт, що змінив ширшу картину світу
+    </p>
+
     <h3
       class="font-display text-ink-900 dark:text-ink-900 mt-4 text-3xl leading-[1.05] font-extrabold tracking-tight sm:text-4xl"
     >
