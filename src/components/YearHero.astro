@@ -50,7 +50,8 @@ const yearsPassedLabel =
           ВИПУСК #{year - 1990} · {era.short}
         </p>
 
-        <!-- Giant year -->
+        <!-- Giant year — h1 provides the accessible heading; the visible span is decorative -->
+        <h1 class="sr-only">Випуск {year}</h1>
         <div class="relative inline-block">
           <span
             class="font-display leading-none font-extrabold tracking-[-0.04em] text-[color:var(--ink)] select-none"
