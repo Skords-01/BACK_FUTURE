@@ -206,6 +206,40 @@ const isVikha = fact.data.impact === "high";
   </details>
 </article>
 
+<script>
+  (function () {
+    const hasHover = window.matchMedia("(hover: hover)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!hasHover) return;
+
+    const cards = document.querySelectorAll<HTMLElement>(".fact-card");
+    cards.forEach((card, i) => {
+      // Alternate idle tilt like original CSS nth-of-type pattern
+      const idleRot = i % 2 === 0 ? -0.35 : 0.3;
+      card.style.setProperty("--idle-rot", `${idleRot}deg`);
+
+      if (reducedMotion) return;
+
+      card.addEventListener("mousemove", (e: MouseEvent) => {
+        const r = card.getBoundingClientRect();
+        const dx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        const dy = ((e.clientY - r.top) / r.height - 0.5) * 2;
+        card.style.setProperty("--tilt-x", `${-dy * 4}deg`);
+        card.style.setProperty("--tilt-y", `${dx * 4}deg`);
+        card.style.setProperty("--idle-rot", "0deg");
+        card.style.setProperty("--lift", "-3px");
+      });
+
+      card.addEventListener("mouseleave", () => {
+        card.style.setProperty("--tilt-x", "0deg");
+        card.style.setProperty("--tilt-y", "0deg");
+        card.style.setProperty("--idle-rot", `${idleRot}deg`);
+        card.style.setProperty("--lift", "0px");
+      });
+    });
+  })();
+</script>
+
 <style>
   /* Archive/newspaper treatment for high-impact (★ Віха) cards */
   .vikha-card {
@@ -228,32 +262,23 @@ const isVikha = fact.data.impact === "high";
     );
   }
 
-  /* Subtle paper-card tilt — чергується між парними/непарними картками,
-     як справжній стос паперів. Активний лише на пристроях зі справжнім
-     hover-курсором: інакше планшети в портреті (iPad ≥640px з touch)
-     отримували випадковий rotate без можливості його "зняти" hover-ом. */
+  /* Magnetic 3D tilt — cursor-following perspective tilt (hover devices only).
+     JS sets --tilt-x / --tilt-y / --idle-rot / --lift via inline style.
+     Degrades gracefully: touch-only devices and reduced-motion see no effect. */
   @media (hover: hover) {
-    .fact-card:nth-of-type(odd) {
-      transform: rotate(-0.35deg);
+    .fact-card {
+      transform: perspective(1200px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+        rotate(var(--idle-rot, 0deg)) translateY(var(--lift, 0px));
       transform-origin: 50% 50%;
-    }
-    .fact-card:nth-of-type(even) {
-      transform: rotate(0.3deg);
-      transform-origin: 50% 50%;
-    }
-    .fact-card:hover {
-      transform: rotate(0deg) translateY(-2px);
+      will-change: transform;
     }
   }
   @media (hover: hover) and (prefers-reduced-motion: reduce) {
     .fact-card {
+      /* keep gentle tilt but skip 3D/animated tilt entirely */
+      transform: rotate(var(--idle-rot, 0deg));
       transition: none;
-    }
-    .fact-card:nth-of-type(odd):hover {
-      transform: rotate(-0.35deg);
-    }
-    .fact-card:nth-of-type(even):hover {
-      transform: rotate(0.3deg);
+      will-change: auto;
     }
   }
 </style>

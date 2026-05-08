@@ -54,10 +54,10 @@ const groups = groupBySubject(facts);
           </header>
 
           <div class="timeline">
-            {g.items.map((fact) => {
+            {g.items.map((fact, index) => {
               const delta = fact.data.yearOfEvent - fromYear;
               return (
-                <div class="timeline__row" data-reveal>
+                <div class="timeline__row" data-reveal style={`--reveal-delay: ${index * 65}ms`}>
                   <div class="timeline__rail" style={`--dot-color: var(--subject-${g.subject})`}>
                     <span class="timeline__year">{fact.data.yearOfEvent}</span>
                     {delta > 0 && <span class="timeline__delta">+{delta} р.</span>}
