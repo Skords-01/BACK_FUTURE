@@ -80,9 +80,12 @@ const next = year < SITE.yearMax ? year + 1 : null;
     text-decoration: none;
   }
 
-  .ynav__b:not(.ynav__b--disabled):hover {
+  .ynav__b:not(.ynav__b--disabled):hover,
+  .ynav__b:not(.ynav__b--disabled):focus-visible {
     border-color: var(--accent);
     transform: translateY(-2px);
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .ynav__b--r {

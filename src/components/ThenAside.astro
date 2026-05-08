@@ -22,11 +22,6 @@ const displayYear = entry?.data.year ?? year;
 
 // Ukrainian ordinal suffix for display year (2012 → «2012-й»)
 function ordinal(y: number): string {
-  const last2 = y % 100;
-  const last1 = y % 10;
-  if (last2 >= 11 && last2 <= 19) return `${y}-й`;
-  if (last1 === 1) return `${y}-й`;
-  if (last1 === 2 || last1 === 3 || last1 === 4) return `${y}-й`;
   return `${y}-й`;
 }
 ---
