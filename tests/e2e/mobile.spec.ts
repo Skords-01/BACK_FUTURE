@@ -44,19 +44,20 @@ test.describe("mobile @375px", () => {
 
   test("primary nav remains reachable on narrow viewport", async ({ page }) => {
     await page.goto("/");
-    const nav = page.getByRole("navigation", { name: "Основна навігація" });
-    // Якщо нав схований за burger-меню — відкриваємо його. Inline-нав на більших
-    // макетах одразу видимий, тому toggle опціональний (не у всіх реалізаціях
-    // він взагалі рендериться). Перевірка `aria-expanded` на toggle після
-    // кліку гарантує, що бургер коректно зв'язаний з nav через `aria-controls`.
-    const toggle = page
-      .getByRole("button")
-      .filter({ has: page.locator(`[aria-controls="${await nav.getAttribute("id")}"]`) });
-    if (await toggle.count()) {
-      await expect(toggle).toBeVisible();
+    // Якщо є burger-toggle (button[aria-controls=...]) — відкриваємо панель.
+    // Беремо CSS-locator, а не `getByRole("navigation")`, бо приховане display:none
+    // меню випадає з accessibility tree, і `getByRole` зависає на `getAttribute`.
+    // На десктопному inline-наві кнопка не рендериться — тоді просто проходимо далі.
+    const toggle = page.locator("button[aria-controls]").first();
+    if ((await toggle.count()) && (await toggle.isVisible())) {
+      const navId = await toggle.getAttribute("aria-controls");
+      expect(navId).toBeTruthy();
       await toggle.click();
       await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      // sanity: aria-controls справді посилається на «Основну навігацію».
+      await expect(page.locator(`#${navId}`)).toHaveAttribute("aria-label", "Основна навігація");
     }
+    const nav = page.getByRole("navigation", { name: "Основна навігація" });
     await expect(nav).toBeVisible();
     await expect(nav.getByRole("link", { name: "Методологія" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Про проєкт" })).toBeVisible();
