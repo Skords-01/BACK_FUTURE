@@ -1,0 +1,22 @@
+---
+// GoButton — anchor that navigates to /{year}/ and updates its href on year:change.
+interface Props {
+  defaultYear?: number;
+}
+const { defaultYear = 2012 } = Astro.props;
+---
+
+<a id="go-button" href={`/${defaultYear}/`} class="machine__go">
+  <span>↵ ПОЇХАЛИ</span>
+  <span class="text-[11px] font-normal tracking-[0.14em] uppercase opacity-75">розрахувати</span>
+</a>
+
+<script>
+  document.addEventListener("year:change", (e) => {
+    const year = (e as CustomEvent<{ year: number }>).detail.year;
+    const btn = document.getElementById("go-button");
+    if (btn instanceof HTMLAnchorElement) {
+      btn.href = `/${year}/`;
+    }
+  });
+</script>

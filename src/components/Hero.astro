@@ -1,0 +1,44 @@
+---
+// Hero — main landing hero with ruled-paper background, headline, machine, counter, quick picks.
+import YearMachine from "./YearMachine.astro";
+import MissedCounter from "./MissedCounter.astro";
+import QuickPicks from "./QuickPicks.astro";
+
+interface Props {
+  totalFacts: number;
+  factsFromYear: Record<number, number>;
+  defaultYear?: number;
+}
+const { totalFacts, factsFromYear, defaultYear = 2012 } = Astro.props;
+const currentYear = new Date().getFullYear();
+---
+
+<section class="ruled-hero relative pb-12 pt-16">
+  <div class="flex justify-between font-mono text-[11px] tracking-[0.12em] text-[color:var(--muted)] uppercase mb-9">
+    <span>№ 001 · просвітницький журнал · українською</span>
+    <span class="hidden sm:inline">видання {currentYear} · {totalFacts} фактів</span>
+  </div>
+
+  <h1
+    class="font-display text-[clamp(4rem,11vw,10.5rem)] font-extrabold leading-[0.92] tracking-[-0.04em] text-[color:var(--ink)] mb-7"
+  >
+    Що ти<br />
+    <em class="relative font-light text-[color:var(--accent)]" style="font-style: italic">
+      пропустив
+      <span
+        class="pointer-events-none absolute inset-x-[-4px] bottom-2 -z-10 h-3 skew-x-[-8deg] bg-[color:var(--accent-soft)]"
+        aria-hidden="true"
+      ></span>
+    </em><br />
+    після випускного?
+  </h1>
+
+  <p class="mb-14 max-w-[640px] text-[22px] font-normal leading-relaxed text-[color:var(--ink-2)]">
+    Введи рік випуску — отримай стрічку оновлень у науці, історії й світі від&nbsp;тих часів.
+    Стисло, науково-популярно, з&nbsp;джерелами.
+  </p>
+
+  <YearMachine defaultYear={defaultYear} />
+  <MissedCounter defaultYear={defaultYear} factsFromYear={factsFromYear} />
+  <QuickPicks />
+</section>

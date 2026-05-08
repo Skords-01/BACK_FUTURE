@@ -191,17 +191,17 @@
   --color-era-5: var(--era-5);
 
   /* Subject colors */
-  --color-ast: var(--subject-ast);
-  --color-bio: var(--subject-bio);
-  --color-geo: var(--subject-geo);
-  --color-ist: var(--subject-ist);
-  --color-fiz: var(--subject-fiz);
-  --color-tex: var(--subject-tex);
-  --color-med: var(--subject-med);
-  --color-kul: var(--subject-kul);
-  --color-ekl: var(--subject-ekl);
-  --color-spr: var(--subject-spr);
-  --color-ekn: var(--subject-ekn);
+  --color-astronomy: var(--subject-astronomy);
+  --color-biology: var(--subject-biology);
+  --color-geography: var(--subject-geography);
+  --color-history: var(--subject-history);
+  --color-physics: var(--subject-physics);
+  --color-tech: var(--subject-tech);
+  --color-medicine: var(--subject-medicine);
+  --color-culture: var(--subject-culture);
+  --color-ecology: var(--subject-ecology);
+  --color-sport: var(--subject-sport);
+  --color-economy: var(--subject-economy);
 }
 
 @layer base {
@@ -267,18 +267,18 @@
     --era-4: #a02f15;
     --era-5: #5e3a7a;
 
-    /* Subject palette (11 subjects) */
-    --subject-ast: #3b6e8f;
-    --subject-bio: #557a3a;
-    --subject-geo: #7a5e3a;
-    --subject-ist: #a02f15;
-    --subject-fiz: #5e3a7a;
-    --subject-tex: #4a3a28;
-    --subject-med: #a83a5e;
-    --subject-kul: #c89034;
-    --subject-ekl: #3a7a5e;
-    --subject-spr: #2a8f5e;
-    --subject-ekn: #c8862a;
+    /* Subject palette (keyed by subject ID from SUBJECTS in site.ts) */
+    --subject-astronomy: #3b6e8f;
+    --subject-biology: #557a3a;
+    --subject-geography: #7a5e3a;
+    --subject-history: #a02f15;
+    --subject-physics: #5e3a7a;
+    --subject-tech: #4a3a28;
+    --subject-medicine: #a83a5e;
+    --subject-culture: #c89034;
+    --subject-ecology: #3a7a5e;
+    --subject-sport: #2a8f5e;
+    --subject-economy: #c8862a;
 
     /* Compatibility with old --color-bg/--color-fg */
     --color-bg: var(--paper);
@@ -338,17 +338,17 @@
     --era-3: #7a8b3a;
     --era-4: #a02f15;
     --era-5: #5e3a7a;
-    --subject-ast: #3b6e8f;
-    --subject-bio: #557a3a;
-    --subject-geo: #7a5e3a;
-    --subject-ist: #a02f15;
-    --subject-fiz: #5e3a7a;
-    --subject-tex: #6b5438;
-    --subject-med: #a83a5e;
-    --subject-kul: #c89034;
-    --subject-ekl: #3a7a5e;
-    --subject-spr: #2a8f5e;
-    --subject-ekn: #c8862a;
+    --subject-astronomy: #3b6e8f;
+    --subject-biology: #557a3a;
+    --subject-geography: #7a5e3a;
+    --subject-history: #a02f15;
+    --subject-physics: #5e3a7a;
+    --subject-tech: #6b5438;
+    --subject-medicine: #a83a5e;
+    --subject-culture: #c89034;
+    --subject-ecology: #3a7a5e;
+    --subject-sport: #2a8f5e;
+    --subject-economy: #c8862a;
 
     --shadow: 0 1px 0 rgba(0, 0, 0, 0.25), 0 14px 28px -16px rgba(0, 0, 0, 0.5);
     --shadow-hi: 0 1px 0 rgba(0, 0, 0, 0.25), 0 22px 40px -18px rgba(0, 0, 0, 0.6);
@@ -607,6 +607,86 @@
   }
 
   /* -----------------------------------------------------------------------
+     Year Machine — odometer housing with 3-column grid layout.
+     Collapses to single column on narrow viewports.
+     ---------------------------------------------------------------------- */
+  .machine {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: stretch;
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    box-shadow: var(--shadow-hi);
+    overflow: hidden;
+  }
+  @media (max-width: 720px) {
+    .machine {
+      grid-template-columns: 1fr;
+    }
+    .machine__label {
+      border-right: 0 !important;
+      border-bottom: 1px dashed var(--card-edge);
+    }
+    .machine__go {
+      border-left: 0 !important;
+      border-top: 1px solid var(--ink);
+    }
+  }
+  .machine__label {
+    padding: 16px 22px;
+    border-right: 1px dashed var(--card-edge);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--paper-2);
+  }
+  .machine__go {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 22px 32px;
+    background: var(--accent);
+    color: #fff7ec;
+    border-left: 1px solid var(--ink);
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: background 0.15s;
+    text-decoration: none;
+    min-width: 200px;
+  }
+  .machine__go:hover {
+    background: var(--accent-2);
+  }
+
+  /* Stepper −/+ buttons around the odometer. */
+  .stepper__btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--card-edge);
+    border-radius: 50%;
+    font-size: 22px;
+    font-family: var(--font-mono);
+    color: var(--ink-2);
+    background: var(--paper-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .stepper__btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(1.05);
+  }
+
+  /* -----------------------------------------------------------------------
      Odometer — 4-digit year picker with animated digit columns.
      JS sets `transform: translateY(−digit * 10%)` on .odo__strip.
      ---------------------------------------------------------------------- */
@@ -662,6 +742,12 @@
       transition: none;
     }
   }
+  @media (max-width: 480px) {
+    .odo__col {
+      width: 48px;
+      height: 72px;
+    }
+  }
   .odo__strip > span {
     height: 10%;
     display: flex;
@@ -670,6 +756,11 @@
     font-size: 64px;
     letter-spacing: -0.04em;
     font-feature-settings: "tnum";
+  }
+  @media (max-width: 480px) {
+    .odo__strip > span {
+      font-size: 48px;
+    }
   }
 
   /* Stamp — mono border badge with optional rotation via inline style. */
@@ -708,6 +799,50 @@
     .density__cap {
       transition: none;
     }
+  }
+
+  /* -----------------------------------------------------------------------
+     Subject chip — rounded pill with colored code badge.
+     --chip-color set inline via style="--chip-color: var(--subject-X)"
+     ---------------------------------------------------------------------- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .chip:hover {
+    border-color: var(--chip-color, var(--accent));
+    transform: translateY(-2px);
+  }
+  .chip__code {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    background: var(--chip-color, var(--accent));
+    color: #fff7ec;
+    padding: 4px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .chip__name {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  .chip__count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
   }
 
   /* Typographic helpers exposed for component templates. */

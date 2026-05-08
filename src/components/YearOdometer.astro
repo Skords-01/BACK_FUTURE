@@ -1,0 +1,56 @@
+---
+// YearOdometer — 4-digit animated year display.
+// SSR renders with defaultYear. JS hydrates from sessionStorage / ?y= param.
+interface Props {
+  defaultYear?: number;
+  yearMax?: number;
+}
+const { defaultYear = 2012, yearMax = new Date().getFullYear() } = Astro.props;
+const digits = String(defaultYear).padStart(4, "0").split("").map(Number);
+---
+
+<div
+  class="odo"
+  role="img"
+  aria-label={`Рік: ${defaultYear}`}
+  id="year-odometer"
+  data-year={defaultYear}
+  data-year-max={yearMax}
+>
+  {
+    digits.map((d, i) => (
+      <div class="odo__col">
+        <div
+          class="odo__strip"
+          data-col={i}
+          style={`transform: translateY(${-d * 10}%)`}
+        >
+          {Array.from({ length: 10 }, (_, n) => (
+            <span aria-hidden="true">{n}</span>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  import { initYearMachine } from "../scripts/year-machine";
+
+  const odometer = document.getElementById("year-odometer");
+  const yearMax = parseInt(odometer?.dataset.yearMax ?? "2026", 10);
+
+  document.addEventListener("year:change", (e) => {
+    const year = (e as CustomEvent<{ year: number }>).detail.year;
+    if (!odometer) return;
+    odometer.setAttribute("aria-label", `Рік: ${year}`);
+    odometer.setAttribute("data-year", String(year));
+    const strips = odometer.querySelectorAll<HTMLElement>("[data-col]");
+    const digits = String(year).padStart(4, "0").split("").map(Number);
+    strips.forEach((strip, i) => {
+      strip.style.transform = `translateY(${-(digits[i] ?? 0) * 10}%)`;
+    });
+  });
+
+  initYearMachine(yearMax);
+</script>

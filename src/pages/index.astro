@@ -1,35 +1,19 @@
 ---
 import Base from "../layouts/Base.astro";
-import YearInput from "../components/YearInput.astro";
-import Timeline from "../components/Timeline.astro";
+import Hero from "../components/Hero.astro";
+import Presets from "../components/Presets.astro";
 import { SITE, SUBJECTS } from "../config/site";
 import { getCollection } from "astro:content";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const totalFacts = allFacts.length;
 
-const DEFAULT_YEAR = 2003;
-const currentYear = new Date().getFullYear();
-const defaultYearsPassed = currentYear - DEFAULT_YEAR;
-const defaultFactsSince = allFacts.filter((f) => f.data.yearOfEvent >= DEFAULT_YEAR).length;
+const DEFAULT_YEAR = 2012;
 
-function pluralizeYears(n: number): string {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return "рік";
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
-  return "років";
-}
-const yearsPassedLabel = pluralizeYears(defaultYearsPassed);
-
-// Quick-jump chips: середини декад + поточний рік. Допомагає тим, хто
-// не хоче друкувати на мобілці й сумнівається в точному році.
-const quickYears: number[] = [];
-for (let y = 1995; y <= SITE.yearMax; y += 5) {
-  quickYears.push(y);
-}
-if (!quickYears.includes(SITE.yearMax)) {
-  quickYears.push(SITE.yearMax);
+// Precompute facts count from each graduation year (year → count of facts since that year).
+const factsFromYear: Record<number, number> = {};
+for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
+  factsFromYear[y] = allFacts.filter((f) => f.data.yearOfEvent >= y).length;
 }
 
 const websiteLd: Record<string, unknown> = {
@@ -49,133 +33,107 @@ const websiteLd: Record<string, unknown> = {
 ---
 
 <Base jsonLd={websiteLd}>
-  <section class="ruled-hero">
-    <div class="container-prose pt-16 sm:pt-24">
-      <p
-        class="text-accent-700 dark:text-accent-300 mb-3 text-sm font-medium tracking-widest uppercase"
-      >
-        Українською · Без підписки · {totalFacts} фактів
+  <div class="container-wide">
+    <Hero totalFacts={totalFacts} factsFromYear={factsFromYear} defaultYear={DEFAULT_YEAR} />
+
+    <!-- Ери, DensityStrip, SubjectChips will be added in Epic 3 -->
+
+    <!-- Як це працює -->
+    <section class="border-t border-[color:var(--rule)] pt-20 pb-6">
+      <div class="flex items-baseline justify-between gap-6 mb-8">
+        <h2
+          class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-none tracking-tight text-[color:var(--ink)]"
+        >
+          Як це працює
+        </h2>
+        <span class="hidden font-mono text-xs tracking-widest uppercase text-[color:var(--muted)] sm:inline">
+          3 кроки
+        </span>
+      </div>
+      <ol class="grid gap-6 sm:grid-cols-3">
+        {
+          [
+            {
+              n: "01",
+              title: "Введи рік випуску.",
+              text: "Від 1991 до сьогодні.",
+            },
+            {
+              n: "02",
+              title: "Отримаєш стрічку.",
+              text: "11 предметів · хронологічно · з епіграфом епохи.",
+            },
+            {
+              n: "03",
+              title: "Кожен факт — з джерелом.",
+              text: "Розгорни деталі або поділись як вирізкою.",
+            },
+          ].map((step) => (
+            <li class="rounded-sm border border-[color:var(--card-edge)] border-l-4 border-l-[color:var(--accent)] bg-[color:var(--card)] p-6 text-base leading-relaxed text-[color:var(--ink-2)]">
+              <span class="font-mono text-xs font-bold tracking-[0.15em] text-[color:var(--accent)]">
+                {step.n}
+              </span>
+              <strong class="mt-3 mb-2 block font-display text-xl font-semibold tracking-tight text-[color:var(--ink)]">
+                {step.title}
+              </strong>
+              {step.text}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <!-- Або одразу — preset cards -->
+    <section class="border-t border-[color:var(--rule)] pt-20 pb-6">
+      <div class="flex items-baseline justify-between gap-6 mb-8">
+        <h2
+          class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-none tracking-tight text-[color:var(--ink)]"
+        >
+          Або одразу
+        </h2>
+      </div>
+      <Presets />
+      <p class="mt-6 text-center">
+        <a
+          href="/all/"
+          class="font-mono text-sm text-[color:var(--muted)] underline-offset-4 hover:text-[color:var(--accent)] hover:underline"
+        >
+          Усі {totalFacts} фактів →
+        </a>
       </p>
-      <h1
-        class="font-display text-ink-900 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
-      >
-        Що ти пропустив <em class="text-accent-700 dark:text-accent-300 italic">після</em> випускного?
-      </h1>
-      <p class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
-        Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів. Стисло,
-        науково-популярно, з джерелами.
-      </p>
+    </section>
 
-      <div class="mt-10 pb-4">
-        <YearInput defaultYear={2003} />
-        <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
-          Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
-        </p>
+    <!-- Тематичні рубрики -->
+    <section class="border-t border-[color:var(--rule)] pt-20 pb-24">
+      <div class="flex items-baseline justify-between gap-6 mb-8">
+        <h2
+          class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-semibold leading-none tracking-tight text-[color:var(--ink)]"
+        >
+          Тематичні рубрики
+        </h2>
+        <span class="hidden font-mono text-xs tracking-widest uppercase text-[color:var(--muted)] sm:inline">
+          11 предметів
+        </span>
       </div>
-
-      <div class="mt-8 border-t border-[color:var(--card-edge)] pt-6">
-        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <span
-            class="text-ink-400 dark:text-ink-500 font-mono text-[11px] tracking-widest uppercase"
-          >
-            Шкала часу · {SITE.yearMin} → {SITE.yearMax}
-          </span>
-          <span class="text-ink-500 dark:text-ink-400 font-mono text-xs">
-            З твого випуску минуло <strong class="text-ink-700">{defaultYearsPassed}</strong>{" "}
-            {yearsPassedLabel} · <strong class="text-ink-700">{defaultFactsSince}</strong> фактів
-          </span>
-        </div>
-        <Timeline facts={allFacts} selectedYear={DEFAULT_YEAR} />
-      </div>
-
-      <div class="pb-16">
-        <p class="text-ink-500 dark:text-ink-400 mb-2 text-xs tracking-wider uppercase">
-          Швидкий вибір
-        </p>
-        <ul class="-mx-1 flex flex-wrap items-center gap-1.5">
-          {
-            quickYears.map((y) => (
-              <li>
-                <a
-                  href={`/${y}/`}
-                  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 items-center rounded-full border px-4 py-2 font-mono text-sm font-medium tabular-nums transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
-                >
-                  {y}
-                </a>
-              </li>
-            ))
-          }
-          <li>
-            <button
-              id="surprise-btn"
-              type="button"
-              data-min={SITE.yearMin}
-              data-max={SITE.yearMax}
-              class="border-accent-200 bg-accent-50 text-accent-800 hover:border-accent-700 hover:bg-accent-100 inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition"
-              aria-label="Відкрити випадковий рік"
-            >
-              🎲 Сюрприз
-            </button>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <script is:inline>
-    (function () {
-      const btn = document.getElementById("surprise-btn");
-      if (!(btn instanceof HTMLButtonElement)) return;
-      btn.addEventListener("click", function () {
-        const min = Number(btn.dataset.min);
-        const max = Number(btn.dataset.max);
-        if (!Number.isInteger(min) || !Number.isInteger(max) || max < min) return;
-        const year = Math.floor(Math.random() * (max - min + 1)) + min;
-        window.location.href = `/${year}/`;
-      });
-    })();
-  </script>
-
-  <section class="container-prose mt-20">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Як це працює</h2>
-    <ol class="text-ink-700 mt-4 space-y-3">
-      <li>
-        <span class="text-ink-900 font-semibold">1. Введи рік випуску.</span> Від 1991 до сьогодні.
-      </li>
-      <li>
-        <span class="text-ink-900 font-semibold">2. Отримаєш стрічку оновлень</span>
-        по 11 предметах: астрономія, біологія, географія, історія, фізика, технологія, медицина, економіка,
-        культура, спорт, екологія. Те, що змінилось у науці й світі від твого випускного року.
-      </li>
-      <li>
-        <span class="text-ink-900 font-semibold">3. Кожен факт — з джерелом.</span>
-        Можна розгорнути деталі в науково-популярному форматі.
-      </li>
-    </ol>
-  </section>
-
-  <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Тематичні блоки</h2>
-    <ul
-      class="mt-4 grid gap-2"
-      style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))"
-    >
-      {
-        SUBJECTS.map((s) => (
-          <li class="border-ink-100 hover:border-accent-400 dark:hover:border-accent-500 bg-paper-50 flex items-baseline gap-2.5 rounded-2xl border px-4 py-3.5 transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-            <span class="text-accent-700 dark:text-accent-300 shrink-0 font-mono text-[11px] font-semibold tracking-[0.14em] uppercase">
-              {s.mark}
-            </span>
-            <span class="text-ink-900 font-display text-base leading-snug font-semibold tracking-tight">
-              {s.label}
-            </span>
-          </li>
-        ))
-      }
-    </ul>
-    <p class="text-ink-500 dark:text-ink-400 mt-4 text-sm">
-      Зараз у базі: <span class="text-ink-700 font-semibold">{totalFacts}</span>{" "}
-      {totalFacts === 1 ? "факт" : "фактів"}. Поповнюємо постійно.
-    </p>
-  </section>
+      <ul class="flex flex-wrap gap-2.5">
+        {
+          SUBJECTS.map((s) => (
+            <li>
+              <a
+                href={`/subject/${s.id}/`}
+                class="chip"
+                style={`--chip-color: var(--subject-${s.id})`}
+              >
+                <span class="chip__code">{s.mark}</span>
+                <span class="chip__name">{s.label}</span>
+                <span class="chip__count">
+                  {allFacts.filter((f) => f.data.subject === s.id).length}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
 </Base>

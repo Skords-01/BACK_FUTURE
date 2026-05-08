@@ -1,0 +1,99 @@
+---
+// MissedCounter — shows how many discoveries the user missed + era name.
+// Updated reactively via year:change event.
+interface Props {
+  defaultYear?: number;
+  factsFromYear: Record<number, number>; // yearOfGraduation → count of facts since then
+}
+const { defaultYear = 2012, factsFromYear } = Astro.props;
+const currentYear = new Date().getFullYear();
+const defaultCount = factsFromYear[defaultYear] ?? 0;
+const defaultYearsAgo = currentYear - defaultYear;
+
+function pluralize(n: number): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return "рік";
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
+  return "років";
+}
+---
+
+<div
+  class="flex items-center gap-7 border-l-4 border-[color:var(--accent)] bg-[color:var(--paper-2)] px-7 py-6 mb-6"
+  id="missed-counter"
+  data-facts-map={JSON.stringify(factsFromYear)}
+  data-year-max={currentYear}
+>
+  <div
+    class="font-display text-[clamp(4rem,10vw,6rem)] font-extrabold leading-none tracking-tight text-[color:var(--accent)] tabular-nums"
+    id="counter-num"
+  >
+    {defaultCount}
+  </div>
+  <div class="text-lg leading-snug text-[color:var(--ink-2)]">
+    <strong class="text-[color:var(--ink)]">відкриттів</strong> ти пропустив<br />
+    за <em class="italic text-[color:var(--accent)]" id="counter-years">{defaultYearsAgo}</em>
+    <span id="counter-years-word">{pluralize(defaultYearsAgo)}</span> після
+    <span id="counter-base-year">{defaultYear}</span>-го.
+    <span
+      class="mt-1.5 block font-mono text-xs tracking-wider"
+      id="counter-era"
+      style="color: var(--era-color, var(--muted))"
+    ></span>
+  </div>
+</div>
+
+<script>
+  // ERAS lookup table for client-side era name/color resolution
+  const ERAS = [
+    { id: 1, range: [1991, 1995], name: "Незалежність і модем", color: "#3b6e8f" },
+    { id: 2, range: [1996, 2003], name: "Євро, флешки, MP3", color: "#c89034" },
+    { id: 3, range: [2004, 2010], name: "Смартфон і соцмережа", color: "#7a8b3a" },
+    { id: 4, range: [2011, 2017], name: "Війна на сході, e-Україна", color: "#a02f15" },
+    { id: 5, range: [2022, 2026], name: "Велика війна і ШІ", color: "#5e3a7a" },
+  ] as const;
+
+  function eraOf(year: number) {
+    return ERAS.find((e) => year >= e.range[0] && year <= e.range[1]) ?? ERAS[ERAS.length - 1]!;
+  }
+
+  function pluralize(n: number): string {
+    const m10 = n % 10;
+    const m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return "рік";
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
+    return "років";
+  }
+
+  const container = document.getElementById("missed-counter");
+  const numEl = document.getElementById("counter-num");
+  const yearsEl = document.getElementById("counter-years");
+  const yearsWordEl = document.getElementById("counter-years-word");
+  const baseYearEl = document.getElementById("counter-base-year");
+  const eraEl = document.getElementById("counter-era");
+
+  let factsMap: Record<number, number> = {};
+  try {
+    factsMap = JSON.parse(container?.dataset.factsMap ?? "{}");
+  } catch {
+    // ignore parse errors
+  }
+  const yearMax = parseInt(container?.dataset.yearMax ?? "2026", 10);
+
+  document.addEventListener("year:change", (e) => {
+    const year = (e as CustomEvent<{ year: number }>).detail.year;
+    const count = factsMap[year] ?? 0;
+    const yearsAgo = yearMax - year;
+    const era = eraOf(year);
+
+    if (numEl) numEl.textContent = String(count);
+    if (yearsEl) yearsEl.textContent = String(yearsAgo);
+    if (yearsWordEl) yearsWordEl.textContent = pluralize(yearsAgo);
+    if (baseYearEl) baseYearEl.textContent = String(year);
+    if (eraEl) {
+      eraEl.textContent = `· епоха «${era.name}»`;
+      eraEl.style.setProperty("--era-color", era.color);
+    }
+  });
+</script>

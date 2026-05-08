@@ -1,0 +1,27 @@
+---
+// YearMachine — full machine housing: label + stepper (odometer + buttons) + go button.
+import YearStepper from "./YearStepper.astro";
+import GoButton from "./GoButton.astro";
+import { SITE } from "../config/site";
+
+interface Props {
+  defaultYear?: number;
+}
+const { defaultYear = 2012 } = Astro.props;
+---
+
+<div class="machine mb-7">
+  <div class="machine__label">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      МАШИНА ЧАСУ · v. 1.0
+    </span>
+    <span class="mt-2 font-mono text-xs text-[color:var(--ink-3)]">
+      ↓ обери рік випуску ↓
+    </span>
+    <span class="font-mono text-[11px] text-[color:var(--muted)]">
+      {SITE.yearMin}–{SITE.yearMax}
+    </span>
+  </div>
+  <YearStepper defaultYear={defaultYear} yearMax={SITE.yearMax} />
+  <GoButton defaultYear={defaultYear} />
+</div>

@@ -1,0 +1,36 @@
+---
+// YearStepper — −/+ buttons around the YearOdometer.
+import YearOdometer from "./YearOdometer.astro";
+interface Props {
+  defaultYear?: number;
+  yearMax?: number;
+}
+const { defaultYear = 2012, yearMax = new Date().getFullYear() } = Astro.props;
+---
+
+<div class="flex items-center justify-center gap-2 px-6 py-3.5">
+  <button
+    id="year-prev"
+    type="button"
+    class="stepper__btn"
+    aria-label="Попередній рік"
+  >
+    −
+  </button>
+  <YearOdometer defaultYear={defaultYear} yearMax={yearMax} />
+  <button
+    id="year-next"
+    type="button"
+    class="stepper__btn"
+    aria-label="Наступний рік"
+  >
+    +
+  </button>
+</div>
+
+<script>
+  import { step } from "../scripts/year-machine";
+
+  document.getElementById("year-prev")?.addEventListener("click", () => step(-1));
+  document.getElementById("year-next")?.addEventListener("click", () => step(1));
+</script>
