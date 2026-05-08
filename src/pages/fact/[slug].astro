@@ -374,6 +374,25 @@ const breadcrumbsLd: Record<string, unknown> = {
   </div>
 
   <SupportBlock />
+
+  {
+    /*
+    Floating-pill «Назад до року» — основна дія користувача після прочитання
+    факту. Видимий тільки після того, як hero (з кнопкою breadcrumb «Рік»)
+    вислизнув з viewport-у, і ховається коли SupportBlock у viewport, щоб не
+    перекривати CTA. Десктоп: ліворуч знизу. Mobile: по центру внизу, з
+    safe-area-inset для iPhone notch.
+  */
+  }
+  <a
+    href={yearUrl(fact.data.yearOfEvent)}
+    class="back-to-year"
+    data-back-to-year
+    aria-label={`Повернутись до стрічки ${fact.data.yearOfEvent} року`}
+  >
+    <span aria-hidden="true">←</span>
+    <span>До {fact.data.yearOfEvent}</span>
+  </a>
 </Base>
 
 <script is:inline>
@@ -414,6 +433,49 @@ const breadcrumbsLd: Record<string, unknown> = {
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
+  })();
+</script>
+
+<script is:inline>
+  // Back-to-year pill: видимий лише коли hero вислизнув з viewport-у І support-block
+  // ще не у viewport-і. Дві IntersectionObserver-сторожі — без scroll listener-у,
+  // щоб не палити CPU на mobile. Два спостерігачі писали б у різні стани, тож
+  // зливаємо у спільну функцію `update()` через два булеві прапорці.
+  (function () {
+    const pill = document.querySelector("[data-back-to-year]");
+    const hero = document.querySelector("article.ruled-hero");
+    const support = document.querySelector("aside.container-prose");
+    if (
+      !(pill instanceof HTMLElement) ||
+      !(hero instanceof HTMLElement) ||
+      !(support instanceof HTMLElement)
+    ) {
+      return;
+    }
+    let heroVisible = true;
+    let supportVisible = false;
+    function update() {
+      // Показуємо коли hero за межами + support ще не на екрані.
+      pill.classList.toggle("is-visible", !heroVisible && !supportVisible);
+    }
+    new IntersectionObserver(
+      function (entries) {
+        for (const e of entries) {
+          heroVisible = e.isIntersecting;
+        }
+        update();
+      },
+      { rootMargin: "-80px 0px 0px 0px" },
+    ).observe(hero);
+    new IntersectionObserver(
+      function (entries) {
+        for (const e of entries) {
+          supportVisible = e.isIntersecting;
+        }
+        update();
+      },
+      { rootMargin: "0px" },
+    ).observe(support);
   })();
 </script>
 

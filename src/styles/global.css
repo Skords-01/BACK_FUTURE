@@ -461,6 +461,75 @@
   }
 
   /* -----------------------------------------------------------------------
+     Back-to-year floating pill — лише на /fact/[slug]. Десктоп: ліворуч
+     внизу. Mobile: по центру внизу + safe-area-inset (iPhone notch).
+     Видимість керує IntersectionObserver через клас .is-visible. Reduced
+     motion прибирає transform-перехід (бар з'являється миттєво).
+     ----------------------------------------------------------------------- */
+  .back-to-year {
+    position: fixed;
+    bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+    left: 1rem;
+    z-index: 39;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.625rem 1.125rem;
+    background: var(--card);
+    color: var(--ink-800);
+    border: 1px solid var(--card-edge);
+    border-radius: 9999px;
+    box-shadow: var(--shadow);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+    pointer-events: none;
+  }
+  .back-to-year.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .back-to-year:hover,
+  .back-to-year:focus-visible {
+    border-color: var(--color-accent-700);
+    color: var(--color-accent-700);
+  }
+  @media (max-width: 639.98px) {
+    .back-to-year {
+      left: 50%;
+      transform: translate(-50%, 8px);
+    }
+    .back-to-year.is-visible {
+      transform: translate(-50%, 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-year {
+      transition: opacity 0.15s linear;
+      transform: none;
+    }
+    .back-to-year.is-visible {
+      transform: none;
+    }
+    @media (max-width: 639.98px) {
+      .back-to-year,
+      .back-to-year.is-visible {
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  /* -----------------------------------------------------------------------
      Scroll-triggered fade-in for [data-reveal] elements.
      JS adds .is-visible via IntersectionObserver.
      Reduced-motion: skip animation entirely (elements start visible).
