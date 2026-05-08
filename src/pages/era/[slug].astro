@@ -81,7 +81,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           <li>
             <a
               href="/"
-              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+              class="hover:text-ink-900 dark:hover:text-ink-900 underline-offset-2 hover:underline"
               aria-label="На головну"
             >
               Головна
@@ -97,7 +97,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           <li>
             <a
               href={yearUrl(middleYear)}
-              class="hover:text-ink-900 dark:hover:text-ink-100 inline-flex items-center gap-1 underline-offset-2 hover:underline"
+              class="hover:text-ink-900 dark:hover:text-ink-900 inline-flex items-center gap-1 underline-offset-2 hover:underline"
             >
               Приклад року
             </a>
@@ -180,7 +180,7 @@ const breadcrumbsLd: Record<string, unknown> = {
       </section>
     ) : (
       <section class="container-prose mt-12">
-        <div class="border-ink-200 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border border-dashed bg-white p-8">
+        <div class="border-ink-200 rounded-3xl border border-dashed bg-white p-8 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
           <p class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">
             Поки що для цієї ери немає фактів.
           </p>
@@ -198,10 +198,10 @@ const breadcrumbsLd: Record<string, unknown> = {
         otherEras.map((e) => (
           <a
             href={eraUrl(e.slug)}
-            class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:border-ink-700 dark:bg-ink-900 dark:hover:border-accent-400 dark:hover:bg-ink-800 group flex items-center justify-between gap-3 rounded-2xl border bg-white px-4 py-3 transition"
+            class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:hover:border-accent-400 group flex items-center justify-between gap-3 rounded-2xl border bg-white px-4 py-3 transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)] dark:hover:bg-[color:var(--paper-3)]"
           >
             <span class="flex flex-col">
-              <span class="text-ink-800 dark:text-ink-800 font-medium">{e.label}</span>
+              <span class="text-ink-800 dark:text-ink-900 font-medium">{e.label}</span>
               <span class="text-ink-500 dark:text-ink-400 text-xs">
                 {e.yearStart}–{e.yearEnd > SITE.yearMax ? "сьогодні" : e.yearEnd}
               </span>

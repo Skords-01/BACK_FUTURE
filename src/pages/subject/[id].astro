@@ -83,7 +83,7 @@ const breadcrumbsLd: Record<string, unknown> = {
           <li>
             <a
               href="/"
-              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+              class="hover:text-ink-900 dark:hover:text-ink-900 underline-offset-2 hover:underline"
               aria-label="На головну"
             >
               Головна
@@ -166,7 +166,7 @@ const breadcrumbsLd: Record<string, unknown> = {
       </section>
     ) : (
       <section class="container-prose mt-12">
-        <div class="border-ink-200 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border border-dashed bg-white p-8">
+        <div class="border-ink-200 rounded-3xl border border-dashed bg-white p-8 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
           <p class="font-display text-ink-900 dark:text-ink-900 text-xl font-bold">
             Поки що по «{subject.label.toLowerCase()}» нічого немає.
           </p>
@@ -195,10 +195,10 @@ const breadcrumbsLd: Record<string, unknown> = {
         otherSubjects.map((s) => (
           <a
             href={`/subject/${s.id}/`}
-            class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:border-ink-700 dark:bg-ink-900 dark:hover:border-accent-400 dark:hover:bg-ink-800 group flex items-center gap-3 rounded-2xl border bg-white px-4 py-3 transition"
+            class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:hover:border-accent-400 group flex items-center gap-3 rounded-2xl border bg-white px-4 py-3 transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)] dark:hover:bg-[color:var(--paper-3)]"
           >
             <SubjectIcon subject={s.id} class="text-accent-700 dark:text-accent-300 text-2xl" />
-            <span class="text-ink-800 dark:text-ink-800 font-medium">{s.label}</span>
+            <span class="text-ink-800 dark:text-ink-900 font-medium">{s.label}</span>
             <span class="text-ink-400 group-hover:text-accent-700 dark:group-hover:text-accent-300 ml-auto">
               →
             </span>

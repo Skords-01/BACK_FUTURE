@@ -397,7 +397,7 @@
     @apply border-accent-700 bg-accent-700 shadow-card hover:bg-accent-800 focus-visible:outline-accent-500 inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2;
   }
   .btn-ghost {
-    @apply border-ink-200 text-ink-800 hover:border-ink-400 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-100 dark:hover:border-ink-500 inline-flex items-center justify-center gap-2 rounded-full border bg-[color:var(--card)] px-5 py-2.5 text-sm font-medium transition;
+    @apply border-ink-200 text-ink-800 hover:border-ink-400 dark:text-ink-900 dark:hover:border-ink-500 inline-flex items-center justify-center gap-2 rounded-full border bg-[color:var(--card)] px-5 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)];
   }
   /* Subtle ruled-paper background — only on hero section. */
   .ruled-hero {
