@@ -34,7 +34,7 @@ const navLinks = [
 ---
 
 <header
-  class="border-ink-100 dark:border-ink-700 bg-paper-50/80 dark:bg-ink-900/80 supports-[backdrop-filter]:bg-paper-50/70 dark:supports-[backdrop-filter]:bg-ink-900/70 sticky top-0 z-40 border-b backdrop-blur"
+  class="border-ink-100 bg-paper-50/80 supports-[backdrop-filter]:bg-paper-50/70 sticky top-0 z-40 border-b backdrop-blur dark:border-[color:var(--card-edge)] dark:bg-[color:var(--paper)]/85 dark:supports-[backdrop-filter]:bg-[color:var(--paper)]/70"
 >
   <div class="container-wide relative flex items-center justify-between gap-3 py-4">
     <a
@@ -67,7 +67,7 @@ const navLinks = [
                   class:list={[
                     "primary-nav__link hover:bg-ink-100 dark:hover:bg-ink-200 rounded-full px-3 py-1.5 transition",
                     isActive(link.href) &&
-                      "bg-ink-100 text-ink-900 dark:bg-ink-700 dark:text-ink-900 font-medium",
+                      "bg-ink-100 text-ink-900 dark:text-ink-900 font-medium dark:bg-[color:var(--card)]",
                   ]}
                   href={link.href}
                   aria-current={isActive(link.href) ? "page" : undefined}
@@ -85,7 +85,7 @@ const navLinks = [
       <button
         type="button"
         id="primary-nav-toggle"
-        class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex h-11 w-11 items-center justify-center rounded-full border transition sm:hidden"
+        class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex h-11 w-11 items-center justify-center rounded-full border transition sm:hidden dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
         aria-controls="primary-nav"
         aria-expanded="false"
         aria-label="Відкрити меню"
