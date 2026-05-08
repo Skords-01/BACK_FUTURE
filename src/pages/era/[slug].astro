@@ -172,7 +172,9 @@ const breadcrumbsLd: Record<string, unknown> = {
             </header>
             <div class="grid gap-4">
               {g.items.map((f) => (
-                <FactCard fact={f} />
+                <div data-reveal>
+                  <FactCard fact={f} />
+                </div>
               ))}
             </div>
           </section>
