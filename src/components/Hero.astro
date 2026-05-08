@@ -97,7 +97,7 @@ const currentYear = new Date().getFullYear();
           lastYearLink.setAttribute("href", "/" + lastYear + "/");
           lastYearLink.hidden = false;
         }
-      } catch (_) {
+      } catch {
         // localStorage unavailable or parse error — silently skip
       }
     }
