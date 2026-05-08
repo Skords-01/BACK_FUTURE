@@ -109,7 +109,11 @@ const websiteLd: Record<string, unknown> = {
               text: "Розгорни деталі або поділись як вирізкою.",
             },
           ].map((step, i) => (
-            <li class="rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-6 text-base leading-relaxed text-[color:var(--ink-2)]" data-reveal style={`--reveal-delay: ${i * 80}ms`}>
+            <li
+              class="rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-6 text-base leading-relaxed text-[color:var(--ink-2)]"
+              data-reveal
+              style={`--reveal-delay: ${i * 80}ms`}
+            >
               <span class="font-mono text-xs font-bold tracking-[0.15em] text-[color:var(--accent)]">
                 {step.n}
               </span>
