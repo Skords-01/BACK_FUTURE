@@ -8,6 +8,8 @@ import YearNav from "../components/YearNav.astro";
 import ShareBlock from "../components/ShareBlock.astro";
 import SupportBlock from "../components/SupportBlock.astro";
 import QuizCta from "../components/QuizCta.astro";
+import ReadingProgress from "../components/ReadingProgress.astro";
+import BackToTop from "../components/BackToTop.astro";
 import { getCollection } from "astro:content";
 import { factsForYear, pickFallbackYears, sampleFacts, type Fact } from "../lib/filterFacts";
 import { eraOf } from "../lib/eras";
@@ -101,6 +103,8 @@ const subjectCounts = SUBJECTS.map((s) => ({
   ogImage={ogImage}
   jsonLd={[articleLd, breadcrumbsLd]}
 >
+  <ReadingProgress />
+  <BackToTop />
   <YearHero year={year} era={era} yearsPassed={yearsPassed} totalCount={totalCount} />
 
   <ThenAside year={year} />
@@ -249,4 +253,18 @@ const subjectCounts = SUBJECTS.map((s) => ({
   document
     .querySelectorAll<HTMLElement>("[data-fact-slug]")
     .forEach((el) => readObserver.observe(el));
+</script>
+
+<script define:vars={{ prevYear: year > SITE.yearMin ? year - 1 : null, nextYear: year < SITE.yearMax ? year + 1 : null }}>
+  // Keyboard navigation: ← prev year, → next year
+  document.addEventListener("keydown", function (e) {
+    var tag = e.target && e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "ArrowLeft" && prevYear) {
+      window.location.href = "/" + prevYear + "/";
+    } else if (e.key === "ArrowRight" && nextYear) {
+      window.location.href = "/" + nextYear + "/";
+    }
+  });
 </script>
