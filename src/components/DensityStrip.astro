@@ -25,8 +25,9 @@ interface Props {
 const { activeYear } = Astro.props;
 ---
 
+<div class="overflow-x-auto pb-8 -mx-4 sm:mx-0 px-4 sm:px-0">
 <div
-  class="density-strip-wrap relative flex h-[160px] items-end gap-px overflow-visible border-b border-[color:var(--rule-2)] px-1 pb-7"
+  class="density-strip-wrap relative flex h-[160px] items-end gap-px overflow-visible border-b border-[color:var(--rule-2)] px-1 pb-7 min-w-[540px]"
   role="list"
   aria-label="Густина фактів по роках"
 >
@@ -65,6 +66,7 @@ const { activeYear } = Astro.props;
       );
     })
   }
+</div>
 </div>
 
 <!-- Rich tooltip: only visible on hover-capable devices (CSS pointer:fine guard) -->

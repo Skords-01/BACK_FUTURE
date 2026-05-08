@@ -24,8 +24,9 @@ const available = SUBJECTS.filter((s) => {
 {
   available.length > 1 && (
     <div
-      class="sticky top-0 z-30 border-b border-[color:var(--rule)] bg-[color:var(--paper)]/90 backdrop-blur-sm"
+      class="sticky z-30 border-b border-[color:var(--rule)] bg-[color:var(--paper)]/90 backdrop-blur-sm"
       id="subject-filter-bar"
+      style="top: var(--header-h, 0px)"
     >
       <div class="container-wide">
         <div class="scrollbar-none flex items-center gap-1.5 overflow-x-auto py-3">

@@ -9,7 +9,7 @@ interface Props {
 const { activeEraId } = Astro.props;
 ---
 
-<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 [&>a:last-child]:col-span-2 sm:[&>a:last-child]:col-span-1">
   {
     ERAS.map((era) => {
       const isActive = era.id === activeEraId;
