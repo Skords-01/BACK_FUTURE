@@ -7,6 +7,7 @@ import FactTimeline from "../components/FactTimeline.astro";
 import YearNav from "../components/YearNav.astro";
 import ShareBlock from "../components/ShareBlock.astro";
 import SupportBlock from "../components/SupportBlock.astro";
+import QuizCta from "../components/QuizCta.astro";
 import { getCollection } from "astro:content";
 import { factsForYear, pickFallbackYears, sampleFacts, type Fact } from "../lib/filterFacts";
 import { eraOf } from "../lib/eras";
@@ -187,7 +188,65 @@ const subjectCounts = SUBJECTS.map((s) => ({
     )
   }
 
+  {totalCount > 0 && <QuizCta factsCount={totalCount} />}
   <ShareBlock year={year} factsCount={totalCount} />
   <SupportBlock />
   <YearNav year={year} />
 </Base>
+
+<script>
+  // Persist last visited year and track read facts via Intersection Observer.
+  // State stored in localStorage under key "bf_user_state".
+  const BF_KEY = "bf_user_state";
+
+  function bfLoad() {
+    try {
+      const raw = localStorage.getItem(BF_KEY);
+      const s = raw ? JSON.parse(raw) : {};
+      return {
+        lastYear: typeof s.lastYear === "number" ? s.lastYear : null,
+        readFacts: Array.isArray(s.readFacts) ? s.readFacts : [],
+        savedFacts: Array.isArray(s.savedFacts) ? s.savedFacts : [],
+      };
+    } catch {
+      return { lastYear: null, readFacts: [] as string[], savedFacts: [] as string[] };
+    }
+  }
+
+  function bfSave(s: { lastYear: number | null; readFacts: string[]; savedFacts: string[] }) {
+    try {
+      localStorage.setItem(BF_KEY, JSON.stringify(s));
+    } catch {}
+  }
+
+  // Derive year from URL path (e.g. /2003/ → 2003)
+  const yearMatch = location.pathname.match(/\/(\d{4})\/?$/);
+  const pageYear = yearMatch ? parseInt(yearMatch[1], 10) : null;
+
+  if (pageYear) {
+    const s = bfLoad();
+    s.lastYear = pageYear;
+    bfSave(s);
+  }
+
+  const readObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const slug = (entry.target as HTMLElement).dataset.factSlug;
+        if (!slug) return;
+        const s = bfLoad();
+        if (!s.readFacts.includes(slug)) {
+          s.readFacts.push(slug);
+          bfSave(s);
+        }
+        readObserver.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.5 },
+  );
+
+  document
+    .querySelectorAll<HTMLElement>("[data-fact-slug]")
+    .forEach((el) => readObserver.observe(el));
+</script>
