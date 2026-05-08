@@ -102,6 +102,7 @@ const subjectCounts = SUBJECTS.map((s) => ({
   description={description}
   ogImage={ogImage}
   jsonLd={[articleLd, breadcrumbsLd]}
+  noindex={totalCount === 0}
 >
   <ReadingProgress />
   <BackToTop />
@@ -182,7 +183,7 @@ const subjectCounts = SUBJECTS.map((s) => ({
               href={issueUrl}
               class="text-[color:var(--accent)] underline-offset-2 hover:underline"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
             >
               Запропонуй у GitHub
             </a>

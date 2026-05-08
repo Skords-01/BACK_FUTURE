@@ -172,9 +172,19 @@ const yearsPassedLabel =
     try {
       var stored = localStorage.getItem("bf_user_state");
       var readFacts = stored ? (JSON.parse(stored).readFacts || []) : [];
-      var read = Array.isArray(readFacts) ? readFacts.length : 0;
-      if (read > 0) {
-        el.textContent = "Прочитано: " + Math.min(read, total) + " з " + total;
+      if (!Array.isArray(readFacts) || readFacts.length === 0) return;
+      // Intersect with slugs actually present on this page to avoid counting
+      // facts read on other year pages.
+      var pageSlugs = new Set(
+        Array.from(document.querySelectorAll("[data-fact-slug]")).map(function (n) {
+          return n.getAttribute("data-fact-slug");
+        })
+      );
+      var readOnPage = pageSlugs.size > 0
+        ? readFacts.filter(function (s) { return pageSlugs.has(s); }).length
+        : Math.min(readFacts.length, total);
+      if (readOnPage > 0) {
+        el.textContent = "Прочитано: " + readOnPage + " з " + total;
       }
     } catch {
       // localStorage unavailable — skip counter
