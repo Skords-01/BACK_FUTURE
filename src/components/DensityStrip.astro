@@ -21,8 +21,9 @@ const maxCount = Math.max(...Object.values(counts), 1);
 
 interface Props {
   activeYear?: number;
+  featuredByYear?: Record<number, string>;
 }
-const { activeYear } = Astro.props;
+const { activeYear, featuredByYear = {} } = Astro.props;
 ---
 
 <div class="-mx-4 overflow-x-auto px-4 pb-8 sm:mx-0 sm:px-0">
@@ -70,10 +71,21 @@ const { activeYear } = Astro.props;
 </div>
 
 <!-- Rich tooltip: only visible on hover-capable devices (CSS pointer:fine guard) -->
-<div class="ds-tooltip" id="ds-tooltip" role="tooltip" aria-hidden="true">
+<div
+  class="ds-tooltip"
+  id="ds-tooltip"
+  role="tooltip"
+  aria-hidden="true"
+  data-featured={JSON.stringify(featuredByYear)}
+>
   <div class="ds-tooltip__stripe" id="ds-tt-stripe"></div>
-  <span class="ds-tooltip__year" id="ds-tt-year"></span>
-  <span class="ds-tooltip__count" id="ds-tt-count"></span>
+  <div class="ds-tooltip__body">
+    <div class="ds-tooltip__top">
+      <span class="ds-tooltip__year" id="ds-tt-year"></span>
+      <span class="ds-tooltip__count" id="ds-tt-count"></span>
+    </div>
+    <span class="ds-tooltip__fact" id="ds-tt-fact"></span>
+  </div>
 </div>
 
 <script>
@@ -85,7 +97,15 @@ const { activeYear } = Astro.props;
     const ttYear = document.getElementById("ds-tt-year");
     const ttCount = document.getElementById("ds-tt-count");
     const ttStripe = document.getElementById("ds-tt-stripe");
+    const ttFact = document.getElementById("ds-tt-fact");
     if (!tooltip || !ttYear || !ttCount || !ttStripe) return;
+
+    let featuredMap: Record<number, string> = {};
+    try {
+      featuredMap = JSON.parse(tooltip.dataset.featured ?? "{}");
+    } catch {
+      // ignore
+    }
 
     const wrap = document.querySelector<HTMLElement>(".density-strip-wrap");
     if (!wrap) return;
@@ -113,6 +133,15 @@ const { activeYear } = Astro.props;
       ttYear.textContent = year;
       ttCount.textContent = countLabel(count);
       ttStripe.style.background = color;
+      if (ttFact) {
+        const title = featuredMap[parseInt(year, 10)];
+        if (title) {
+          ttFact.textContent = title.length > 52 ? title.slice(0, 50) + "…" : title;
+          ttFact.hidden = false;
+        } else {
+          ttFact.hidden = true;
+        }
+      }
 
       const barRect = bar.getBoundingClientRect();
 
@@ -149,9 +178,9 @@ const { activeYear } = Astro.props;
     box-shadow: var(--shadow-hi);
     padding: 8px 12px 8px 10px;
     display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
+    align-items: stretch;
+    gap: 10px;
+    max-width: 260px;
     opacity: 0;
     transition:
       opacity 0.15s ease,
@@ -165,9 +194,23 @@ const { activeYear } = Astro.props;
 
   .ds-tooltip__stripe {
     width: 3px;
-    height: 32px;
     border-radius: 2px;
     flex-shrink: 0;
+    align-self: stretch;
+    min-height: 32px;
+  }
+
+  .ds-tooltip__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ds-tooltip__top {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    white-space: nowrap;
   }
 
   .ds-tooltip__year {
@@ -183,6 +226,15 @@ const { activeYear } = Astro.props;
     font-size: 11px;
     color: var(--muted);
     letter-spacing: 0.04em;
+  }
+
+  .ds-tooltip__fact {
+    font-family: var(--font-body);
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--ink-2);
+    white-space: normal;
+    word-break: break-word;
   }
 
   @media (prefers-reduced-motion: reduce) {
