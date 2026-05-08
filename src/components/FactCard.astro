@@ -28,11 +28,18 @@ function serialFromId(id: string): string {
 const serial = serialFromId(fact.id);
 const subject = SUBJECTS.find((s) => s.id === fact.data.subject);
 const mark = subject?.mark ?? "—";
+const quote = fact.data.quote;
+const isVikha = fact.data.impact === "high";
 ---
 
 <article
-  class="fact-card group shadow-card hover:shadow-card-hover relative isolate rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--card)] px-5 py-6 transition hover:-translate-y-0.5 sm:px-7 sm:py-7"
+  class:list={[
+    "fact-card group shadow-card hover:shadow-card-hover relative isolate overflow-hidden rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--card)] px-5 py-6 transition hover:-translate-y-0.5 sm:px-7 sm:py-7",
+    isVikha && "vikha-card",
+  ]}
 >
+  {isVikha && <div class="bg-accent-500 absolute inset-x-0 top-0 h-1" aria-hidden="true" />}
+
   <header>
     <!-- Meta row: № serial · MARK · year  (UA badge if applicable) -->
     <div class="mb-4 flex flex-wrap items-center gap-2">
@@ -63,6 +70,16 @@ const mark = subject?.mark ?? "—";
         )
       }
       {
+        isVikha && (
+          <span
+            class="bg-accent-500 inline-flex items-center rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-[0.16em] text-white uppercase"
+            title="Переломний факт — змінив ширшу картину"
+          >
+            ★ Віха
+          </span>
+        )
+      }
+      {
         updatedAt && (
           <time
             datetime={isoDate(updatedAt)}
@@ -85,6 +102,19 @@ const mark = subject?.mark ?? "—";
   <p class="text-ink-700 mt-3 max-w-prose text-base leading-relaxed">
     {fact.data.short}
   </p>
+
+  {
+    quote && (
+      <blockquote class="border-accent-500 bg-paper-50 dark:bg-paper-100/5 mt-5 rounded-r-lg border-l-2 py-3 pr-3 pl-4">
+        <p class="text-ink-800 dark:text-ink-200 font-display text-sm leading-snug italic">
+          «{quote.text}»
+        </p>
+        <footer class="text-ink-500 dark:text-ink-400 mt-1.5 font-mono text-[10px] tracking-wider uppercase">
+          — {quote.author}
+        </footer>
+      </blockquote>
+    )
+  }
 
   {
     (fact.data.before || fact.data.after) && (
@@ -177,6 +207,27 @@ const mark = subject?.mark ?? "—";
 </article>
 
 <style>
+  /* Archive/newspaper treatment for high-impact (★ Віха) cards */
+  .vikha-card {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 23px,
+      color-mix(in srgb, var(--rule) 60%, transparent) 23px,
+      color-mix(in srgb, var(--rule) 60%, transparent) 24px
+    );
+    background-size: 100% 24px;
+  }
+  :global(html.dark) .vikha-card {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 23px,
+      color-mix(in srgb, var(--rule-2) 40%, transparent) 23px,
+      color-mix(in srgb, var(--rule-2) 40%, transparent) 24px
+    );
+  }
+
   /* Subtle paper-card tilt — чергується між парними/непарними картками,
      як справжній стос паперів. Активний лише на пристроях зі справжнім
      hover-курсором: інакше планшети в портреті (iPad ≥640px з touch)
