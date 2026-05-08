@@ -220,7 +220,19 @@ const isVikha = fact.data.impact === "high";
 
       if (reducedMotion) return;
 
+      function resetTilt() {
+        card.style.setProperty("--tilt-x", "0deg");
+        card.style.setProperty("--tilt-y", "0deg");
+        card.style.setProperty("--idle-rot", `${idleRot}deg`);
+        card.style.setProperty("--lift", "0px");
+      }
+
       card.addEventListener("mousemove", (e: MouseEvent) => {
+        // Disable tilt while "Докладніше" is expanded — tilt interferes with reading
+        if (card.querySelector("details[open]")) {
+          resetTilt();
+          return;
+        }
         const r = card.getBoundingClientRect();
         const dx = ((e.clientX - r.left) / r.width - 0.5) * 2;
         const dy = ((e.clientY - r.top) / r.height - 0.5) * 2;
@@ -230,11 +242,11 @@ const isVikha = fact.data.impact === "high";
         card.style.setProperty("--lift", "-3px");
       });
 
-      card.addEventListener("mouseleave", () => {
-        card.style.setProperty("--tilt-x", "0deg");
-        card.style.setProperty("--tilt-y", "0deg");
-        card.style.setProperty("--idle-rot", `${idleRot}deg`);
-        card.style.setProperty("--lift", "0px");
+      card.addEventListener("mouseleave", resetTilt);
+
+      // Also flatten immediately when details opens, don't wait for next mousemove
+      card.querySelector("details")?.addEventListener("toggle", (e) => {
+        if ((e.target as HTMLDetailsElement).open) resetTilt();
       });
     });
   })();
