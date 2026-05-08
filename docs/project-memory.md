@@ -2,7 +2,7 @@
 
 > Цей документ — «жива» довгострокова пам'ять проєкту. Тут зафіксовано все, що було спільно проговорено між власником і Devin: бачення, рішення, відкладені моменти, відкриті питання, поточний стан. Оновлюється з кожним значущим етапом. Усі майбутні сесії повинні почати читання саме з цього документа.
 
-Останнє оновлення: травень 2026 року, після PR #51: закрито перші 5 backlog-задач (`/era/[slug]`, `/fact/[slug]`, фільтри року, 11 предметів, warning-only source URL check).
+Останнє оновлення: травень 2026 року, після PR #97: 11 предметів заповнені (165 фактів), `/timeline` (Variant A), reading-progress + back-to-year pill на `/fact/[slug]`, dark-mode contrast fixes, глобальний `[data-reveal]`-observer, self-hosted фонт-пакет + immutable cache, мобільне burger-меню + 44×44 touch targets.
 
 ---
 
@@ -103,23 +103,23 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### Цільовий обсяг
 
-**11 предметів підтримуються у схемі/CMS/UI.** Стартова насипка лишається 75 фактів у перших 5 предметах (astronomy, biology, geography, history, physics); нові 6 предметів (tech, medicine, economy, culture, sport, ecology) поки можуть бути порожніми й наповнюються окремими PR-ами.
+**11 предметів підтримуються у схемі/CMS/UI і всі заповнені — 165 фактів сумарно** (15 на предмет). Базовий пак 5 предметів у PR-ах #3, #4, #5, #16, #17 (astronomy, biology, geography, history, physics); нові 6 предметів — PR-и #53 (tech), #54 (culture), #56 (ecology), #72 (medicine), #75 (economy), #76 (sport). PR #63 додав `quote` / `before` / `after` / `impact: high` 32 ключовим фактам.
 
 ### Стан батчів
 
-| Предмет   | Гілка                     | PR                                                      | Статус                                           |
-| --------- | ------------------------- | ------------------------------------------------------- | ------------------------------------------------ |
-| Astronomy | `devin/content-astronomy` | [#3](https://github.com/Skords-01/BACK_FUTURE/pull/3)   | MERGED                                           |
-| Biology   | `devin/content-biology`   | [#4](https://github.com/Skords-01/BACK_FUTURE/pull/4)   | MERGED (з виправленнями про війну 2014/2022)     |
-| Geography | `devin/content-geography` | [#5](https://github.com/Skords-01/BACK_FUTURE/pull/5)   | MERGED                                           |
-| History   | `devin/content-history`   | [#16](https://github.com/Skords-01/BACK_FUTURE/pull/16) | MERGED                                           |
-| Physics   | `devin/content-physics`   | [#17](https://github.com/Skords-01/BACK_FUTURE/pull/17) | MERGED                                           |
-| Tech      | —                         | —                                                       | Pending — порожня тека `content/facts/tech/`     |
-| Medicine  | —                         | —                                                       | Pending — порожня тека `content/facts/medicine/` |
-| Economy   | —                         | —                                                       | Pending — порожня тека `content/facts/economy/`  |
-| Culture   | —                         | —                                                       | Pending — порожня тека `content/facts/culture/`  |
-| Sport     | —                         | —                                                       | Pending — порожня тека `content/facts/sport/`    |
-| Ecology   | —                         | —                                                       | Pending — порожня тека `content/facts/ecology/`  |
+| Предмет   | Гілка                     | PR                                                      | Статус                                       |
+| --------- | ------------------------- | ------------------------------------------------------- | -------------------------------------------- |
+| Astronomy | `devin/content-astronomy` | [#3](https://github.com/Skords-01/BACK_FUTURE/pull/3)   | MERGED                                       |
+| Biology   | `devin/content-biology`   | [#4](https://github.com/Skords-01/BACK_FUTURE/pull/4)   | MERGED (з виправленнями про війну 2014/2022) |
+| Geography | `devin/content-geography` | [#5](https://github.com/Skords-01/BACK_FUTURE/pull/5)   | MERGED                                       |
+| History   | `devin/content-history`   | [#16](https://github.com/Skords-01/BACK_FUTURE/pull/16) | MERGED                                       |
+| Physics   | `devin/content-physics`   | [#17](https://github.com/Skords-01/BACK_FUTURE/pull/17) | MERGED                                       |
+| Tech      | —                         | [#53](https://github.com/Skords-01/BACK_FUTURE/pull/53) | MERGED                                       |
+| Culture   | —                         | [#54](https://github.com/Skords-01/BACK_FUTURE/pull/54) | MERGED                                       |
+| Ecology   | —                         | [#56](https://github.com/Skords-01/BACK_FUTURE/pull/56) | MERGED                                       |
+| Medicine  | —                         | [#72](https://github.com/Skords-01/BACK_FUTURE/pull/72) | MERGED                                       |
+| Economy   | —                         | [#75](https://github.com/Skords-01/BACK_FUTURE/pull/75) | MERGED                                       |
+| Sport     | —                         | [#76](https://github.com/Skords-01/BACK_FUTURE/pull/76) | MERGED                                       |
 
 ### Український внесок (ціль: 3+ фактів на предмет)
 
@@ -130,6 +130,12 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 | Geography | Окупація Криму (2014), дерусифікація топонімів (2015+/2023), Каховська ГЕС (2023), Чорнобильський біосферний заповідник (2016)                                 |
 | History   | Голодомор як геноцид, Революція Гідності, відкриття архівів КГБ, борці за незалежність, Томос ПЦУ, мовний закон, корінні народи Криму, борщ і писанка в ЮНЕСКО |
 | Physics   | Україна в CERN, харківські сцинтилятори для CERN, харківське «Джерело нейтронів»                                                                               |
+| Tech      | Український IT-сектор є серед лідерів експорту; Diia як експорт e-government; PE-спрощенка для IT (PR #53)                                                     |
+| Medicine  | Реформа НСЗУ (2017), Helsi.me їк цифровий вхід, Програма медичних гарантій (PR #72)                                                                            |
+| Economy   | ПриватБанк 2016/Центробанк НБУ, ProZorro, вихід з СНД, МВФ (PR #75)                                                                                            |
+| Culture   | Борщ в ЮНЕСКО, Onuka, Pinchuk Art Centre / DAU, «Кіборги» (PR #54)                                                                                             |
+| Sport     | Брати Клички, Андрій Шевченко, Saturn 2008, Державний фонд ОЛІМП-бази (PR #76)                                                                                 |
+| Ecology   | Чорнобильський заповідник (2016), Каховська ГЕС (2023), воєнні викиди CO₂ в Україні (PR #56)                                                                   |
 
 ### Стиль і вимоги (повний гайд: `docs/content-guidelines.md`)
 
@@ -150,23 +156,23 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### 🔥 Швидкі вау-фішки
 
-| #   | Пункт                                 | Згода | Статус                                                                                                        |
-| --- | ------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------- |
-| 1   | Динамічна OG-картка по року           | ✓     | Done (SVG-варіант) у [#20](https://github.com/Skords-01/BACK_FUTURE/pull/20). PNG — pending (#1.3 у roadmap). |
-| 2   | Шер-кнопки + копіювання посилання     | ✓     | Done у [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21).                                               |
-| 3   | Лічильник «База: N фактів» у хедері   | ✓     | Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).                                               |
-| 4   | Анімовані тізери на лендингу          | ✓     | Pending                                                                                                       |
-| 5   | Сторінка `/share/[year]` (PNG-постер) | ✓     | Pending (залежить від #1.3)                                                                                   |
+| #   | Пункт                                 | Згода | Статус                                                                                                                                                  |
+| --- | ------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Динамічна OG-картка по року           | ✓     | Done: SVG у [#20](https://github.com/Skords-01/BACK_FUTURE/pull/20), PNG у [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) (`@resvg/resvg-js`). |
+| 2   | Шер-кнопки + копіювання посилання     | ✓     | Done у [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21).                                                                                         |
+| 3   | Лічильник «База: N фактів» у хедері   | ✓     | Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).                                                                                         |
+| 4   | Анімовані тізери на лендингу          | ✓     | Pending                                                                                                                                                 |
+| 5   | Сторінка `/share/[year]` (PNG-постер) | ✓     | Pending (залежить від #1.3)                                                                                                                             |
 
 ### 🧠 Контент
 
-| #   | Пункт                              | Згода      | Статус                                                                   |
-| --- | ---------------------------------- | ---------- | ------------------------------------------------------------------------ |
-| 6   | 75 фактів (15 на предмет)          | ✓ (більше) | 5/5 батчів готові                                                        |
-| 7   | Прив'язка до тем шкільної програми | ✓          | Pending                                                                  |
-| 8   | Розділ «Підручники» з обкладинками | ⊘ (можемо) | Pending                                                                  |
-| 9   | `/timeline` — хронологія           | ✓          | Pending                                                                  |
-| 10  | Українські теми як окремий бекет   | ✓ обов'яз. | Робиться по ходу через `region: "ukraine"` і українські добірки у фактах |
+| #   | Пункт                              | Згода      | Статус                                                                                                                                                                                      |
+| --- | ---------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6   | 75 фактів (15 на предмет)          | ✓ (більше) | 5/5 батчів готові                                                                                                                                                                           |
+| 7   | Прив'язка до тем шкільної програми | ✓          | Pending                                                                                                                                                                                     |
+| 8   | Розділ «Підручники» з обкладинками | ⊘ (можемо) | Pending                                                                                                                                                                                     |
+| 9   | `/timeline` — хронологія           | ✓          | Done у [#93](https://github.com/Skords-01/BACK_FUTURE/pull/93) і [#97](https://github.com/Skords-01/BACK_FUTURE/pull/97): Variant A (вертикальна вісь, era jump-strip, dark-mode contrast). |
+| 10  | Українські теми як окремий бекет   | ✓ обов'яз. | Робиться по ходу через `region: "ukraine"` і українські добірки у фактах                                                                                                                    |
 
 ### 🎮 Інтерактив
 
@@ -299,6 +305,35 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 - `SUBJECTS[].emoji` лишається для `src/lib/og.ts` (resvg рендерить його зі системних шрифтів) і потенційного дегрейду; `groupBySubject` теж не чіпали — поле в публічному API.
 - Юніт-тести: `src/lib/subjectIcons.test.ts` перевіряє, що 1) реєстр співпадає з `SUBJECTS` 1:1, 2) кожен запис містить хоча б одну SVG-фігуру, 3) ніхто не вкладає `<svg>` усередину, 4) `subjectIconPaths()` — тонка обгортка над реєстром.
 
+### Сесія 14 (PR #53–#76) — Наповнення нових предметів і quote-upgrade
+
+- [#53](https://github.com/Skords-01/BACK_FUTURE/pull/53) — 15 фактів у `tech` (12 world + 3 ukraine).
+- [#54](https://github.com/Skords-01/BACK_FUTURE/pull/54) — 15 фактів у `culture`.
+- [#56](https://github.com/Skords-01/BACK_FUTURE/pull/56) — 15 фактів у `ecology`.
+- [#63](https://github.com/Skords-01/BACK_FUTURE/pull/63) — додано `quote` / `before` / `after` / `impact: high` для 32 ключових фактів з усіх предметів.
+- [#72](https://github.com/Skords-01/BACK_FUTURE/pull/72) — 15 фактів у `medicine`.
+- [#75](https://github.com/Skords-01/BACK_FUTURE/pull/75) — 15 фактів у `economy`.
+- [#76](https://github.com/Skords-01/BACK_FUTURE/pull/76) — 15 фактів у `sport`. Після цих PR-ів усі 11 предметів мають 15 фактів, разом 165.
+
+### Сесія 15 (PR #82–#97) — Мобільна оптимізація, фонти, badge, `/timeline`, `/fact` UX
+
+- [#82](https://github.com/Skords-01/BACK_FUTURE/pull/82) — Playwright `mobile-chrome` проєкт (Pixel 7) + 375px smoke pack.
+- [#83](https://github.com/Skords-01/BACK_FUTURE/pull/83) — справжнє burger-меню у `Header.astro` (закриває #1.1) з a11y-зв'язкою (`aria-controls`, `aria-expanded`, `Esc` для закриття).
+- [#84](https://github.com/Skords-01/BACK_FUTURE/pull/84) — touch targets ≥44×44 на ключових елементах (частина #5.2).
+- [#85](https://github.com/Skords-01/BACK_FUTURE/pull/85) — self-host Geist + Fraunces + IBM Plex Mono Cyrillic 400 з `/public/fonts/` (закриває #8.2).
+- [#86](https://github.com/Skords-01/BACK_FUTURE/pull/86) — Lora як кириличний display-fallback для Fraunces (Fraunces не підтримує кирилицю).
+- [#87](https://github.com/Skords-01/BACK_FUTURE/pull/87) — IBM Plex Mono Cyrillic 500 + 600 (раніше лише 400).
+- [#88](https://github.com/Skords-01/BACK_FUTURE/pull/88) — `vercel.json` з `Cache-Control: public, max-age=31536000, immutable` на `/fonts/*`.
+- [#89](https://github.com/Skords-01/BACK_FUTURE/pull/89) — виправлено баг: sticky-header не прилипав на мобільних через `overflow-x: clip` на body. Залишили властивість лише на `<html>`. + regression-тест у `tests/e2e/mobile.spec.ts`.
+- [#90](https://github.com/Skords-01/BACK_FUTURE/pull/90) — `/timeline`: dark-mode contrast fixes на era jump-strip pills.
+- [#91](https://github.com/Skords-01/BACK_FUTURE/pull/91) — бейдж «Веха» → «Віха» (правильна укр. форма).
+- [#92](https://github.com/Skords-01/BACK_FUTURE/pull/92) — inline explainer «★ Віха — переломний факт» на `FeatureFactCard` + легенда позначок (★ Віха / UA) на `/timeline`.
+- [#93](https://github.com/Skords-01/BACK_FUTURE/pull/93) — `/timeline` (Variant A): вертикальна вісь, dot-on-axis, era jump-strip, JSON-LD `ItemList`, фільтри за ery/region/impact/subject. Закриває #6.2.
+- [#94](https://github.com/Skords-01/BACK_FUTURE/pull/94) — reading progress bar (3px, scaleX, requestAnimationFrame) на `/fact/[slug]`.
+- [#95](https://github.com/Skords-01/BACK_FUTURE/pull/95) — floating pill «← До YYYY» (back-to-year) на `/fact/[slug]` з двома IntersectionObserver-ами (hero вийшов з viewport-у І support ще не увійшов).
+- [#96](https://github.com/Skords-01/BACK_FUTURE/pull/96) — винесено `[data-reveal]`-observer у `RevealObserver.astro`, підключено у `Base.astro`, розширено на `/subject/[id]`, `/era/[slug]`, `/timeline`.
+- [#97](https://github.com/Skords-01/BACK_FUTURE/pull/97) — dark-mode contrast: header bg, ThemeToggle (`aria-label`), `Footer`, `metodologia` cards.
+
 ---
 
 ## 8. Відкриті питання й відкладені рішення
@@ -352,7 +387,7 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 - URL: https://github.com/Skords-01/BACK_FUTURE
 - Гілка `main` — релізна
-- Гілки `devin/content-<тема>` — workflow для контентних батчів
+- Гілки `devin/{timestamp}-{slug}` — дефолтна конвенція для Devin-сесій; `devin/content-<тема>` використовувалися раніше для контентних батчів (сесія 1–12).
 
 ### Workflow GitHub
 
@@ -376,6 +411,6 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 3. Прочитати `docs/architecture.md` (для розуміння template-генерації).
 4. Перевірити `git status` і відкриті PR-и: можливо, частина батчів вже змерджена.
 5. Перевірити поточний `main` на стан контенту: `ls content/facts/<subject>/`.
-6. Підтвердити з користувачем поточний пріоритет (після PR #51 найімовірніше: Pagefind, `/timeline`, `/quiz`, issue → draft PR, `/contributors`/`/support`).
+6. Підтвердити з користувачем поточний пріоритет (після PR #97 найімовірніше: Pagefind, `/quiz`, `/compare?a=…&b=…`, issue → draft PR, `/contributors`/`/support`, PWA manifest).
 7. Працювати на feature branch, не пушити в main.
 8. Моноширинний шрифт для років, темно-синій для акцентів — НЕ змінювати без явної згоди.
