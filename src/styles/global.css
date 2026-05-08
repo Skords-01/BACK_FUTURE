@@ -44,8 +44,9 @@
 }
 
 /* Fraunces (display) — variable wght+opsz. Cyrillic нема в шрифті взагалі,
-   тому для UA-заголовків браузер падає на Georgia (стек у --font-display).
-   Це повторює поведінку поточного gfonts-варіанту. */
+   тому для UA-заголовків браузер автоматично переходить на наступний
+   шрифт у стеку --font-display: спершу Lora (з кирилицею нижче), потім
+   Georgia як final fallback. */
 @font-face {
   font-family: "Fraunces";
   src: url("/fonts/fraunces-latin-standard-normal.woff2") format("woff2-variations");
@@ -76,6 +77,28 @@
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Lora (display fallback для кирилиці) — variable wght 100..900. Завантажується
+   тільки коли реально потрібні Cyrillic-гліфи (unicode-range фільтрує). Стилістично
+   Lora — теплий transitional serif, метрично близький до Fraunces, тому UA-заголовки
+   виглядають як родич Latin-частини, а не як «системний Georgia». Italic-Cyrillic
+   браузер синтезує з normal — на заголовках це візуально прийнятно. */
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora-cyrillic-wght-normal.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Lora";
+  src: url("/fonts/lora-cyrillic-ext-wght-normal.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
 }
 
 /* IBM Plex Mono — non-variable, тому окремі файли на 400/500/600.
@@ -131,7 +154,7 @@
        utility → --color-{name} → --{name} → final hex (in :root / html.dark)
 */
 @theme {
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Fraunces", "Lora", Georgia, serif;
   --font-body: "Geist", "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
