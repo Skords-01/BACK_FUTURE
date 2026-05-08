@@ -7,7 +7,8 @@ test("shows matching updates for a valid graduation year", async ({ page }) => {
   await page.getByRole("button", { name: "Подивитись" }).click();
 
   await expect(page).toHaveURL(/\/2003\/?$/);
-  await expect(page.getByRole("heading", { name: /Ти пропустив \d+ оновлен/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Випуск 2003/ })).toBeVisible();
+  await expect(page.getByText(/Ти пропустив \d+ оновлен/)).toBeVisible();
   await expect(page.getByRole("link", { name: /Перші стандарти/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "На головну" })).toBeVisible();
 });
