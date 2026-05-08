@@ -19,4 +19,57 @@ const { defaultYear = 2012 } = Astro.props;
       btn.href = `/${year}/`;
     }
   });
+
+  (function () {
+    const btn = document.getElementById("go-button");
+    if (!(btn instanceof HTMLAnchorElement)) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Skip slot animation on touch-only devices (no hover) — navigate instantly
+    const hasHover = window.matchMedia("(hover: hover)").matches;
+    if (reducedMotion || !hasHover) return;
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const href = btn.href;
+
+      const odometer = document.getElementById("year-odometer");
+      if (!odometer) {
+        window.location.href = href;
+        return;
+      }
+
+      const strips = Array.from(odometer.querySelectorAll<HTMLElement>("[data-col]"));
+      const yearStr = odometer.dataset.year ?? "2012";
+      const digits = String(yearStr).padStart(4, "0").split("").map(Number);
+
+      btn.style.pointerEvents = "none";
+
+      let frame = 0;
+      const totalFrames = 9;
+
+      function spinFrame() {
+        strips.forEach((strip) => {
+          const r = Math.floor(Math.random() * 10);
+          strip.style.transition = "transform 0.07s ease";
+          strip.style.transform = `translateY(${-r * 10}%)`;
+        });
+        frame++;
+        if (frame < totalFrames) {
+          setTimeout(spinFrame, 65);
+        } else {
+          // Settle on the real year digits
+          strips.forEach((strip, i) => {
+            strip.style.transition = "transform 0.3s cubic-bezier(0.6, 0.05, 0.2, 1.1)";
+            strip.style.transform = `translateY(${-(digits[i] ?? 0) * 10}%)`;
+          });
+          setTimeout(() => {
+            window.location.href = href;
+          }, 350);
+        }
+      }
+
+      spinFrame();
+    });
+  })();
 </script>

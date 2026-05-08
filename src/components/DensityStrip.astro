@@ -26,7 +26,7 @@ const { activeYear } = Astro.props;
 ---
 
 <div
-  class="relative flex h-[160px] items-end gap-px overflow-visible border-b border-[color:var(--rule-2)] px-1 pb-7"
+  class="density-strip-wrap relative flex h-[160px] items-end gap-px overflow-visible border-b border-[color:var(--rule-2)] px-1 pb-7"
   role="list"
   aria-label="Густина фактів по роках"
 >
@@ -42,14 +42,10 @@ const { activeYear } = Astro.props;
           href={`/${year}/`}
           role="listitem"
           class={`density__bar group relative flex flex-1 items-end${isActive ? " is-on" : ""}`}
+          data-ds-year={year}
+          data-ds-count={count}
+          data-ds-color={era.color}
           aria-label={`${year} рік, ${count} ${(() => {
-            const m10 = count % 10,
-              m100 = count % 100;
-            if (m10 === 1 && m100 !== 11) return "факт";
-            if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
-            return "фактів";
-          })()}`}
-          title={`${year} · ${count} ${(() => {
             const m10 = count % 10,
               m100 = count % 100;
             if (m10 === 1 && m100 !== 11) return "факт";
@@ -70,3 +66,130 @@ const { activeYear } = Astro.props;
     })
   }
 </div>
+
+<!-- Rich tooltip: only visible on hover-capable devices (CSS pointer:fine guard) -->
+<div class="ds-tooltip" id="ds-tooltip" role="tooltip" aria-hidden="true">
+  <div class="ds-tooltip__stripe" id="ds-tt-stripe"></div>
+  <span class="ds-tooltip__year" id="ds-tt-year"></span>
+  <span class="ds-tooltip__count" id="ds-tt-count"></span>
+</div>
+
+<script>
+  (function () {
+    const hasHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!hasHover) return;
+
+    const tooltip = document.getElementById("ds-tooltip");
+    const ttYear = document.getElementById("ds-tt-year");
+    const ttCount = document.getElementById("ds-tt-count");
+    const ttStripe = document.getElementById("ds-tt-stripe");
+    if (!tooltip || !ttYear || !ttCount || !ttStripe) return;
+
+    const wrap = document.querySelector<HTMLElement>(".density-strip-wrap");
+    if (!wrap) return;
+
+    function countLabel(n: number): string {
+      const m10 = n % 10,
+        m100 = n % 100;
+      if (m10 === 1 && m100 !== 11) return `${n} факт`;
+      if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return `${n} факти`;
+      return `${n} фактів`;
+    }
+
+    let hideTimer: ReturnType<typeof setTimeout>;
+
+    wrap.addEventListener("mouseover", (e) => {
+      const bar = (e.target as Element).closest<HTMLElement>("[data-ds-year]");
+      if (!bar) return;
+
+      clearTimeout(hideTimer);
+
+      const year = bar.dataset.dsYear ?? "";
+      const count = parseInt(bar.dataset.dsCount ?? "0", 10);
+      const color = bar.dataset.dsColor ?? "var(--accent)";
+
+      ttYear.textContent = year;
+      ttCount.textContent = countLabel(count);
+      ttStripe.style.background = color;
+
+      const barRect = bar.getBoundingClientRect();
+
+      // Position above the bar in viewport coords (fixed positioning)
+      tooltip.style.setProperty("--tt-left", `${barRect.left + barRect.width / 2}px`);
+      tooltip.style.setProperty("--tt-top", `${barRect.top - 10}px`);
+
+      tooltip.classList.add("is-visible");
+      tooltip.setAttribute("aria-hidden", "false");
+    });
+
+    wrap.addEventListener("mouseleave", () => {
+      hideTimer = setTimeout(() => {
+        tooltip.classList.remove("is-visible");
+        tooltip.setAttribute("aria-hidden", "true");
+      }, 120);
+    });
+  })();
+</script>
+
+<style>
+  /* Tooltip — only for fine-pointer (mouse) devices, hidden on touch.
+     Uses fixed positioning so it isn't clipped by overflow:visible on the strip. */
+  .ds-tooltip {
+    position: fixed;
+    left: var(--tt-left, 0px);
+    top: var(--tt-top, 0px);
+    transform: translateX(-50%) translateY(calc(-100% - 4px));
+    z-index: 50;
+    pointer-events: none;
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-radius: 8px;
+    box-shadow: var(--shadow-hi);
+    padding: 8px 12px 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .ds-tooltip.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(calc(-100% - 10px));
+  }
+
+  .ds-tooltip__stripe {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .ds-tooltip__year {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  .ds-tooltip__count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ds-tooltip {
+      transition: opacity 0.1s linear;
+      transform: translateX(-50%) translateY(calc(-100% - 10px));
+    }
+    .ds-tooltip.is-visible {
+      transform: translateX(-50%) translateY(calc(-100% - 10px));
+    }
+  }
+</style>

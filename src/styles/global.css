@@ -599,6 +599,7 @@
     transition:
       opacity 0.45s ease,
       transform 0.45s ease;
+    transition-delay: var(--reveal-delay, 0ms);
   }
   [data-reveal].is-visible {
     opacity: 1;
