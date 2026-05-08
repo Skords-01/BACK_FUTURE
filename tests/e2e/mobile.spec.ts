@@ -45,11 +45,21 @@ test.describe("mobile @375px", () => {
   test("primary nav remains reachable on narrow viewport", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Основна навігація" });
+    // Якщо нав схований за burger-меню — відкриваємо його. Inline-нав на більших
+    // макетах одразу видимий, тому toggle опціональний (не у всіх реалізаціях
+    // він взагалі рендериться). Перевірка `aria-expanded` на toggle після
+    // кліку гарантує, що бургер коректно зв'язаний з nav через `aria-controls`.
+    const toggle = page
+      .getByRole("button")
+      .filter({ has: page.locator(`[aria-controls="${await nav.getAttribute("id")}"]`) });
+    if (await toggle.count()) {
+      await expect(toggle).toBeVisible();
+      await toggle.click();
+      await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    }
     await expect(nav).toBeVisible();
-    // На 375px нав має лишатись клікабельною, навіть якщо реалізована як
-    // burger-меню — обидва пункти повинні досягатись (видимо або через toggle).
-    await expect(nav.getByRole("link", { name: "Методологія" })).toHaveCount(1);
-    await expect(nav.getByRole("link", { name: "Про проєкт" })).toHaveCount(1);
+    await expect(nav.getByRole("link", { name: "Методологія" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Про проєкт" })).toBeVisible();
   });
 
   test("filters layout adapts on narrow viewport", async ({ page }) => {
