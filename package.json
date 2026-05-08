@@ -12,6 +12,7 @@
     "astro": "astro",
     "typecheck": "astro check",
     "test": "npm run test:unit && npm run test:e2e",
+    "ci": "npm run lint && npm run typecheck && npm run test:unit && npm run validate:content",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",

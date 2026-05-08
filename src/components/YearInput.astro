@@ -29,7 +29,7 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     max={SITE.yearMax}
     placeholder="2003"
     value={defaultYear}
-    aria-describedby="year-error"
+    aria-describedby="year-hint year-error"
     required
     class={`flex-1 rounded-3xl border border-ink-200 bg-white px-6 text-center font-mono font-bold tabular-nums tracking-tight text-ink-900 shadow-card outline-none transition focus:border-accent-700 focus:ring-2 focus:ring-accent-200 dark:border-ink-300 dark:bg-ink-100 dark:focus:border-accent-400 dark:focus:ring-accent-700/40 ${inputClass}`}
   />
@@ -49,7 +49,10 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
   </button>
 </form>
 
-<p id="year-error" class="mt-2 hidden text-sm text-red-600 dark:text-red-400"></p>
+<p id="year-hint" class="mt-1 text-center text-xs text-ink-400 dark:text-ink-600">
+  від {SITE.yearMin} до {SITE.yearMax}
+</p>
+<p id="year-error" class="mt-1 hidden text-sm text-red-600 dark:text-red-400"></p>
 
 <script is:inline>
   (function () {

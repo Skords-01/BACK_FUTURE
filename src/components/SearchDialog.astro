@@ -213,6 +213,12 @@
       dialog.close();
     });
 
+    // Return focus to the trigger button whenever the dialog closes (Esc,
+    // backdrop click, or close button) so keyboard users don't lose their place.
+    dialog.addEventListener("close", function () {
+      openBtn.focus();
+    });
+
     dialog.addEventListener("click", function (e) {
       if (e.target === dialog) dialog.close();
     });

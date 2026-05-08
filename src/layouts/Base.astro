@@ -11,10 +11,11 @@ interface Props {
   description?: string;
   ogImage?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
 }
 
 const defaultOgImage = new URL("/og/default.png", SITE.defaultUrl).toString();
-const { title, description = SITE.description, ogImage = defaultOgImage, jsonLd } = Astro.props;
+const { title, description = SITE.description, ogImage = defaultOgImage, jsonLd, noindex = false } = Astro.props;
 const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
 const jsonLdItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
@@ -52,6 +53,9 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="format-detection" content="telephone=no" />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    {import.meta.env.SENTRY_DSN && <link rel="dns-prefetch" href="https://browser.sentry-cdn.com" />}
     {
       googleSiteVerification && (
         <meta name="google-site-verification" content={googleSiteVerification} />
@@ -67,6 +71,7 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    {SITE.twitter && <meta name="twitter:site" content={`@${SITE.twitter}`} />}
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:card" content="summary_large_image" />

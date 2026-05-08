@@ -1,5 +1,8 @@
 const KEY = "bf_user_state";
 
+const MIN_YEAR = 1991;
+const MAX_YEAR = new Date().getFullYear();
+
 export interface UserState {
   lastYear: number | null;
   readFacts: string[];
@@ -12,17 +15,28 @@ const DEFAULT_STATE: UserState = {
   savedFacts: [],
 };
 
+function isStringArray(v: unknown): v is string[] {
+  return Array.isArray(v) && v.every((item) => typeof item === "string");
+}
+
+function isValidYear(v: unknown): v is number {
+  return typeof v === "number" && Number.isInteger(v) && v >= MIN_YEAR && v <= MAX_YEAR;
+}
+
 function load(): UserState {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return { ...DEFAULT_STATE };
-    const parsed = JSON.parse(raw) as Partial<UserState>;
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null) return { ...DEFAULT_STATE };
+    const p = parsed as Record<string, unknown>;
     return {
-      lastYear: typeof parsed.lastYear === "number" ? parsed.lastYear : null,
-      readFacts: Array.isArray(parsed.readFacts) ? parsed.readFacts : [],
-      savedFacts: Array.isArray(parsed.savedFacts) ? parsed.savedFacts : [],
+      lastYear: isValidYear(p.lastYear) ? p.lastYear : null,
+      readFacts: isStringArray(p.readFacts) ? p.readFacts : [],
+      savedFacts: isStringArray(p.savedFacts) ? p.savedFacts : [],
     };
-  } catch {
+  } catch (err) {
+    if (import.meta.env.DEV) console.warn("[userState] Failed to load state:", err);
     return { ...DEFAULT_STATE };
   }
 }
