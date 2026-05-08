@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ERAS, eraById, eraForGraduationYear } from "./eras";
+import { ERAS, eraById, eraForGraduationYear, eraOf } from "./eras";
 
 describe("ERAS data", () => {
   it("contains exactly five eras with monotonically increasing ranges", () => {
@@ -62,5 +62,36 @@ describe("eraById", () => {
   it("throws for an unknown id", () => {
     // @ts-expect-error — testing runtime guard with an out-of-domain value.
     expect(() => eraById(99)).toThrow(/Unknown era id/);
+  });
+});
+
+describe("Era extended fields", () => {
+  it("every era has a name, short, color, and tone", () => {
+    for (const era of ERAS) {
+      expect(era.name).toBeTruthy();
+      expect(era.short).toBeTruthy();
+      expect(era.color).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(era.tone).toBeTruthy();
+    }
+  });
+
+  it("era colors are unique", () => {
+    const colors = ERAS.map((e) => e.color);
+    expect(new Set(colors).size).toBe(5);
+  });
+});
+
+describe("eraOf", () => {
+  it("returns the full Era object including name and color", () => {
+    const era = eraOf(2012);
+    expect(era.id).toBe(4);
+    expect(era.name).toBeTruthy();
+    expect(era.color).toMatch(/^#[0-9a-f]{6}$/i);
+  });
+
+  it("is consistent with eraForGraduationYear", () => {
+    for (const year of [1991, 1999, 2003, 2010, 2017, 2022]) {
+      expect(eraOf(year).id).toBe(eraForGraduationYear(year));
+    }
   });
 });

@@ -1,24 +1,16 @@
 ---
 import Base from "../layouts/Base.astro";
-import SubjectIcon from "../components/SubjectIcon.astro";
-import SupportBlock from "../components/SupportBlock.astro";
+import YearHero from "../components/YearHero.astro";
+import ThenAside from "../components/ThenAside.astro";
+import SubjectFilters from "../components/SubjectFilters.astro";
+import FactTimeline from "../components/FactTimeline.astro";
+import YearNav from "../components/YearNav.astro";
 import ShareBlock from "../components/ShareBlock.astro";
-import Timeline from "../components/Timeline.astro";
-import YearInput from "../components/YearInput.astro";
-import FactCard from "../components/FactCard.astro";
-import FeatureFactCard from "../components/FeatureFactCard.astro";
-import LowFactRow from "../components/LowFactRow.astro";
+import SupportBlock from "../components/SupportBlock.astro";
 import { getCollection } from "astro:content";
-import {
-  factsForYear,
-  groupBySubject,
-  pickFallbackYears,
-  sampleFacts,
-  type Fact,
-} from "../lib/filterFacts";
-import { ERAS, eraForGraduationYear, eraById } from "../lib/eras";
+import { factsForYear, pickFallbackYears, sampleFacts, type Fact } from "../lib/filterFacts";
+import { eraOf } from "../lib/eras";
 import { SITE, SUBJECTS } from "../config/site";
-import { eraUrl } from "../lib/url";
 
 export async function getStaticPaths() {
   const years: { params: { year: string } }[] = [];
@@ -36,29 +28,19 @@ if (!Number.isInteger(year) || year < SITE.yearMin || year > SITE.yearMax) {
 
 const allFacts = await getCollection("facts");
 const matched = factsForYear(allFacts, year);
-
-// Розкидуємо за impact: high/medium залишаються в subject-групах і рендеряться
-// як FeatureFactCard / FactCard відповідно. Усі low-факти зливаються в один
-// плаский список, який ми рендеримо в кінці сторінки секцією «Решта подій».
-const isLow = (f: Fact) => (f.data.impact ?? "medium") === "low";
-const featuredAndMedium = matched.filter((f) => !isLow(f));
-const lowFacts = matched.filter(isLow);
-const groups = groupBySubject(featuredAndMedium);
-const era = eraById(eraForGraduationYear(year));
+const era = eraOf(year);
 
 const totalCount = matched.length;
-
 const yearNow = new Date().getFullYear();
 const yearsPassed = yearNow - year;
 
-function pluralize(n: number, forms: [one: string, few: string, many: string]): string {
+function pluralize(n: number, forms: [string, string, string]): string {
   const m10 = n % 10;
   const m100 = n % 100;
   if (m10 === 1 && m100 !== 11) return forms[0];
   if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return forms[1];
   return forms[2];
 }
-const yearsPassedLabel = pluralize(yearsPassed, ["рік", "роки", "років"]);
 const updatesLabel = pluralize(totalCount, ["оновлення", "оновлення", "оновлень"]);
 
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
@@ -73,19 +55,7 @@ const fallbackYears =
 const teaserFacts = totalCount === 0 ? sampleFacts(allFacts, 2) : [];
 const subjectMeta = new Map(SUBJECTS.map((s) => [s.id, s] as const));
 const issueUrl = `${SITE.repoUrl}/issues/new?title=${encodeURIComponent(`Факт під випуск ${year}`)}`;
-const regionOptions = [
-  { value: "world", label: "Світ" },
-  { value: "ukraine", label: "Україна" },
-] as const;
-const impactOptions = [
-  { value: "low", label: "Низький" },
-  { value: "medium", label: "Середній" },
-  { value: "high", label: "Високий" },
-] as const;
 
-// Усі year-сторінки регенеряться разом при кожному build — використовуємо
-// build-time дату як `datePublished`/`dateModified`. Для трекінгу свіжості
-// окремих фактів на сторінці буде поле `updatedAt` (PR #2.3).
 const buildDate = new Date().toISOString();
 const homeUrl = `${SITE.defaultUrl}/`;
 const yearCanonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
@@ -103,16 +73,8 @@ const articleLd: Record<string, unknown> = {
   datePublished: buildDate,
   dateModified: buildDate,
   inLanguage: "uk",
-  author: {
-    "@type": "Organization",
-    name: SITE.author,
-    url: SITE.defaultUrl,
-  },
-  publisher: {
-    "@type": "Organization",
-    name: SITE.name,
-    url: SITE.defaultUrl,
-  },
+  author: { "@type": "Organization", name: SITE.author, url: SITE.defaultUrl },
+  publisher: { "@type": "Organization", name: SITE.name, url: SITE.defaultUrl },
   mainEntityOfPage: yearCanonical,
 };
 
@@ -120,20 +82,16 @@ const breadcrumbsLd: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: "Головна",
-      item: homeUrl,
-    },
-    {
-      "@type": "ListItem",
-      position: 2,
-      name: `Випуск ${year}`,
-      item: yearCanonical,
-    },
+    { "@type": "ListItem", position: 1, name: "Головна", item: homeUrl },
+    { "@type": "ListItem", position: 2, name: `Випуск ${year}`, item: yearCanonical },
   ],
 };
+
+// Subject counts for the filter bar
+const subjectCounts = SUBJECTS.map((s) => ({
+  id: s.id,
+  count: matched.filter((f) => f.data.subject === s.id).length,
+}));
 ---
 
 <Base
@@ -142,313 +100,41 @@ const breadcrumbsLd: Record<string, unknown> = {
   ogImage={ogImage}
   jsonLd={[articleLd, breadcrumbsLd]}
 >
-  <section class="ruled-hero">
-    <div class="container-prose pt-8 pb-10 sm:pt-14 sm:pb-12">
-      <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
-        <ol class="flex flex-wrap items-center gap-1.5">
-          <li>
-            <a
-              href="/"
-              class="hover:text-ink-900 dark:hover:text-ink-900 underline-offset-2 hover:underline"
-              aria-label="На головну"
-            >
-              Головна
-            </a>
-          </li>
-          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
-          <li>
-            <span class="text-ink-700 font-medium" aria-current="page">Випуск {year}</span>
-          </li>
-          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600 ml-2">·</li>
-          <li>
-            <a
-              href="/"
-              class="hover:text-ink-900 dark:hover:text-ink-900 inline-flex items-center gap-1 underline-offset-2 hover:underline"
-            >
-              ← Інший рік
-            </a>
-          </li>
-        </ol>
-      </nav>
+  <YearHero year={year} era={era} yearsPassed={yearsPassed} totalCount={totalCount} />
 
-      <p
-        class="text-accent-700 dark:text-accent-300 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
-      >
-        <span
-          class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs tabular-nums"
-          >ВИПУСК {year}</span
-        >
-        <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
-        <a
-          href={eraUrl(era.slug)}
-          class="text-ink-600 hover:text-accent-700 dark:hover:text-accent-300 text-xs uppercase underline-offset-2 hover:underline"
-          >{era.label}</a
-        >
-      </p>
-      <h1
-        class="font-display text-ink-900 mt-3 leading-[1.05] font-bold tracking-tight"
-        style="font-size: clamp(2rem, 7vw, 3.5rem);"
-      >
-        {
-          totalCount > 0 ? (
-            <>
-              Ти пропустив{" "}
-              <em
-                class="text-accent-700 dark:text-accent-300 not-italic tabular-nums"
-                data-countup
-                data-countup-target={totalCount}
-              >
-                {totalCount}
-              </em>{" "}
-              {updatesLabel}
-            </>
-          ) : (
-            "Тут поки тихо"
-          )
-        }
-      </h1>
-      <p class="text-ink-500 dark:text-ink-400 mt-3 font-mono text-sm tracking-wider uppercase">
-        {era.label} · {totalCount}{" "}
-        {updatesLabel}
-      </p>
-      <p class="text-ink-700 mt-3 max-w-prose text-base">{era.summary}</p>
-
-      <div class="mt-8 border-t border-[color:var(--card-edge)] pt-6">
-        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <span
-            class="text-ink-400 dark:text-ink-500 font-mono text-[11px] tracking-widest uppercase"
-          >
-            Шкала часу · {SITE.yearMin} → {SITE.yearMax}
-          </span>
-          <span class="text-ink-500 dark:text-ink-400 font-mono text-xs">
-            З твого випуску минуло <strong class="text-ink-700">{yearsPassed}</strong>{" "}
-            {yearsPassedLabel} · <strong class="text-ink-700">{totalCount}</strong>{" "}
-            {updatesLabel}
-          </span>
-        </div>
-        <Timeline facts={matched} selectedYear={year} />
-      </div>
-    </div>
-  </section>
-
-  {
-    totalCount > 0 && (
-      <section class="container-prose mt-10" aria-labelledby="filters-heading">
-        <div class="border-ink-100 bg-paper-50 rounded-3xl border p-5 sm:p-6 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-          <div class="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2
-                id="filters-heading"
-                class="font-display text-ink-900 flex items-center gap-2 text-lg font-bold tracking-tight"
-              >
-                Фільтри
-                <span
-                  data-filter-active-count
-                  hidden
-                  aria-live="polite"
-                  class="bg-accent-700 dark:bg-accent-500 inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-2 py-0.5 font-mono text-xs font-semibold text-white tabular-nums"
-                >
-                  0
-                </span>
-              </h2>
-              <p class="text-ink-500 dark:text-ink-400 mt-1 text-sm">
-                Показано <span data-filter-result-count>{totalCount}</span> з{" "}
-                <span data-filter-total-count>{totalCount}</span> фактів.
-              </p>
-            </div>
-            <a
-              href={`/${year}/`}
-              data-filter-reset
-              hidden
-              class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 text-sm font-medium underline-offset-2 hover:underline"
-            >
-              Скинути
-            </a>
-          </div>
-
-          <form data-year-filters class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <label class="block">
-              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
-                Предмет
-              </span>
-              <select
-                name="subject"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
-              >
-                <option value="">Усі предмети</option>
-                {SUBJECTS.map((s) => (
-                  <option value={s.id}>{s.label}</option>
-                ))}
-              </select>
-            </label>
-            <label class="block">
-              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
-                Ера
-              </span>
-              <select
-                name="era"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
-              >
-                <option value="">Усі ери</option>
-                {ERAS.map((e) => (
-                  <option value={String(e.id)}>{e.label}</option>
-                ))}
-              </select>
-            </label>
-            <label class="block">
-              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
-                Регіон
-              </span>
-              <select
-                name="region"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
-              >
-                <option value="">Усі регіони</option>
-                {regionOptions.map((option) => (
-                  <option value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-            <label class="block">
-              <span class="text-ink-500 dark:text-ink-400 text-xs font-medium tracking-wider uppercase">
-                Вплив
-              </span>
-              <select
-                name="impact"
-                class="border-ink-200 text-ink-900 dark:border-ink-300 dark:bg-ink-100 bg-paper-50 mt-1 min-h-11 w-full rounded-xl border px-3 py-2.5 text-sm"
-              >
-                <option value="">Усі рівні</option>
-                {impactOptions.map((option) => (
-                  <option value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-          </form>
-          <p data-filter-empty class="text-ink-500 dark:text-ink-400 mt-4 hidden text-sm">
-            За такими фільтрами фактів не знайдено.
-          </p>
-        </div>
-      </section>
-    )
-  }
-
-  {
-    groups.length > 1 && (
-      <nav
-        class="border-ink-100 bg-paper-50/90 dark:bg-paper-100/90 sticky top-0 z-30 border-b backdrop-blur dark:border-[color:var(--card-edge)]"
-        aria-label="Розділи цього року"
-      >
-        <div class="container-prose flex flex-nowrap items-center gap-1.5 overflow-x-auto py-2.5 sm:flex-wrap sm:overflow-visible">
-          {groups.map((g) => (
-            <a
-              href={`#subject-${g.subject}`}
-              data-subject-nav={g.subject}
-              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-600 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition dark:bg-[color:var(--card)]"
-            >
-              <span
-                class="text-accent-700 font-display text-[11px] font-bold tracking-[0.18em] uppercase"
-                aria-hidden="true"
-              >
-                {g.mark}
-              </span>
-              <span>{g.label}</span>
-              <span class="text-ink-500 font-mono text-xs tabular-nums" data-nav-count>
-                {g.items.length}
-              </span>
-            </a>
-          ))}
-        </div>
-      </nav>
-    )
-  }
+  <ThenAside year={year} />
 
   {
     totalCount > 0 ? (
-      <section class="container-prose">
-        {groups.map((g) => (
-          <section id={`subject-${g.subject}`} data-subject-section class="mt-12 scroll-mt-28">
-            <header class="mb-5 flex items-baseline gap-3">
-              <span
-                class="text-accent-700 font-display text-base font-bold tracking-[0.18em] uppercase sm:text-lg"
-                aria-hidden="true"
-              >
-                {g.mark}
-              </span>
-              <h2 class="font-display text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl">
-                {g.label}
-              </h2>
-              <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
-                <span data-filter-count>{g.items.length}</span>
-                {g.items.length === 1 ? " оновлення" : " оновлень"}
-              </span>
-            </header>
-            <div class="grid gap-6">
-              {g.items.map((f) => (
-                <div
-                  data-fact-card
-                  data-reveal
-                  data-region={f.data.region ?? "world"}
-                  data-era={f.data.relevantForEras.join(" ")}
-                  data-subject={f.data.subject}
-                  data-impact={f.data.impact ?? "medium"}
-                >
-                  {f.data.impact === "high" ? <FeatureFactCard fact={f} /> : <FactCard fact={f} />}
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-
-        {lowFacts.length > 0 && (
-          <section
-            id="low-facts"
-            data-subject-section
-            class="mt-16 scroll-mt-28"
-            aria-labelledby="low-facts-heading"
-          >
-            <header class="mb-5 flex items-baseline gap-3">
-              <h2
-                id="low-facts-heading"
-                class="font-display text-ink-900 text-2xl font-extrabold tracking-tight sm:text-3xl"
-              >
-                Решта подій
-              </h2>
-              <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
-                <span data-filter-count>{lowFacts.length}</span>
-                {lowFacts.length === 1 ? " подія" : " подій"}
-              </span>
-            </header>
-            <ul class="border-t border-[color:var(--card-edge)]">
-              {lowFacts.map((f) => (
-                <LowFactRow fact={f} />
-              ))}
-            </ul>
-          </section>
-        )}
-      </section>
+      <>
+        <SubjectFilters counts={subjectCounts} />
+        <FactTimeline facts={matched} fromYear={year} />
+      </>
     ) : (
-      <section class="container-prose mt-12">
-        <div class="border-ink-200 rounded-3xl border border-dashed bg-white p-8 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-          <p class="font-display text-ink-900 text-xl font-bold">Поки що для цього року тихо.</p>
-          <p class="text-ink-600 mt-2 text-base">
-            Ми постійно додаємо факти. Поки що — спробуй ери, де у нас точно є про що розказати:
+      <section class="container-wide py-16">
+        <div class="rounded-sm border border-dashed border-[color:var(--card-edge)] bg-[color:var(--card)] p-8 sm:p-12">
+          <p class="font-display text-xl font-semibold text-[color:var(--ink)]">
+            Поки що для цього року тихо.
+          </p>
+          <p class="mt-2 text-base text-[color:var(--ink-2)]">
+            Ми постійно додаємо факти. Поки що — спробуй ери, де в нас точно є про що розказати:
           </p>
 
           {fallbackYears.length > 0 && (
-            <ul class="mt-5 grid gap-2 sm:grid-cols-2">
+            <ul class="mt-6 grid gap-2 sm:grid-cols-2">
               {fallbackYears.map((f) => (
                 <li>
                   <a
                     href={`/${f.year}/`}
-                    class="border-ink-200 hover:border-accent-700 hover:bg-accent-50 dark:hover:border-accent-400 group flex items-center justify-between gap-3 rounded-2xl border bg-white px-4 py-2.5 transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)] dark:hover:bg-[color:var(--paper-3)]"
+                    class="flex items-center justify-between gap-3 rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--paper)] px-4 py-3 transition hover:border-[color:var(--accent)]"
                   >
                     <span class="flex flex-col">
-                      <span class="text-ink-900 font-mono text-base font-semibold tabular-nums">
+                      <span class="font-mono text-base font-semibold text-[color:var(--ink)] tabular-nums">
                         {f.year}
                       </span>
-                      <span class="text-ink-500 dark:text-ink-400 text-xs">{f.eraLabel}</span>
+                      <span class="text-xs text-[color:var(--muted)]">{f.eraLabel}</span>
                     </span>
-                    <span class="text-ink-500 group-hover:text-accent-700 dark:text-ink-400 dark:group-hover:text-accent-300 font-mono text-xs tabular-nums">
+                    <span class="font-mono text-xs text-[color:var(--muted)] tabular-nums">
                       {f.count} {f.count === 1 ? "факт" : "фактів"}
                     </span>
                   </a>
@@ -459,21 +145,25 @@ const breadcrumbsLd: Record<string, unknown> = {
 
           {teaserFacts.length > 0 && (
             <div class="mt-8">
-              <p class="text-ink-500 dark:text-ink-400 mb-3 text-xs tracking-wider uppercase">
-                Щоб ти не йшов з порожніми руками — ось що в нас уже є:
+              <p class="mb-3 font-mono text-xs tracking-widest text-[color:var(--muted)] uppercase">
+                Щоб ти не йшов з порожніми руками — ось що є в нас:
               </p>
               <div class="grid gap-4">
-                {teaserFacts.map((f) => {
+                {teaserFacts.map((f: Fact) => {
                   const meta = subjectMeta.get(f.data.subject);
                   return (
                     <div>
                       {meta && (
-                        <p class="text-ink-500 dark:text-ink-400 mb-1.5 flex items-center gap-1.5 text-xs">
-                          <SubjectIcon subject={meta.id} />
-                          <span>{meta.label}</span>
+                        <p class="mb-1.5 font-mono text-xs text-[color:var(--muted)]">
+                          {meta.mark} · {meta.label}
                         </p>
                       )}
-                      <FactCard fact={f} />
+                      <div class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-4">
+                        <p class="font-display text-base font-semibold text-[color:var(--ink)]">
+                          {f.data.title}
+                        </p>
+                        <p class="mt-1 text-sm text-[color:var(--ink-2)]">{f.data.short}</p>
+                      </div>
                     </div>
                   );
                 })}
@@ -481,11 +171,11 @@ const breadcrumbsLd: Record<string, unknown> = {
             </div>
           )}
 
-          <p class="text-ink-500 dark:text-ink-400 mt-6 text-sm">
+          <p class="mt-6 text-sm text-[color:var(--ink-2)]">
             Хочеш, щоб ми додали факт під цей рік?{" "}
             <a
               href={issueUrl}
-              class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
+              class="text-[color:var(--accent)] underline-offset-2 hover:underline"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -497,160 +187,7 @@ const breadcrumbsLd: Record<string, unknown> = {
     )
   }
 
-  <script is:inline>
-    // Count-up animation for the hero "Ти пропустив N оновлень" headline.
-    // Skips entirely under prefers-reduced-motion so the number stays as-is.
-    (function () {
-      const node = document.querySelector("[data-countup]");
-      if (!(node instanceof HTMLElement)) return;
-      const target = Number(node.dataset.countupTarget ?? node.textContent ?? "0");
-      if (!Number.isFinite(target) || target <= 0) return;
-      const reduceMotion =
-        window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduceMotion) {
-        node.textContent = String(target);
-        return;
-      }
-      // Tune duration to count size — small numbers shouldn't drag, big ones
-      // shouldn't blur past unreadably. Capped at ~1.4s.
-      const duration = Math.min(1400, 400 + Math.log10(target + 1) * 320);
-      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-      let start = null;
-      function tick(now) {
-        if (start === null) start = now;
-        const t = Math.min(1, (now - start) / duration);
-        const value = Math.round(easeOutCubic(t) * target);
-        node.textContent = String(value);
-        if (t < 1) requestAnimationFrame(tick);
-        else node.textContent = String(target);
-      }
-      node.textContent = "0";
-      requestAnimationFrame(tick);
-    })();
-
-    (function () {
-      const form = document.querySelector("[data-year-filters]");
-      if (!(form instanceof HTMLFormElement)) return;
-
-      const cards = Array.from(document.querySelectorAll("[data-fact-card]"));
-      const sections = Array.from(document.querySelectorAll("[data-subject-section]"));
-      const navItems = Array.from(document.querySelectorAll("[data-subject-nav]"));
-      const countNode = document.querySelector("[data-filter-result-count]");
-      const totalCountNode = document.querySelector("[data-filter-total-count]");
-      const emptyNode = document.querySelector("[data-filter-empty]");
-      const activeCountNode = document.querySelector("[data-filter-active-count]");
-      const resetNode = document.querySelector("[data-filter-reset]");
-      // Sync total count from actual DOM cards (high+medium only, low rows excluded)
-      if (totalCountNode) totalCountNode.textContent = String(cards.length);
-      const selects = Array.from(form.querySelectorAll("select"));
-      const params = new URLSearchParams(window.location.search);
-
-      selects.forEach(function (select) {
-        const value = params.get(select.name) ?? "";
-        if (value) {
-          const hasOption = Array.from(select.options).some(function (opt) {
-            return opt.value === value;
-          });
-          if (hasOption) select.value = value;
-        }
-      });
-
-      function selected(name) {
-        const field = form.elements.namedItem(name);
-        return field instanceof HTMLSelectElement ? field.value : "";
-      }
-
-      function visibleCardsIn(section) {
-        return Array.from(section.querySelectorAll("[data-fact-card]")).filter(function (card) {
-          return card instanceof HTMLElement && !card.hidden;
-        }).length;
-      }
-
-      function updateUrl() {
-        const url = new URL(window.location.href);
-        selects.forEach(function (select) {
-          if (select.value) {
-            url.searchParams.set(select.name, select.value);
-          } else {
-            url.searchParams.delete(select.name);
-          }
-        });
-        window.history.replaceState({}, "", url);
-      }
-
-      function update() {
-        const subject = selected("subject");
-        const era = selected("era");
-        const region = selected("region");
-        const impact = selected("impact");
-        const activeCount = [subject, era, region, impact].filter(Boolean).length;
-        let visible = 0;
-
-        cards.forEach(function (card) {
-          if (!(card instanceof HTMLElement)) return;
-          const cardEras = (card.dataset.era ?? "").split(" ");
-          const matches =
-            (!subject || card.dataset.subject === subject) &&
-            (!era || cardEras.includes(era)) &&
-            (!region || card.dataset.region === region) &&
-            (!impact || card.dataset.impact === impact);
-          card.hidden = !matches;
-          if (matches) visible += 1;
-        });
-
-        sections.forEach(function (section) {
-          if (!(section instanceof HTMLElement)) return;
-          const sectionCount = visibleCardsIn(section);
-          section.hidden = sectionCount === 0;
-          const sectionCountNode = section.querySelector("[data-filter-count]");
-          if (sectionCountNode) sectionCountNode.textContent = String(sectionCount);
-        });
-
-        navItems.forEach(function (item) {
-          if (!(item instanceof HTMLElement)) return;
-          const subjectId = item.dataset.subjectNav;
-          const section = sections.find(function (candidate) {
-            return candidate instanceof HTMLElement && candidate.id === "subject-" + subjectId;
-          });
-          const sectionCount = section instanceof HTMLElement ? visibleCardsIn(section) : 0;
-          item.hidden = sectionCount === 0;
-          const navCountNode = item.querySelector("[data-nav-count]");
-          if (navCountNode) navCountNode.textContent = String(sectionCount);
-        });
-
-        if (countNode) countNode.textContent = String(visible);
-        if (emptyNode instanceof HTMLElement) emptyNode.classList.toggle("hidden", visible > 0);
-        if (activeCountNode instanceof HTMLElement) {
-          activeCountNode.textContent = String(activeCount);
-          activeCountNode.hidden = activeCount === 0;
-        }
-        if (resetNode instanceof HTMLElement) resetNode.hidden = activeCount === 0;
-        updateUrl();
-      }
-
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-      });
-      selects.forEach(function (select) {
-        select.addEventListener("change", update);
-      });
-      update();
-    })();
-  </script>
-
-  {
-    /* IntersectionObserver для [data-reveal] живе у RevealObserver.astro,
-      підключений у Base.astro — глобально, для всіх сторінок. */
-  }
-
   <ShareBlock year={year} factsCount={totalCount} />
-
   <SupportBlock />
-
-  <section class="container-prose mt-16">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Спробуй інший рік</h2>
-    <div class="mt-4">
-      <YearInput defaultYear={year} size="md" />
-    </div>
-  </section>
+  <YearNav year={year} />
 </Base>

@@ -1,0 +1,35 @@
+---
+// Presets — 3 scenario cards for the homepage (2005, 2012, 2024).
+const presets = [
+  { year: 2005, title: "Закінчив школу у 2005-му", note: "21 рік новин" },
+  { year: 2012, title: "Вишівський диплом 2012", note: "14 років новин" },
+  { year: 2024, title: "Молодший брат 2024-го", note: "2 роки новин" },
+];
+---
+
+<div class="grid gap-4 sm:grid-cols-3">
+  {
+    presets.map((p) => (
+      <a
+        href={`/${p.year}/`}
+        class="group hover:shadow-card-hover relative overflow-hidden rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-7 text-left transition hover:-translate-y-1 hover:border-[color:var(--accent)]"
+      >
+        {/* dog-eared corner */}
+        <span
+          class="pointer-events-none absolute top-0 right-0 h-[30px] w-[30px]"
+          style="background: linear-gradient(225deg, var(--paper-2) 50%, transparent 50%)"
+          aria-hidden="true"
+        />
+        <div class="font-display text-[56px] leading-none font-extrabold tracking-tight text-[color:var(--accent)] tabular-nums">
+          {p.year}
+        </div>
+        <div class="font-display mt-3 text-lg leading-snug font-semibold tracking-tight text-[color:var(--ink)]">
+          {p.title}
+        </div>
+        <div class="mt-2 font-mono text-xs tracking-wider text-[color:var(--muted)]">
+          {p.note} →
+        </div>
+      </a>
+    ))
+  }
+</div>

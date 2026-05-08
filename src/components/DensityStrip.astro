@@ -1,0 +1,73 @@
+---
+// DensityStrip — horizontal bar chart: bar height = number of facts for that year.
+// Bar color = era color for that year. SSR-rendered — no JS needed for display.
+// Clicking a bar navigates to /{year}/
+import { getCollection } from "astro:content";
+import { ERAS, eraOf } from "../lib/eras";
+import { SITE } from "../config/site";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+
+// Count facts by yearOfEvent — single pass O(facts)
+const counts: Record<number, number> = {};
+for (let y = SITE.yearMin; y <= SITE.yearMax; y++) counts[y] = 0;
+for (const f of allFacts) {
+  const y = f.data.yearOfEvent;
+  if (y >= SITE.yearMin && y <= SITE.yearMax) counts[y]++;
+}
+
+const years = Array.from({ length: SITE.yearMax - SITE.yearMin + 1 }, (_, i) => SITE.yearMin + i);
+const maxCount = Math.max(...Object.values(counts), 1);
+
+interface Props {
+  activeYear?: number;
+}
+const { activeYear } = Astro.props;
+---
+
+<div
+  class="relative flex h-[160px] items-end gap-px overflow-visible border-b border-[color:var(--rule-2)] px-1 pb-7"
+  role="list"
+  aria-label="Густина фактів по роках"
+>
+  {
+    years.map((year) => {
+      const count = counts[year] ?? 0;
+      const era = eraOf(year);
+      const hPct = Math.max(count > 0 ? 8 : 2, (count / maxCount) * 100);
+      const isActive = year === activeYear;
+      const showTick = year % 5 === 0;
+      return (
+        <a
+          href={`/${year}/`}
+          role="listitem"
+          class={`density__bar group relative flex flex-1 items-end${isActive ? " is-on" : ""}`}
+          style={`--c: ${era.color}`}
+          aria-label={`${year} рік, ${count} ${(() => {
+            const m10 = count % 10,
+              m100 = count % 100;
+            if (m10 === 1 && m100 !== 11) return "факт";
+            if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
+            return "фактів";
+          })()}`}
+          title={`${year} · ${count} ${(() => {
+            const m10 = count % 10,
+              m100 = count % 100;
+            if (m10 === 1 && m100 !== 11) return "факт";
+            if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
+            return "фактів";
+          })()}`}
+        >
+          <span class="density__cap" style={`--h: ${hPct}%`} />
+          {showTick && (
+            <span
+              class={`pointer-events-none absolute bottom-[-22px] left-1/2 -translate-x-1/2 font-mono text-[11px]${isActive ? " font-semibold text-[color:var(--accent)]" : " text-[color:var(--muted)]"}`}
+            >
+              {year}
+            </span>
+          )}
+        </a>
+      );
+    })
+  }
+</div>

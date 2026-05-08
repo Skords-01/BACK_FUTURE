@@ -7,5 +7,5 @@
     "MD034": false,
     "MD040": false,
   },
-  "globs": ["**/*.md", "!node_modules", "!dist"],
+  "globs": ["**/*.md", "!node_modules", "!dist", "!d"],
 }

@@ -1,0 +1,13 @@
+---
+// Stamp — decorative mono-border badge. Optional rotation angle.
+interface Props {
+  text: string;
+  rotate?: number; // degrees, e.g. -4
+  class?: string;
+}
+const { text, rotate = -4, class: cls = "" } = Astro.props;
+---
+
+<span class:list={["stamp", cls]} style={`--stamp-rotate: ${rotate}deg`} aria-hidden="true">
+  {text}
+</span>

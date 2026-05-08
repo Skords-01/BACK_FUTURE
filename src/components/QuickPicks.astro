@@ -1,0 +1,52 @@
+---
+// QuickPicks — decade shortcuts + random year button for the hero.
+import { SITE } from "../config/site";
+
+const decades = [
+  { label: "90-ті", year: 1995 },
+  { label: "00-ті", year: 2003 },
+  { label: "10-ті", year: 2014 },
+  { label: "20-ті", year: 2022 },
+];
+---
+
+<div class="mt-5 flex flex-wrap items-center gap-2.5">
+  <span class="mr-1.5 font-mono text-xs text-[color:var(--muted)]">Не пам'ятаєш точно?</span>
+  {
+    decades.map((d) => (
+      <button
+        type="button"
+        class="quick-pick-btn inline-flex items-center rounded-full border border-[color:var(--card-edge)] bg-[color:var(--card)] px-4 py-2 font-mono text-sm text-[color:var(--ink-2)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+        data-year={d.year}
+        aria-label={`Вибрати ${d.year} рік`}
+      >
+        {d.label}
+      </button>
+    ))
+  }
+  <button
+    id="random-year-btn"
+    type="button"
+    class="inline-flex items-center rounded-full border border-dashed border-[color:var(--card-edge)] px-4 py-2 font-mono text-sm text-[color:var(--ink-2)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+    data-min={SITE.yearMin}
+    data-max={SITE.yearMax}
+    aria-label="Вибрати випадковий рік"
+  >
+    ※ випадковий
+  </button>
+</div>
+
+<script>
+  import { setYear, randomYear } from "../scripts/year-machine";
+
+  document.querySelectorAll<HTMLButtonElement>(".quick-pick-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const year = parseInt(btn.dataset.year ?? "2012", 10);
+      setYear(year);
+    });
+  });
+
+  document.getElementById("random-year-btn")?.addEventListener("click", () => {
+    randomYear();
+  });
+</script>
