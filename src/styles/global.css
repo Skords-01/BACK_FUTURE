@@ -430,6 +430,37 @@
   }
 
   /* -----------------------------------------------------------------------
+     Reading progress bar — рендериться лише на /fact/[slug]. Тонка лінія
+     зверху, що розтягується через scaleX(0..1) у requestAnimationFrame.
+     z-index 41, щоб бути ВИЩЕ за sticky-header (z-40 у Header.astro).
+     pointer-events: none, щоб не блокувати кліки по логотипу.
+     ----------------------------------------------------------------------- */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 41;
+    pointer-events: none;
+    background: color-mix(in oklab, var(--color-accent-700) 12%, transparent);
+  }
+  .reading-progress__bar {
+    height: 100%;
+    width: 100%;
+    background: var(--color-accent-700);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.05s linear;
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress__bar {
+      transition: none;
+    }
+  }
+
+  /* -----------------------------------------------------------------------
      Scroll-triggered fade-in for [data-reveal] elements.
      JS adds .is-visible via IntersectionObserver.
      Reduced-motion: skip animation entirely (elements start visible).

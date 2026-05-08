@@ -114,244 +114,308 @@ const breadcrumbsLd: Record<string, unknown> = {
   ogImage={ogImage}
   jsonLd={[articleLd, breadcrumbsLd]}
 >
-  <article class="ruled-hero">
-    <div class="container-prose pt-12 pb-12 sm:pt-16">
-      <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
-        <ol class="flex flex-wrap items-center gap-1.5">
-          <li>
-            <a
-              href="/"
-              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
-              aria-label="На головну"
-            >
-              Головна
-            </a>
-          </li>
-          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
-          <li>
-            <a
-              href={`/subject/${subject.id}/`}
-              class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
-            >
-              {subject.label}
-            </a>
-          </li>
-          <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
-          <li>
-            <span class="text-ink-700 dark:text-ink-700 font-medium" aria-current="page">
-              Факт
-            </span>
-          </li>
-        </ol>
-      </nav>
+  {
+    /*
+    Тонкий індикатор прогресу читання — спрямлена смужка зверху, яка заповнюється
+    в міру скролу через `<article>` + body + share. Лежить ВИЩЕ за sticky-header
+    (z-index 41 проти 40 у Header) і має `pointer-events: none`, щоб не ловити
+    кліки. Оновлюється у requestAnimationFrame під час `scroll` / `resize`.
+    Оптимізовано через `transform: scaleX()` + `will-change` — без layout-перекраски.
+  */
+  }
+  <div
+    class="reading-progress"
+    role="progressbar"
+    aria-label="Прогрес читання"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow="0"
+    data-reading-progress
+  >
+    <div class="reading-progress__bar" data-reading-progress-bar></div>
+  </div>
 
-      <p
-        class="text-accent-700 dark:text-accent-300 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
-      >
-        <a
-          href={`/subject/${subject.id}/`}
-          class="bg-accent-50 text-accent-700 hover:bg-accent-100 dark:bg-accent-900/40 dark:text-accent-200 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs uppercase transition"
-        >
-          <SubjectIcon subject={subject.id} />
-          <span>{subject.label}</span>
-        </a>
-        <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
-        <a
-          href={yearUrl(fact.data.yearOfEvent)}
-          class="text-ink-600 hover:text-accent-700 dark:text-ink-600 dark:hover:text-accent-300 font-mono text-xs tabular-nums underline-offset-2 hover:underline"
-        >
-          {fact.data.yearOfEvent}
-        </a>
-      </p>
-
-      <h1
-        class="font-display text-ink-900 dark:text-ink-900 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
-      >
-        {fact.data.title}
-      </h1>
-      <p class="text-ink-700 dark:text-ink-700 mt-4 max-w-prose text-lg leading-relaxed">
-        {fact.data.short}
-      </p>
-
-      <dl class="mt-6 grid gap-3 sm:grid-cols-3">
-        <div
-          class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
-        >
-          <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
-            Регіон
-          </dt>
-          <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">{regionLabel}</dd>
-        </div>
-        <div
-          class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
-        >
-          <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
-            Вплив
-          </dt>
-          <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">{impactLabel}</dd>
-        </div>
-        <div
-          class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
-        >
-          <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
-            Оновлено
-          </dt>
-          <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">
-            {updatedAt ? formatUkShortDate(updatedAt) : "Початкова версія"}
-          </dd>
-        </div>
-      </dl>
-
-      <div class="mt-6 flex flex-wrap gap-2" aria-label="Пов'язані ери">
-        {
-          relatedEras.map((era) => (
-            <a
-              href={eraUrl(era.slug)}
-              class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
-            >
-              {era.label}
-            </a>
-          ))
-        }
-      </div>
-    </div>
-  </article>
-
-  <section class="container-prose mt-12">
-    <div
-      class="shadow-card dark:bg-ink-800 border-ink-100 dark:border-ink-700 rounded-3xl border bg-white p-6 sm:p-8"
-    >
-      {
-        (fact.data.before || fact.data.after) && (
-          <dl class="border-ink-100 bg-ink-50/40 dark:border-ink-700 dark:bg-ink-900/40 mb-8 grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 sm:gap-4">
-            {fact.data.before && (
-              <div>
-                <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
-                  Було
-                </dt>
-                <dd class="text-ink-700 dark:text-ink-600 mt-1 text-sm leading-relaxed">
-                  {fact.data.before}
-                </dd>
-              </div>
-            )}
-            {fact.data.after && (
-              <div>
-                <dt class="text-accent-700 dark:text-accent-300 text-xs font-medium tracking-wider uppercase">
-                  Стало
-                </dt>
-                <dd class="text-ink-800 dark:text-ink-800 mt-1 text-sm leading-relaxed">
-                  {fact.data.after}
-                </dd>
-              </div>
-            )}
-          </dl>
-        )
-      }
-
-      <div
-        class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 dark:prose-invert dark:prose-a:text-accent-300 text-ink-800 dark:text-ink-700 max-w-none"
-      >
-        <Content />
-      </div>
-
-      {
-        fact.data.tags.length > 0 && (
-          <div class="mt-8 flex flex-wrap gap-2" aria-label="Теги">
-            {fact.data.tags.map((tag) => (
-              <span class="bg-ink-50 text-ink-600 dark:bg-ink-900 dark:text-ink-600 rounded-full px-3 py-1 text-xs font-medium">
-                #{tag}
+  <div data-reading-progress-track>
+    <article class="ruled-hero">
+      <div class="container-prose pt-12 pb-12 sm:pt-16">
+        <nav aria-label="Хлібні крихти" class="text-ink-500 dark:text-ink-400 text-sm">
+          <ol class="flex flex-wrap items-center gap-1.5">
+            <li>
+              <a
+                href="/"
+                class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+                aria-label="На головну"
+              >
+                Головна
+              </a>
+            </li>
+            <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
+            <li>
+              <a
+                href={`/subject/${subject.id}/`}
+                class="hover:text-ink-900 dark:hover:text-ink-100 underline-offset-2 hover:underline"
+              >
+                {subject.label}
+              </a>
+            </li>
+            <li aria-hidden="true" class="text-ink-300 dark:text-ink-600">›</li>
+            <li>
+              <span class="text-ink-700 dark:text-ink-700 font-medium" aria-current="page">
+                Факт
               </span>
-            ))}
-          </div>
-        )
-      }
+            </li>
+          </ol>
+        </nav>
 
-      <div class="border-ink-100 dark:border-ink-700 mt-8 border-t pt-5">
-        <h2 class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
-          Джерела
-        </h2>
-        <ul class="mt-3 space-y-2 text-sm">
+        <p
+          class="text-accent-700 dark:text-accent-300 mt-4 flex flex-wrap items-center gap-2 text-sm font-medium tracking-widest"
+        >
+          <a
+            href={`/subject/${subject.id}/`}
+            class="bg-accent-50 text-accent-700 hover:bg-accent-100 dark:bg-accent-900/40 dark:text-accent-200 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs uppercase transition"
+          >
+            <SubjectIcon subject={subject.id} />
+            <span>{subject.label}</span>
+          </a>
+          <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
+          <a
+            href={yearUrl(fact.data.yearOfEvent)}
+            class="text-ink-600 hover:text-accent-700 dark:text-ink-600 dark:hover:text-accent-300 font-mono text-xs tabular-nums underline-offset-2 hover:underline"
+          >
+            {fact.data.yearOfEvent}
+          </a>
+        </p>
+
+        <h1
+          class="font-display text-ink-900 dark:text-ink-900 mt-3 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl"
+        >
+          {fact.data.title}
+        </h1>
+        <p class="text-ink-700 dark:text-ink-700 mt-4 max-w-prose text-lg leading-relaxed">
+          {fact.data.short}
+        </p>
+
+        <dl class="mt-6 grid gap-3 sm:grid-cols-3">
+          <div
+            class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
+          >
+            <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
+              Регіон
+            </dt>
+            <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">{regionLabel}</dd>
+          </div>
+          <div
+            class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
+          >
+            <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
+              Вплив
+            </dt>
+            <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">{impactLabel}</dd>
+          </div>
+          <div
+            class="border-ink-100 dark:border-ink-700 dark:bg-ink-800 rounded-2xl border bg-white p-4"
+          >
+            <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
+              Оновлено
+            </dt>
+            <dd class="text-ink-900 dark:text-ink-900 mt-1 font-medium">
+              {updatedAt ? formatUkShortDate(updatedAt) : "Початкова версія"}
+            </dd>
+          </div>
+        </dl>
+
+        <div class="mt-6 flex flex-wrap gap-2" aria-label="Пов'язані ери">
           {
-            fact.data.sources.map((source) => (
-              <li>
-                <a
-                  class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
-                  href={source.url}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {source.title} ↗
-                </a>
-              </li>
+            relatedEras.map((era) => (
+              <a
+                href={eraUrl(era.slug)}
+                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center rounded-full border bg-white px-4 py-2 text-sm font-medium transition"
+              >
+                {era.label}
+              </a>
             ))
           }
-        </ul>
+        </div>
       </div>
-    </div>
-  </section>
+    </article>
 
-  <section class="container-prose mt-12" aria-labelledby="share-heading">
-    <div
-      class="border-ink-100 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border p-6 sm:p-8"
-    >
-      <h2
-        id="share-heading"
-        class="font-display text-ink-900 dark:text-ink-900 text-lg font-bold tracking-tight sm:text-xl"
-      >
-        Поділись фактом
-      </h2>
-      <p class="text-ink-600 dark:text-ink-600 mt-2 text-sm">
-        Надішли постійне посилання на цей факт.
-      </p>
+    <section class="container-prose mt-12">
       <div
-        id="fact-share-buttons"
-        class="mt-5 flex flex-wrap gap-2"
-        data-share-url={canonical}
-        data-share-text={shareText}
+        class="shadow-card dark:bg-ink-800 border-ink-100 dark:border-ink-700 rounded-3xl border bg-white p-6 sm:p-8"
       >
         {
-          shareTargets.map((target) => (
-            <a
-              href={target.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
-            >
-              <span aria-hidden="true">↗</span>
-              {target.label}
-            </a>
-          ))
+          (fact.data.before || fact.data.after) && (
+            <dl class="border-ink-100 bg-ink-50/40 dark:border-ink-700 dark:bg-ink-900/40 mb-8 grid gap-3 rounded-2xl border p-4 sm:grid-cols-2 sm:gap-4">
+              {fact.data.before && (
+                <div>
+                  <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
+                    Було
+                  </dt>
+                  <dd class="text-ink-700 dark:text-ink-600 mt-1 text-sm leading-relaxed">
+                    {fact.data.before}
+                  </dd>
+                </div>
+              )}
+              {fact.data.after && (
+                <div>
+                  <dt class="text-accent-700 dark:text-accent-300 text-xs font-medium tracking-wider uppercase">
+                    Стало
+                  </dt>
+                  <dd class="text-ink-800 dark:text-ink-800 mt-1 text-sm leading-relaxed">
+                    {fact.data.after}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          )
         }
-        <button
-          id="fact-share-copy-btn"
-          type="button"
-          class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
+
+        <div
+          class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 dark:prose-invert dark:prose-a:text-accent-300 text-ink-800 dark:text-ink-700 max-w-none"
         >
-          <span aria-hidden="true">⎘</span>
-          <span data-state="idle">Скопіювати посилання</span>
-        </button>
-        <button
-          id="fact-share-native-btn"
-          type="button"
-          hidden
-          class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
-        >
-          <span aria-hidden="true">↗</span>
-          Поділитись…
-        </button>
+          <Content />
+        </div>
+
+        {
+          fact.data.tags.length > 0 && (
+            <div class="mt-8 flex flex-wrap gap-2" aria-label="Теги">
+              {fact.data.tags.map((tag) => (
+                <span class="bg-ink-50 text-ink-600 dark:bg-ink-900 dark:text-ink-600 rounded-full px-3 py-1 text-xs font-medium">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )
+        }
+
+        <div class="border-ink-100 dark:border-ink-700 mt-8 border-t pt-5">
+          <h2 class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
+            Джерела
+          </h2>
+          <ul class="mt-3 space-y-2 text-sm">
+            {
+              fact.data.sources.map((source) => (
+                <li>
+                  <a
+                    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
+                    href={source.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {source.title} ↗
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
       </div>
-      <p
-        id="fact-share-status"
-        class="text-ink-500 dark:text-ink-400 mt-3 hidden text-sm"
-        role="status"
-        aria-live="polite"
+    </section>
+
+    <section class="container-prose mt-12" aria-labelledby="share-heading">
+      <div
+        class="border-ink-100 bg-paper-50 dark:border-ink-700 dark:bg-ink-800 rounded-3xl border p-6 sm:p-8"
       >
-      </p>
-    </div>
-  </section>
+        <h2
+          id="share-heading"
+          class="font-display text-ink-900 dark:text-ink-900 text-lg font-bold tracking-tight sm:text-xl"
+        >
+          Поділись фактом
+        </h2>
+        <p class="text-ink-600 dark:text-ink-600 mt-2 text-sm">
+          Надішли постійне посилання на цей факт.
+        </p>
+        <div
+          id="fact-share-buttons"
+          class="mt-5 flex flex-wrap gap-2"
+          data-share-url={canonical}
+          data-share-text={shareText}
+        >
+          {
+            shareTargets.map((target) => (
+              <a
+                href={target.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
+              >
+                <span aria-hidden="true">↗</span>
+                {target.label}
+              </a>
+            ))
+          }
+          <button
+            id="fact-share-copy-btn"
+            type="button"
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
+          >
+            <span aria-hidden="true">⎘</span>
+            <span data-state="idle">Скопіювати посилання</span>
+          </button>
+          <button
+            id="fact-share-native-btn"
+            type="button"
+            hidden
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition"
+          >
+            <span aria-hidden="true">↗</span>
+            Поділитись…
+          </button>
+        </div>
+        <p
+          id="fact-share-status"
+          class="text-ink-500 dark:text-ink-400 mt-3 hidden text-sm"
+          role="status"
+          aria-live="polite"
+        >
+        </p>
+      </div>
+    </section>
+  </div>
 
   <SupportBlock />
 </Base>
+
+<script is:inline>
+  // Reading progress: тонка смужка зверху, що заповнюється в міру скролу через
+  // `[data-reading-progress-track]` (article + body + share). Працює на rAF, щоб
+  // не блокувати scroll thread; passive listeners для plain-JS-у на мобільному.
+  (function () {
+    const bar = document.querySelector("[data-reading-progress-bar]");
+    const track = document.querySelector("[data-reading-progress-track]");
+    const meter = document.querySelector("[data-reading-progress]");
+    if (
+      !(bar instanceof HTMLElement) ||
+      !(track instanceof HTMLElement) ||
+      !(meter instanceof HTMLElement)
+    ) {
+      return;
+    }
+    let raf = 0;
+    function update() {
+      const rect = track.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      let progress = 0;
+      if (total > 0) {
+        progress = Math.max(0, Math.min(1, -rect.top / total));
+      } else if (rect.top <= 0) {
+        progress = 1;
+      }
+      bar.style.transform = "scaleX(" + progress + ")";
+      meter.setAttribute("aria-valuenow", String(Math.round(progress * 100)));
+    }
+    function onScroll() {
+      if (raf) return;
+      raf = window.requestAnimationFrame(function () {
+        raf = 0;
+        update();
+      });
+    }
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+  })();
+</script>
 
 <script is:inline>
   (function () {
