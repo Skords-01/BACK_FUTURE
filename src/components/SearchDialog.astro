@@ -1,0 +1,211 @@
+---
+// SearchDialog — lazy-loading pagefind search modal (Cmd/Ctrl+K or button).
+// /pagefind/ assets are generated at build time by `pagefind --site dist`.
+// Assets are dynamically injected only on first open — zero impact on initial load.
+---
+
+<button
+  id="search-open-btn"
+  type="button"
+  aria-label="Пошук (Ctrl+K)"
+  title="Пошук (Ctrl+K)"
+  class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex h-11 w-11 items-center justify-center rounded-full border transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+>
+  <svg
+    width="17"
+    height="17"
+    viewBox="0 0 20 20"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="8.5" cy="8.5" r="5.5"></circle>
+    <path d="M13.5 13.5L17 17"></path>
+  </svg>
+</button>
+
+<dialog id="search-dialog" aria-label="Пошук по сайту" class="search-dialog">
+  <div class="search-dialog__inner">
+    <div class="search-dialog__header">
+      <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase"
+        >Пошук</span
+      >
+      <button
+        id="search-close-btn"
+        type="button"
+        aria-label="Закрити пошук"
+        class="search-dialog__close"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M5 5l10 10M15 5L5 15"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="search-ui-mount"></div>
+  </div>
+</dialog>
+
+<style>
+  .search-dialog {
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+  .search-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+  }
+  .search-dialog:not([open]) {
+    display: none;
+  }
+  .search-dialog__inner {
+    background: var(--paper);
+    border-bottom: 1px solid var(--card-edge);
+    padding: 14px 16px 0;
+    max-height: 85dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  @media (min-width: 640px) {
+    .search-dialog {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 72px;
+    }
+    .search-dialog__inner {
+      width: 100%;
+      max-width: 640px;
+      border: 1px solid var(--card-edge);
+      border-radius: 10px;
+      box-shadow: var(--shadow-hi);
+    }
+  }
+  .search-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    flex-shrink: 0;
+  }
+  .search-dialog__close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--card-edge);
+    background: var(--paper-2);
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .search-dialog__close:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Pagefind UI theme — maps onto existing design tokens */
+  #search-ui-mount {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: var(--ink);
+    --pagefind-ui-background: var(--paper);
+    --pagefind-ui-border: var(--card-edge);
+    --pagefind-ui-tag: var(--card);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 4px;
+    --pagefind-ui-font: var(--font-sans);
+    padding-bottom: 16px;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var openBtn = document.getElementById("search-open-btn");
+    var closeBtn = document.getElementById("search-close-btn");
+    var dialog = document.getElementById("search-dialog");
+    if (!openBtn || !closeBtn || !(dialog instanceof HTMLDialogElement)) return;
+
+    var loaded = false;
+
+    function loadPagefind() {
+      if (loaded) return;
+      loaded = true;
+
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "/pagefind/pagefind-ui.css";
+      document.head.appendChild(link);
+
+      var script = document.createElement("script");
+      script.src = "/pagefind/pagefind-ui.js";
+      script.onload = function () {
+        if (typeof PagefindUI === "undefined") return;
+        new PagefindUI({
+          element: "#search-ui-mount",
+          showImages: false,
+          showSubResults: true,
+          translations: {
+            placeholder: "Введи запит: бозон, CRISPR, Голодомор…",
+            zero_results: "Нічого не знайдено за «[SEARCH_TERM]»",
+            many_results: "Знайдено [COUNT] результатів за «[SEARCH_TERM]»",
+            one_result: "Знайдено [COUNT] результат за «[SEARCH_TERM]»",
+            search_label: "Пошук по BACK_FUTURE",
+            filters_label: "Фільтри",
+          },
+        });
+      };
+      document.head.appendChild(script);
+    }
+
+    function openSearch() {
+      loadPagefind();
+      dialog.showModal();
+      setTimeout(function () {
+        var input = dialog.querySelector("input[type=text]");
+        if (input instanceof HTMLElement) input.focus();
+      }, 80);
+    }
+
+    openBtn.addEventListener("click", openSearch);
+
+    closeBtn.addEventListener("click", function () {
+      dialog.close();
+    });
+
+    dialog.addEventListener("click", function (e) {
+      if (e.target === dialog) dialog.close();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        openSearch();
+      }
+    });
+  })();
+</script>

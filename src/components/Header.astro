@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import { SITE } from "../config/site";
 import ThemeToggle from "./ThemeToggle.astro";
+import SearchDialog from "./SearchDialog.astro";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const factsCount = allFacts.length;
@@ -29,6 +30,7 @@ function isActive(href: string): boolean {
 const navLinks = [
   { href: "/", label: "Головна" },
   { href: "/timeline/", label: "Хронологія" },
+  { href: "/quiz/", label: "Квіз" },
   { href: "/metodologia/", label: "Методологія" },
   { href: "/about/", label: "Про проєкт" },
 ] as const;
@@ -82,6 +84,7 @@ const navLinks = [
         </ul>
       </nav>
 
+      <SearchDialog />
       <ThemeToggle />
 
       <button

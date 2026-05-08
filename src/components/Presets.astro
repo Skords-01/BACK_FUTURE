@@ -9,10 +9,12 @@ const presets = [
 
 <div class="grid gap-4 sm:grid-cols-3">
   {
-    presets.map((p) => (
+    presets.map((p, i) => (
       <a
         href={`/${p.year}/`}
         class="group hover:shadow-card-hover relative overflow-hidden rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-7 text-left transition hover:-translate-y-1 hover:border-[color:var(--accent)]"
+        data-reveal
+        style={`--reveal-delay: ${i * 90}ms`}
       >
         {/* dog-eared corner */}
         <span

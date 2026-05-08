@@ -84,7 +84,7 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
   <body class="bg-paper-50 text-ink-900 font-sans">
     <a href="#main-content" class="skip-link">Перейти до контенту</a>
     <Header />
-    <main id="main-content" tabindex="-1" class="pb-24">
+    <main id="main-content" tabindex="-1" class="pb-24" data-pagefind-body>
       <slot />
     </main>
     <Footer />
