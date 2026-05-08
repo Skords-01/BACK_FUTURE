@@ -51,7 +51,7 @@
 | 2.1                         | [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28) | Поля `before` / `after` у схемі + рендер у FactCard.                                      |
 | 2.2                         | [#36](https://github.com/Skords-01/BACK_FUTURE/pull/36) | Поле `region` (world / ukraine) + бейдж 🇺🇦 на FactCard.                                   |
 | 2.3                         | [#37](https://github.com/Skords-01/BACK_FUTURE/pull/37) | Поле `updatedAt` (ISO дата) + підпис «оновл. DD.MM.YYYY» на FactCard.                     |
-| 2.4                         | [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38) | Поле `impact` (low/medium/high) + бейдж «★ Веха» для high.                                |
+| 2.4                         | [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38) | Поле `impact` (low/medium/high) + бейдж «★ Віха» для high.                                |
 | 3.1                         | [#39](https://github.com/Skords-01/BACK_FUTURE/pull/39) | `/subject/[id]` — окрема стрічка по кожному предмету (5 сторінок).                        |
 | 3.3                         | [#35](https://github.com/Skords-01/BACK_FUTURE/pull/35) | Розширений fallback на `[year]` — теги фактів-«сусідів» з ери.                            |
 | 6.1                         | [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21) | Шер-кнопки (Telegram, X, FB, copy, native share) — раніше за залежність 3.4.              |
