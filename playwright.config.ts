@@ -21,5 +21,14 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "mobile-chrome",
+      // Pixel 7 виділено навмисно: 412×915 з devicePixelRatio=2.625 близько до
+      // реальних Android-флагманів і ширше за 375px iPhone, тому сценарії, що
+      // ламаються на 412px, гарантовано впадуть і на 375px. Ширина 375px
+      // окремо перевіряється у `mobile.spec.ts` через `page.setViewportSize`.
+      use: { ...devices["Pixel 7"] },
+      testMatch: /mobile\.spec\.ts/,
+    },
   ],
 });
