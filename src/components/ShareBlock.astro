@@ -12,7 +12,7 @@ const shareUrl = new URL(`/${year}/`, SITE.defaultUrl);
 const url = shareUrl.toString();
 const messageBase =
   factsCount > 0
-    ? `Я випустився ${year}-го й пропустив ${factsCount} оновлень у науці й історії.`
+    ? `Випустився ${year}-го. З тих пір пропустив ${factsCount} оновлень у науці й історії.`
     : `Як змінились наука й історія від випуску ${year}-го?`;
 const message = `${messageBase} ${SITE.tagline} — ${SITE.name}.`;
 
@@ -55,7 +55,7 @@ const targets = [
       Поділись цим випуском
     </h2>
     <p class="text-ink-600 mt-2 text-sm">
-      Хтось зі знайомих теж {year}-го? Надішли їм цей рік.
+      Зі знайомих теж випускники {year}-го? Поділись цим роком.
     </p>
 
     <a
@@ -116,7 +116,7 @@ const targets = [
         class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
       >
         <span aria-hidden="true">⎘</span>
-        <span data-state="idle">Скопіювати посилання</span>
+        <span data-state="idle" class="transition-colors">Скопіювати посилання</span>
       </button>
       <button
         id="share-native-btn"
