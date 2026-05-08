@@ -186,7 +186,7 @@ function eraIdForYear(y: number): EraId {
 
   <!-- Era jump-strip: на десктопі sticky згори, на мобілці статичний з горизонтальним скролом. -->
   <nav
-    class="border-ink-100 dark:border-ink-700 bg-paper-50/85 dark:bg-paper-100/85 supports-[backdrop-filter]:bg-paper-50/70 dark:supports-[backdrop-filter]:bg-paper-100/70 sticky top-0 z-30 border-y backdrop-blur"
+    class="border-ink-100 dark:border-ink-200 bg-paper-50/85 dark:bg-paper-100/85 supports-[backdrop-filter]:bg-paper-50/70 dark:supports-[backdrop-filter]:bg-paper-100/70 sticky top-0 z-30 border-y backdrop-blur"
     aria-label="Стрибок до ери"
   >
     <div
@@ -201,12 +201,14 @@ function eraIdForYear(y: number): EraId {
         eraSections.map((s) => (
           <a
             href={`#era-${s.era.id}`}
-            class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:border-ink-700 dark:bg-ink-800 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium whitespace-nowrap transition"
+            class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium whitespace-nowrap transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <span class="font-mono text-[11px] tabular-nums">{s.era.yearStart}</span>
-            <span class="text-ink-300 dark:text-ink-600">·</span>
+            <span class="text-ink-300 dark:text-ink-500" aria-hidden="true">
+              ·
+            </span>
             <span class="text-xs">{s.era.label.split(" (")[0]}</span>
-            <span class="text-ink-500 dark:text-ink-400 font-mono text-[10px] tabular-nums">
+            <span class="text-ink-500 dark:text-ink-500 font-mono text-[10px] tabular-nums">
               {s.years.reduce((acc, y) => acc + (factsByYear.get(y)?.length ?? 0), 0)}
             </span>
           </a>
