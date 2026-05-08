@@ -125,6 +125,104 @@ function Stamp({ children, rot = -3 }) {
   return <span className="stamp" style={{ transform: `rotate(${rot}deg)` }}>{children}</span>;
 }
 
+/* ---------- SEARCH ---------- */
+
+function SearchBar({ go }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef(null);
+
+  // Keyboard shortcut
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setOpen(true);
+      }
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [open]);
+
+  const results = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase();
+    return FACTS_2012_FORWARD.filter(f => 
+      f.t.toLowerCase().includes(q) || 
+      f.b.toLowerCase().includes(q) ||
+      SUBJECTS[f.s].name.toLowerCase().includes(q)
+    ).slice(0, 8);
+  }, [query]);
+
+  const handleSelect = (fact) => {
+    setOpen(false);
+    setQuery("");
+    go({ name: "year", year: fact.y });
+  };
+
+  if (!open) {
+    return (
+      <button className="search-trigger" onClick={() => setOpen(true)}>
+        <span className="search-trigger__icon">⌕</span>
+        <span className="search-trigger__text">Пошук...</span>
+        <span className="search-trigger__key">⌘K</span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="search-overlay" onClick={(e) => e.target === e.currentTarget && setOpen(false)}>
+      <div className="search-modal">
+        <div className="search-modal__input-wrap">
+          <span className="search-modal__icon">⌕</span>
+          <input
+            ref={inputRef}
+            type="text"
+            className="search-modal__input"
+            placeholder="Шукати факти, теми, роки..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button className="search-modal__close" onClick={() => setOpen(false)}>ESC</button>
+        </div>
+        <div className="search-modal__results">
+          {query && results.length === 0 && (
+            <div className="search-modal__empty">
+              Нічого не знайдено за запитом «{query}»
+            </div>
+          )}
+          {results.map((f, i) => (
+            <button key={i} className="search-modal__result" onClick={() => handleSelect(f)}>
+              <span className="search-modal__result-year">{f.y}</span>
+              <div className="search-modal__result-content">
+                <div className="search-modal__result-title">{f.t}</div>
+                <div className="search-modal__result-desc">{f.b}</div>
+              </div>
+              <span className="search-modal__result-chip" style={{ "--chip-color": SUBJECTS[f.s].color }}>
+                {SUBJECTS[f.s].code}
+              </span>
+            </button>
+          ))}
+          {!query && (
+            <div className="search-modal__empty">
+              Введи ключове слово: ChatGPT, війна, iPhone, космос...
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- HEADER ---------- */
 
 function Header({ theme, setTheme, route, go }) {
@@ -140,6 +238,7 @@ function Header({ theme, setTheme, route, go }) {
         <a onClick={() => go({ name: "year", year: 2012 })} className={route.name === "year" ? "is-on" : ""}>2012 — приклад</a>
         <a>Методологія</a>
         <a>Про проєкт</a>
+        <SearchBar go={go} />
         <button className="theme" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Тема">
           {theme === "dark" ? "☼ світло" : "☽ темно"}
         </button>
@@ -152,14 +251,28 @@ function Header({ theme, setTheme, route, go }) {
 
 function Home({ go }) {
   const [year, setYear] = useState(2012);
+  const [subjectFilter, setSubjectFilter] = useState("all");
   const era = eraOf(year);
   const yearsAgo = 2026 - year;
   const factCount = useMemo(() => 8 + Math.floor((2026 - year) * 3.2), [year]);
+  
+  // For hero pulse animation on era change
+  const heroRef = useRef(null);
+  const prevEraRef = useRef(era.id);
+  
+  useEffect(() => {
+    if (prevEraRef.current !== era.id && heroRef.current) {
+      heroRef.current.classList.add("pulse");
+      heroRef.current.style.setProperty("--era-color", era.color);
+      setTimeout(() => heroRef.current?.classList.remove("pulse"), 600);
+      prevEraRef.current = era.id;
+    }
+  }, [era]);
 
   return (
     <main className="home">
       {/* HERO */}
-      <section className="hero">
+      <section className="hero" ref={heroRef}>
         <div className="hero__rule"></div>
         <div className="hero__top">
           <span className="kicker">№ 001 · просвітницький журнал · українською</span>
@@ -183,7 +296,7 @@ function Home({ go }) {
             <span className="machine__l2">↓ обери рік випуску ↓</span>
           </div>
           <YearStepper value={year} setValue={setYear} />
-          <button className="machine__go" onClick={() => go({ name: "year", year })}>
+          <button className="machine__go" onClick={() => go({ name: "year", year, filter: subjectFilter })}>
             <span>↵ ПОЇХАЛИ</span>
             <span className="machine__go-sub">розрахувати</span>
           </button>
@@ -232,15 +345,41 @@ function Home({ go }) {
         <DensityStrip year={year} setYear={setYear} />
       </section>
 
-      {/* SUBJECTS */}
+      {/* SUBJECTS with filters */}
       <section className="block">
         <div className="block__head">
           <h2>Тематичні рубрики</h2>
-          <span className="block__hint">9 предметів · 120+ фактів у базі</span>
+          <span className="block__hint">9 предметів · обери для фільтрації</span>
         </div>
         <div className="subjects">
-          {Object.keys(SUBJECTS).map(k => <SubjectChip key={k} k={k} count={Math.floor(Math.random()*18)+6} />)}
+          {Object.keys(SUBJECTS).map(k => (
+            <button 
+              key={k} 
+              className={`chip ${subjectFilter === k ? "is-on" : ""}`}
+              style={{ "--chip-color": SUBJECTS[k].color }}
+              onClick={() => setSubjectFilter(subjectFilter === k ? "all" : k)}
+            >
+              <span className="chip__code">{SUBJECTS[k].code}</span>
+              <span className="chip__name">{SUBJECTS[k].name}</span>
+              <span className="chip__count">{FACTS_2012_FORWARD.filter(f => f.s === k).length}</span>
+            </button>
+          ))}
         </div>
+        {subjectFilter !== "all" && (
+          <div className="home-filters">
+            <span style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--muted)", marginRight: "8px" }}>
+              Фільтр: {SUBJECTS[subjectFilter].name}
+            </span>
+            <button onClick={() => setSubjectFilter("all")} style={{ 
+              fontFamily: "var(--mono)", 
+              fontSize: "11px", 
+              color: "var(--accent)",
+              textDecoration: "underline"
+            }}>
+              скинути
+            </button>
+          </div>
+        )}
       </section>
 
       {/* HOW IT WORKS */}
@@ -280,7 +419,14 @@ function Home({ go }) {
   );
 }
 
+// Get top facts for a specific year
+function getFactsForYear(y) {
+  return FACTS_2012_FORWARD.filter(f => f.y === y).slice(0, 3);
+}
+
 function DensityStrip({ year, setYear }) {
+  const [hoveredYear, setHoveredYear] = useState(null);
+  
   // Fake density 1991..2026
   const years = Array.from({length: 2026-1991+1}, (_,i)=>1991+i);
   const counts = years.map(y => {
@@ -291,6 +437,7 @@ function DensityStrip({ year, setYear }) {
     return Math.round(base + peak1 + peak2);
   });
   const max = Math.max(...counts);
+  
   return (
     <div className="density">
       {years.map((y, i) => {
@@ -298,17 +445,46 @@ function DensityStrip({ year, setYear }) {
         const h = (counts[i] / max) * 100;
         const active = y === year;
         const tick = y % 5 === 0;
+        const factsForYear = getFactsForYear(y);
+        const isHovered = hoveredYear === y;
+        
         return (
           <button
             key={y}
             className={`density__bar ${active ? "is-on" : ""}`}
             onClick={() => setYear(y)}
+            onMouseEnter={() => setHoveredYear(y)}
+            onMouseLeave={() => setHoveredYear(null)}
             style={{ "--h": `${h}%`, "--c": era.color }}
             aria-label={`${y} рік`}
-            title={`${y} · ${counts[i]} фактів`}
           >
             <span className="density__cap" />
             {tick && <span className="density__year">{y}</span>}
+            
+            {/* Tooltip */}
+            {isHovered && (
+              <div className="density__tooltip" style={{ "--c": era.color }}>
+                <div className="density__tooltip-year">
+                  {y}
+                  <span className="density__tooltip-count">{counts[i]} фактів</span>
+                </div>
+                {factsForYear.length > 0 ? (
+                  <div className="density__tooltip-facts">
+                    {factsForYear.map((f, idx) => (
+                      <div key={idx} className="density__tooltip-fact" style={{ "--c": SUBJECTS[f.s].color }}>
+                        {f.t}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="density__tooltip-facts">
+                    <div className="density__tooltip-fact">
+                      Епоха «{era.name}»
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </button>
         );
       })}
@@ -318,8 +494,8 @@ function DensityStrip({ year, setYear }) {
 
 /* ---------- YEAR PAGE ---------- */
 
-function YearPage({ year, go }) {
-  const [filter, setFilter] = useState("all");
+function YearPage({ year, go, initialFilter = "all" }) {
+  const [filter, setFilter] = useState(initialFilter);
   const era = eraOf(year);
   const yearsAgo = 2026 - year;
   const facts = FACTS_2012_FORWARD;
@@ -483,7 +659,7 @@ function App() {
     <div className="app">
       <Header theme={theme} setTheme={setTheme} route={route} go={go} />
       {route.name === "home" && <Home go={go} />}
-      {route.name === "year" && <YearPage year={route.year || 2012} go={go} />}
+      {route.name === "year" && <YearPage year={route.year || 2012} go={go} initialFilter={route.filter || "all"} />}
     </div>
   );
 }
