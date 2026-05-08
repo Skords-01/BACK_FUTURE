@@ -169,6 +169,22 @@
           element: "#search-ui-mount",
           showImages: false,
           showSubResults: true,
+          // Wrap each whitespace-separated term in double quotes so Pagefind
+          // matches whole words instead of falling back to shorter prefixes
+          // (e.g. searching "голка" must NOT match "гол").
+          processTerm: function (term) {
+            if (typeof term !== "string") return term;
+            var trimmed = term.trim();
+            if (!trimmed) return trimmed;
+            // If user already used quotes, leave as-is.
+            if (/["“”]/.test(trimmed)) return trimmed;
+            return trimmed
+              .split(/\s+/)
+              .map(function (w) {
+                return w.length > 0 ? '"' + w + '"' : w;
+              })
+              .join(" ");
+          },
           translations: {
             placeholder: "Введи запит: бозон, CRISPR, Голодомор…",
             zero_results: "Нічого не знайдено за «[SEARCH_TERM]»",
