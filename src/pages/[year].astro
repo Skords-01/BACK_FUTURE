@@ -255,7 +255,12 @@ const subjectCounts = SUBJECTS.map((s) => ({
     .forEach((el) => readObserver.observe(el));
 </script>
 
-<script define:vars={{ prevYear: year > SITE.yearMin ? year - 1 : null, nextYear: year < SITE.yearMax ? year + 1 : null }}>
+<script
+  define:vars={{
+    prevYear: year > SITE.yearMin ? year - 1 : null,
+    nextYear: year < SITE.yearMax ? year + 1 : null,
+  }}
+>
   // Keyboard navigation: ← prev year, → next year
   document.addEventListener("keydown", function (e) {
     var tag = e.target && e.target.tagName;
