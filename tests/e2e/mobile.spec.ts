@@ -63,6 +63,33 @@ test.describe("mobile @375px", () => {
     await expect(nav.getByRole("link", { name: "Про проєкт" })).toBeVisible();
   });
 
+  test("sticky header keeps stuck to viewport top after scroll", async ({ page }) => {
+    // Регресія: коли на <body> стояв `overflow-x: hidden` (через Tailwind-клас
+    // у Base.astro) або `overflow-x: clip` у global.css, Chromium на mobile
+    // робив body окремим scroll-container-ом, і `position: sticky` хедера
+    // переставав прилипати — він просто скролився разом зі сторінкою.
+    // Цей тест ловить регресію на найкритичнішому ширині.
+    await page.goto("/2003/");
+    const header = page.locator("header").first();
+    await expect(header).toBeVisible();
+
+    // До скролу — sticky-хедер вгорі (top ≈ 0).
+    const topBefore = await header.evaluate((el) => el.getBoundingClientRect().top);
+    expect(topBefore).toBeLessThanOrEqual(1);
+
+    // Скролимо вниз достатньо, щоб виявити broken sticky.
+    await page.evaluate(() => {
+      const el = document.scrollingElement || document.documentElement;
+      el.scrollTop = 800;
+    });
+
+    const topAfter = await header.evaluate((el) => el.getBoundingClientRect().top);
+    expect(topAfter).toBeLessThanOrEqual(1);
+    // Якщо sticky зламана, topAfter буде ≈ -800 (хедер виїхав з viewport-у).
+    // Поріг 50px дає простір для round-up при rendering.
+    expect(topAfter).toBeGreaterThan(-50);
+  });
+
   test("filters layout adapts on narrow viewport", async ({ page }) => {
     await page.goto("/2003/");
     const filtersForm = page.locator("[data-year-filters]");
