@@ -21,9 +21,11 @@ const year = new Date().getFullYear();
 
       <!-- Project column -->
       <div>
-        <p class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+        <h2
+          class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase"
+        >
           Проєкт
-        </p>
+        </h2>
         <ul class="space-y-2 text-sm">
           <li>
             <a
@@ -73,9 +75,10 @@ const year = new Date().getFullYear();
               href={SITE.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="GitHub (відкривається в новій вкладці)"
               class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
             >
-              GitHub ↗
+              GitHub <span aria-hidden="true">↗</span>
             </a>
           </li>
         </ul>
@@ -83,9 +86,11 @@ const year = new Date().getFullYear();
 
       <!-- Support column -->
       <div>
-        <p class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+        <h2
+          class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase"
+        >
           Підтримати
-        </p>
+        </h2>
         <p class="mb-4 text-sm leading-relaxed text-[color:var(--ink-2)]">
           Проєкт безкоштовний і без реклами. Якщо подобається — пригости кавою.
         </p>

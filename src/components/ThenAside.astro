@@ -13,7 +13,9 @@ const epochEntries = await getCollection("epoch");
 
 // Find closest epoch year (prefer same year, then nearest)
 const sorted = epochEntries.slice().sort((a, b) => {
-  return Math.abs(a.data.year - year) - Math.abs(b.data.year - year);
+  const da = Math.abs(a.data.year - year);
+  const db = Math.abs(b.data.year - year);
+  return da - db || a.data.year - b.data.year;
 });
 const entry = sorted[0];
 const items = entry?.data.items ?? [];

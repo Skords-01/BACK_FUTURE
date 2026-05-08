@@ -113,9 +113,11 @@ const available = SUBJECTS.filter((s) => {
     );
     const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-timeline-subject]"));
 
+    const knownSubjects = new Set(subjectBtns.map((b) => b.dataset.filterSubject));
     function getActiveSubject(): string | null {
       const hash = location.hash.slice(1);
-      return hash || null;
+      if (!hash) return null;
+      return knownSubjects.has(hash) ? hash : null;
     }
 
     function applyFilter(subject: string | null) {
@@ -131,7 +133,7 @@ const available = SUBJECTS.filter((s) => {
     }
 
     allBtn?.addEventListener("click", () => {
-      history.replaceState(null, "", location.pathname);
+      history.replaceState(null, "", location.pathname + location.search);
       applyFilter(null);
     });
 
@@ -140,10 +142,10 @@ const available = SUBJECTS.filter((s) => {
         const subject = btn.dataset.filterSubject ?? null;
         const current = getActiveSubject();
         if (current === subject) {
-          history.replaceState(null, "", location.pathname);
+          history.replaceState(null, "", location.pathname + location.search);
           applyFilter(null);
         } else {
-          history.replaceState(null, "", `#${subject}`);
+          history.replaceState(null, "", `${location.pathname}${location.search}#${subject}`);
           applyFilter(subject);
         }
       });

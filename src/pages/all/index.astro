@@ -4,33 +4,17 @@ import FactCard from "../../components/FactCard.astro";
 import { getCollection } from "astro:content";
 import { SUBJECTS, SITE } from "../../config/site";
 import { ERAS } from "../../lib/eras";
-import type { EraId } from "../../lib/eras";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 
-// Parse URL query params for filtering
-const url = new URL(Astro.request.url);
-const qSubject = url.searchParams.get("subject") ?? "";
-const qEra = url.searchParams.get("era") ?? "";
-
-let filtered = allFacts.slice().sort((a, b) => {
+const sorted = allFacts.slice().sort((a, b) => {
   if (b.data.yearOfEvent !== a.data.yearOfEvent) {
     return b.data.yearOfEvent - a.data.yearOfEvent;
   }
   return a.id.localeCompare(b.id);
 });
 
-if (qSubject) {
-  filtered = filtered.filter((f) => f.data.subject === qSubject);
-}
-if (qEra) {
-  const eraId = Number(qEra) as EraId;
-  filtered = filtered.filter((f) => f.data.relevantForEras.includes(eraId));
-}
-
-const totalFacts = allFacts.length;
-const filteredCount = filtered.length;
-
+const totalFacts = sorted.length;
 const description = `Усі ${totalFacts} фактів про науку, історію і світ від ${SITE.yearMin} року. Фільтруй за предметом або епохою.`;
 ---
 
@@ -53,20 +37,21 @@ const description = `Усі ${totalFacts} фактів про науку, іст
       </p>
     </div>
 
-    <!-- Filters -->
-    <form method="get" action="/all/" class="mb-8 flex flex-wrap gap-3">
+    <!-- Filters (client-side) -->
+    <form id="all-filters" class="mb-8 flex flex-wrap gap-3">
       <label class="flex flex-col gap-1">
         <span class="font-mono text-[10px] tracking-widest text-[color:var(--muted)] uppercase">
           Предмет
         </span>
         <select
+          id="filter-subject"
           name="subject"
           class="min-h-10 rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] px-3 py-2 font-mono text-sm text-[color:var(--ink)]"
         >
-          <option value="" selected={!qSubject}>Усі предмети</option>
+          <option value="">Усі предмети</option>
           {
             SUBJECTS.map((s) => (
-              <option value={s.id} selected={qSubject === s.id}>
+              <option value={s.id}>
                 {s.mark} · {s.label}
               </option>
             ))
@@ -78,13 +63,14 @@ const description = `Усі ${totalFacts} фактів про науку, іст
           Епоха
         </span>
         <select
+          id="filter-era"
           name="era"
           class="min-h-10 rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] px-3 py-2 font-mono text-sm text-[color:var(--ink)]"
         >
-          <option value="" selected={!qEra}>Усі епохи</option>
+          <option value="">Усі епохи</option>
           {
             ERAS.map((e) => (
-              <option value={String(e.id)} selected={qEra === String(e.id)}>
+              <option value={String(e.id)}>
                 {e.name} ({e.short})
               </option>
             ))
@@ -98,46 +84,102 @@ const description = `Усі ${totalFacts} фактів про науку, іст
         >
           Фільтрувати
         </button>
-        {
-          (qSubject || qEra) && (
-            <a
-              href="/all/"
-              class="flex min-h-10 items-center rounded-sm border border-[color:var(--card-edge)] px-4 py-2 font-mono text-sm text-[color:var(--muted)] transition hover:text-[color:var(--ink)]"
-            >
-              Скинути
-            </a>
-          )
-        }
+        <button
+          type="button"
+          id="filter-reset"
+          class="flex min-h-10 items-center rounded-sm border border-[color:var(--card-edge)] px-4 py-2 font-mono text-sm text-[color:var(--muted)] transition hover:text-[color:var(--ink)]"
+        >
+          Скинути
+        </button>
       </div>
     </form>
 
     <!-- Result count -->
-    <p class="mb-6 font-mono text-xs text-[color:var(--muted)]">
-      {qSubject || qEra ? `Показано ${filteredCount} з ${totalFacts}` : `${totalFacts} фактів`}
+    <p id="all-count" class="mb-6 font-mono text-xs text-[color:var(--muted)]">
+      {totalFacts} фактів
     </p>
 
     <!-- Facts grid -->
-    {
-      filtered.length > 0 ? (
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((f) => (
+    <div id="all-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        sorted.map((f) => (
+          <div data-subject={f.data.subject} data-eras={JSON.stringify(f.data.relevantForEras)}>
             <FactCard fact={f} />
-          ))}
-        </div>
-      ) : (
-        <div class="rounded-sm border border-dashed border-[color:var(--card-edge)] p-12 text-center">
-          <p class="font-display text-xl font-semibold text-[color:var(--ink)]">
-            Нічого не знайдено.
-          </p>
-          <p class="mt-2 text-[color:var(--ink-2)]">Спробуй інші фільтри.</p>
-          <a
-            href="/all/"
-            class="mt-4 inline-block font-mono text-sm text-[color:var(--accent)] hover:underline"
-          >
-            Скинути →
-          </a>
-        </div>
-      )
-    }
+          </div>
+        ))
+      }
+    </div>
+
+    <div
+      id="all-empty"
+      class="hidden rounded-sm border border-dashed border-[color:var(--card-edge)] p-12 text-center"
+    >
+      <p class="font-display text-xl font-semibold text-[color:var(--ink)]">Нічого не знайдено.</p>
+      <p class="mt-2 text-[color:var(--ink-2)]">Спробуй інші фільтри.</p>
+    </div>
   </div>
 </Base>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const subjectEl = document.getElementById("filter-subject") as HTMLSelectElement | null;
+  const eraEl = document.getElementById("filter-era") as HTMLSelectElement | null;
+  const countEl = document.getElementById("all-count");
+  const grid = document.getElementById("all-grid");
+  const emptyEl = document.getElementById("all-empty");
+  const form = document.getElementById("all-filters");
+  const resetBtn = document.getElementById("filter-reset");
+
+  // Restore selects from URL params
+  if (subjectEl && params.has("subject")) subjectEl.value = params.get("subject")!;
+  if (eraEl && params.has("era")) eraEl.value = params.get("era")!;
+
+  function applyFilters() {
+    const subject = subjectEl?.value ?? "";
+    const era = eraEl?.value ?? "";
+    const cards = grid?.querySelectorAll<HTMLElement>("[data-subject]") ?? [];
+
+    let shown = 0;
+    cards.forEach((card) => {
+      const matchSubject = !subject || card.dataset.subject === subject;
+      const matchEra =
+        !era ||
+        (() => {
+          try {
+            return (JSON.parse(card.dataset.eras ?? "[]") as number[]).includes(Number(era));
+          } catch {
+            return false;
+          }
+        })();
+      const visible = matchSubject && matchEra;
+      card.hidden = !visible;
+      if (visible) shown++;
+    });
+
+    const total = cards.length;
+    if (countEl) {
+      countEl.textContent = subject || era ? `Показано ${shown} з ${total}` : `${total} фактів`;
+    }
+    if (emptyEl) emptyEl.classList.toggle("hidden", shown > 0);
+    if (grid) grid.classList.toggle("hidden", shown === 0);
+  }
+
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const newParams = new URLSearchParams();
+    if (subjectEl?.value) newParams.set("subject", subjectEl.value);
+    if (eraEl?.value) newParams.set("era", eraEl.value);
+    const qs = newParams.toString();
+    history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
+    applyFilters();
+  });
+
+  resetBtn?.addEventListener("click", () => {
+    if (subjectEl) subjectEl.value = "";
+    if (eraEl) eraEl.value = "";
+    history.replaceState(null, "", location.pathname);
+    applyFilters();
+  });
+
+  applyFilters();
+</script>

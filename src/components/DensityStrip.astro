@@ -8,10 +8,12 @@ import { SITE } from "../config/site";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 
-// Count facts by yearOfEvent
+// Count facts by yearOfEvent — single pass O(facts)
 const counts: Record<number, number> = {};
-for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
-  counts[y] = allFacts.filter((f) => f.data.yearOfEvent === y).length;
+for (let y = SITE.yearMin; y <= SITE.yearMax; y++) counts[y] = 0;
+for (const f of allFacts) {
+  const y = f.data.yearOfEvent;
+  if (y >= SITE.yearMin && y <= SITE.yearMax) counts[y]++;
 }
 
 const years = Array.from({ length: SITE.yearMax - SITE.yearMin + 1 }, (_, i) => SITE.yearMin + i);
@@ -41,8 +43,20 @@ const { activeYear } = Astro.props;
           role="listitem"
           class={`density__bar group relative flex flex-1 items-end${isActive ? " is-on" : ""}`}
           style={`--c: ${era.color}`}
-          aria-label={`${year} рік, ${count} ${count === 1 ? "факт" : "фактів"}`}
-          title={`${year} · ${count} фактів`}
+          aria-label={`${year} рік, ${count} ${(() => {
+            const m10 = count % 10,
+              m100 = count % 100;
+            if (m10 === 1 && m100 !== 11) return "факт";
+            if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
+            return "фактів";
+          })()}`}
+          title={`${year} · ${count} ${(() => {
+            const m10 = count % 10,
+              m100 = count % 100;
+            if (m10 === 1 && m100 !== 11) return "факт";
+            if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
+            return "фактів";
+          })()}`}
         >
           <span class="density__cap" style={`--h: ${hPct}%`} />
           {showTick && (

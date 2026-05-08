@@ -1,6 +1,8 @@
 ---
 // MissedCounter — shows how many discoveries the user missed + era name.
 // Updated reactively via year:change event.
+import { ERAS } from "../lib/eras";
+
 interface Props {
   defaultYear?: number;
   factsFromYear: Record<number, number>; // yearOfGraduation → count of facts since then
@@ -9,6 +11,14 @@ const { defaultYear = 2012, factsFromYear } = Astro.props;
 const currentYear = new Date().getFullYear();
 const defaultCount = factsFromYear[defaultYear] ?? 0;
 const defaultYearsAgo = currentYear - defaultYear;
+
+const erasForClient = ERAS.map((e) => ({
+  id: e.id,
+  name: e.name,
+  color: e.color,
+  yearStart: e.yearStart,
+  yearEnd: e.yearEnd,
+}));
 
 function pluralize(n: number): string {
   const m10 = n % 10;
@@ -23,6 +33,7 @@ function pluralize(n: number): string {
   class="mb-6 flex items-center gap-7 border-l-4 border-[color:var(--accent)] bg-[color:var(--paper-2)] px-7 py-6"
   id="missed-counter"
   data-facts-map={JSON.stringify(factsFromYear)}
+  data-eras={JSON.stringify(erasForClient)}
   data-year-max={currentYear}
 >
   <div
@@ -44,17 +55,18 @@ function pluralize(n: number): string {
 </div>
 
 <script>
-  // ERAS lookup table for client-side era name/color resolution
-  const ERAS = [
-    { id: 1, range: [1991, 1995], name: "Незалежність і модем", color: "#3b6e8f" },
-    { id: 2, range: [1996, 2003], name: "Євро, флешки, MP3", color: "#c89034" },
-    { id: 3, range: [2004, 2010], name: "Смартфон і соцмережа", color: "#7a8b3a" },
-    { id: 4, range: [2011, 2017], name: "Війна на сході, e-Україна", color: "#a02f15" },
-    { id: 5, range: [2022, 2026], name: "Велика війна і ШІ", color: "#5e3a7a" },
-  ] as const;
+  type EraEntry = { id: number; name: string; color: string; yearStart: number; yearEnd: number };
+  const container = document.getElementById("missed-counter");
+  let erasData: EraEntry[] = [];
+  try {
+    erasData = JSON.parse(container?.dataset.eras ?? "[]");
+  } catch {}
 
-  function eraOf(year: number) {
-    return ERAS.find((e) => year >= e.range[0] && year <= e.range[1]) ?? ERAS[ERAS.length - 1]!;
+  function eraOf(year: number): EraEntry {
+    return (
+      erasData.find((e) => year >= e.yearStart && year <= e.yearEnd) ??
+      erasData[erasData.length - 1]!
+    );
   }
 
   function pluralize(n: number): string {
@@ -65,7 +77,6 @@ function pluralize(n: number): string {
     return "років";
   }
 
-  const container = document.getElementById("missed-counter");
   const numEl = document.getElementById("counter-num");
   const yearsEl = document.getElementById("counter-years");
   const yearsWordEl = document.getElementById("counter-years-word");
