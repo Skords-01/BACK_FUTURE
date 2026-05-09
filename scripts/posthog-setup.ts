@@ -19,6 +19,10 @@
  * Скрипт ідемпотентний: повторні запуски НЕ створюють дублікати — він шукає
  * існуючі сутності за `name` і оновлює їх. Якщо хочеш скинути все —
  * видали дешборд і tiles вручну в UI.
+ *
+ * Використовує сучасний query-based API PostHog (InsightVizNode →
+ * TrendsQuery/FunnelsQuery). Legacy `filters` shape більше не підтримується
+ * для нових юзерів — лише query.
  */
 
 const HOST = (process.env.POSTHOG_HOST ?? "https://eu.posthog.com").replace(/\/+$/, "");
@@ -43,6 +47,7 @@ interface PostHogListResponse<T> {
 
 interface Insight {
   id: number;
+  short_id?: string;
   name: string;
   description?: string | null;
   tags?: string[];
@@ -107,7 +112,7 @@ async function ensureDashboard(): Promise<Dashboard> {
 interface InsightSpec {
   name: string;
   description: string;
-  filters: Record<string, unknown>;
+  query: Record<string, unknown>;
 }
 
 async function upsertInsight(spec: InsightSpec, dashboardId: number): Promise<Insight> {
@@ -118,7 +123,7 @@ async function upsertInsight(spec: InsightSpec, dashboardId: number): Promise<In
       body: JSON.stringify({
         name: spec.name,
         description: spec.description,
-        filters: spec.filters,
+        query: spec.query,
         tags: [TAG],
         dashboards: [dashboardId],
       }),
@@ -131,7 +136,7 @@ async function upsertInsight(spec: InsightSpec, dashboardId: number): Promise<In
     body: JSON.stringify({
       name: spec.name,
       description: spec.description,
-      filters: spec.filters,
+      query: spec.query,
       tags: [TAG],
       dashboards: [dashboardId],
       saved: true,
@@ -141,248 +146,196 @@ async function upsertInsight(spec: InsightSpec, dashboardId: number): Promise<In
   return created;
 }
 
-// ── Specs ──────────────────────────────────────────────────────────────────
+// ── Query helpers (PostHog InsightVizNode schema) ──────────────────────────
 
-const SUPPORTED_FUNNEL_INTERVAL_UNIT = "day";
+interface EventsNode {
+  kind: "EventsNode";
+  event: string;
+  name?: string;
+  math?: "total";
+  properties?: Array<Record<string, unknown>>;
+}
 
-function pageviewStep(order: number, pathname?: string): Record<string, unknown> {
+function ev(event: string, properties?: Array<Record<string, unknown>>): EventsNode {
+  const node: EventsNode = { kind: "EventsNode", event, name: event };
+  if (properties && properties.length > 0) node.properties = properties;
+  return node;
+}
+
+function pageview(pathname?: string): EventsNode {
   const props: Array<Record<string, unknown>> = [];
   if (pathname) {
+    const isRegex = pathname.startsWith("^") || pathname.includes("\\");
     props.push({
       key: "$pathname",
       value: pathname,
-      operator: pathname.includes("\\") || pathname.startsWith("^") ? "regex" : "exact",
+      operator: isRegex ? "regex" : "exact",
       type: "event",
     });
   }
+  return ev("$pageview", props);
+}
+
+function trendsQuery(opts: {
+  series: EventsNode[];
+  display?: string;
+  interval?: "day" | "week" | "month";
+  breakdown?: { property: string; type?: "event" };
+  dateFrom?: string;
+}): Record<string, unknown> {
+  const source: Record<string, unknown> = {
+    kind: "TrendsQuery",
+    series: opts.series.map((s) => ({ ...s, math: s.math ?? "total" })),
+    interval: opts.interval ?? "day",
+    dateRange: { date_from: opts.dateFrom ?? "-30d" },
+    trendsFilter: { display: opts.display ?? "ActionsLineGraph" },
+  };
+  if (opts.breakdown) {
+    source.breakdownFilter = {
+      breakdown: opts.breakdown.property,
+      breakdown_type: opts.breakdown.type ?? "event",
+    };
+  }
+  return { kind: "InsightVizNode", source };
+}
+
+function funnelsQuery(opts: {
+  series: EventsNode[];
+  windowInterval?: number;
+  windowUnit?: "minute" | "hour" | "day" | "week" | "month";
+  dateFrom?: string;
+}): Record<string, unknown> {
   return {
-    id: "$pageview",
-    name: "$pageview",
-    type: "events",
-    order,
-    properties: props,
+    kind: "InsightVizNode",
+    source: {
+      kind: "FunnelsQuery",
+      series: opts.series,
+      dateRange: { date_from: opts.dateFrom ?? "-30d" },
+      funnelsFilter: {
+        funnelVizType: "steps",
+        funnelWindowInterval: opts.windowInterval ?? 1,
+        funnelWindowIntervalUnit: opts.windowUnit ?? "day",
+      },
+    },
   };
 }
 
-function eventStep(name: string, order: number): Record<string, unknown> {
-  return { id: name, name, type: "events", order };
-}
+// ── Specs ──────────────────────────────────────────────────────────────────
 
 const INSIGHTS: InsightSpec[] = [
   // 1. Conversion funnel: home pageview → year submit → year-page pageview
   {
     name: "Funnel · Visitor → Year submitted → Year page",
     description: "Чи доходять відвідувачі до сабміту року й завантаження /<year>/.",
-    filters: {
-      insight: "FUNNELS",
-      funnel_viz_type: "steps",
-      funnel_window_interval: 1,
-      funnel_window_interval_unit: SUPPORTED_FUNNEL_INTERVAL_UNIT,
-      events: [pageviewStep(0, "/"), eventStep("year_submitted", 1), pageviewStep(2, "^/\\d{4}/$")],
-      date_from: "-30d",
-    },
+    query: funnelsQuery({
+      series: [pageview("/"), ev("year_submitted"), pageview("^/\\d{4}/$")],
+    }),
   },
 
   // 2. Engagement funnel: year submit → fact card click → share
   {
     name: "Funnel · Year → Fact click → Share",
     description: "Чи перетворюються рік-сесії на engagement (клік факту → шер).",
-    filters: {
-      insight: "FUNNELS",
-      funnel_viz_type: "steps",
-      funnel_window_interval: 7,
-      funnel_window_interval_unit: SUPPORTED_FUNNEL_INTERVAL_UNIT,
-      events: [
-        eventStep("year_submitted", 0),
-        eventStep("fact_card_clicked", 1),
-        eventStep("share_clicked", 2),
-      ],
-      date_from: "-30d",
-    },
+    query: funnelsQuery({
+      series: [ev("year_submitted"), ev("fact_card_clicked"), ev("share_clicked")],
+      windowInterval: 7,
+    }),
   },
 
   // 3. Quiz funnel
   {
     name: "Funnel · Quiz started → answered → finished",
     description: "Скільки юзерів проходять квіз до кінця.",
-    filters: {
-      insight: "FUNNELS",
-      funnel_viz_type: "steps",
-      funnel_window_interval: 1,
-      funnel_window_interval_unit: SUPPORTED_FUNNEL_INTERVAL_UNIT,
-      events: [
-        eventStep("quiz_started", 0),
-        eventStep("quiz_question_answered", 1),
-        eventStep("quiz_finished", 2),
-      ],
-      date_from: "-30d",
-    },
+    query: funnelsQuery({
+      series: [ev("quiz_started"), ev("quiz_question_answered"), ev("quiz_finished")],
+    }),
   },
 
   // 4. Support funnel
   {
     name: "Funnel · Year page → Support clicked",
     description: "Конверсія в support (Monobank / BMC) з рік-сторінок.",
-    filters: {
-      insight: "FUNNELS",
-      funnel_viz_type: "steps",
-      funnel_window_interval: 7,
-      funnel_window_interval_unit: SUPPORTED_FUNNEL_INTERVAL_UNIT,
-      events: [pageviewStep(0, "^/\\d{4}/$"), eventStep("support_clicked", 1)],
-      date_from: "-30d",
-    },
+    query: funnelsQuery({
+      series: [pageview("^/\\d{4}/$"), ev("support_clicked")],
+      windowInterval: 7,
+    }),
   },
 
   // 5. Top years submitted (bar by `year` property)
   {
     name: "Trend · Top years submitted",
     description: "Розподіл років, які юзери вводять на головній.",
-    filters: {
-      insight: "TRENDS",
+    query: trendsQuery({
+      series: [ev("year_submitted")],
       display: "ActionsBarValue",
-      breakdown: "year",
-      breakdown_type: "event",
-      events: [
-        {
-          id: "year_submitted",
-          name: "year_submitted",
-          type: "events",
-          math: "total",
-        },
-      ],
-      date_from: "-30d",
-    },
+      breakdown: { property: "year" },
+    }),
   },
 
   // 6. Top subjects clicked
   {
     name: "Trend · Top subjects clicked",
     description: "Які предмети юзери відкривають частіше.",
-    filters: {
-      insight: "TRENDS",
+    query: trendsQuery({
+      series: [ev("fact_card_clicked")],
       display: "ActionsBarValue",
-      breakdown: "subject",
-      breakdown_type: "event",
-      events: [
-        {
-          id: "fact_card_clicked",
-          name: "fact_card_clicked",
-          type: "events",
-          math: "total",
-        },
-      ],
-      date_from: "-30d",
-    },
+      breakdown: { property: "subject" },
+    }),
   },
 
   // 7. Quiz score distribution
   {
     name: "Trend · Quiz final score distribution",
     description: "Гістограма фінального скору квізу.",
-    filters: {
-      insight: "TRENDS",
+    query: trendsQuery({
+      series: [ev("quiz_finished")],
       display: "ActionsBarValue",
-      breakdown: "score",
-      breakdown_type: "event",
-      events: [
-        {
-          id: "quiz_finished",
-          name: "quiz_finished",
-          type: "events",
-          math: "total",
-        },
-      ],
-      date_from: "-30d",
-    },
+      breakdown: { property: "score" },
+    }),
   },
 
   // 8. Top outbound hosts
   {
     name: "Trend · Top outbound hosts",
     description: "Куди юзери йдуть з сайту (першоджерела + соцмережі).",
-    filters: {
-      insight: "TRENDS",
+    query: trendsQuery({
+      series: [ev("outbound_link_clicked"), ev("fact_source_clicked")],
       display: "ActionsTable",
-      breakdown: "host",
-      breakdown_type: "event",
-      events: [
-        {
-          id: "outbound_link_clicked",
-          name: "outbound_link_clicked",
-          type: "events",
-          math: "total",
-        },
-        {
-          id: "fact_source_clicked",
-          name: "fact_source_clicked",
-          type: "events",
-          math: "total",
-        },
-      ],
-      date_from: "-30d",
-    },
+      breakdown: { property: "host" },
+    }),
   },
 
   // 9. Share targets breakdown
   {
     name: "Trend · Share targets",
     description: "Який канал шерингу найпопулярніший.",
-    filters: {
-      insight: "TRENDS",
+    query: trendsQuery({
+      series: [ev("share_clicked")],
       display: "ActionsPie",
-      breakdown: "target",
-      breakdown_type: "event",
-      events: [
-        {
-          id: "share_clicked",
-          name: "share_clicked",
-          type: "events",
-          math: "total",
-        },
-      ],
-      date_from: "-30d",
-    },
+      breakdown: { property: "target" },
+    }),
   },
 
-  // 10. Daily active sessions (pageviews)
+  // 10. Daily pageviews
   {
     name: "Trend · Daily pageviews",
     description: "Базова метрика трафіку — pageviews per day.",
-    filters: {
-      insight: "TRENDS",
+    query: trendsQuery({
+      series: [ev("$pageview")],
       display: "ActionsLineGraph",
       interval: "day",
-      events: [
-        {
-          id: "$pageview",
-          name: "$pageview",
-          type: "events",
-          math: "total",
-        },
-      ],
-      date_from: "-30d",
-    },
+    }),
   },
 
-  // 11. Year validation failure rate (debug)
+  // 11. Year validation failure breakdown (debug)
   {
     name: "Trend · Year validation failures",
     description: "Чи багато юзерів вводять некоректний рік (UX issue?).",
-    filters: {
-      insight: "TRENDS",
+    query: trendsQuery({
+      series: [ev("year_validation_failed")],
       display: "ActionsBarValue",
-      breakdown: "reason",
-      breakdown_type: "event",
-      events: [
-        {
-          id: "year_validation_failed",
-          name: "year_validation_failed",
-          type: "events",
-          math: "total",
-        },
-      ],
-      date_from: "-30d",
-    },
+      breakdown: { property: "reason" },
+    }),
   },
 ];
 
