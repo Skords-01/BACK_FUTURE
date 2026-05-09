@@ -3,21 +3,26 @@
  * ScrollRestore — повертає користувача саме на ту картку факту, з якої він
  * перейшов на постійну сторінку (`/fact/[slug]`), коли він тисне «назад» у
  * браузері. Без цього скрипта браузер інколи скролить у верх сторінки —
- * особливо коли вихідна сторінка має lazy-reveal анімації, що змінюють висоту
- * документа під час renavigate.
+ * особливо на iOS Safari, коли bfcache відсутній, або коли вихідна сторінка
+ * має lazy-reveal анімації, що змінюють розміри під час renavigate.
  *
  * Логіка:
- *   1. Кліки по `a[href^="/fact/"]` ловимо у capture-фазі та зберігаємо у
- *      sessionStorage пару `{ slug, y }` під ключем, що містить поточний URL.
- *   2. На першому рендері перевіряємо `performance` Navigation Timing — якщо
- *      це `back_forward`, читаємо запис із sessionStorage і скролимо
- *      `#fact-card-<slug>` у центр viewport-у. Запис після цього видаляємо.
- *   3. Якщо записаного слага немає (наприклад, користувач прийшов через bfcache
- *      або вперше відкрив сторінку), нічого не робимо — браузер сам
- *      відновлює scroll так, як вважає за потрібне.
+ *   1. Перед самим навігаційним переходом по `a[href^="/fact/"]` зберігаємо
+ *      у sessionStorage пару `{ slug, y }` під ключем поточного URL і
+ *      одразу виставляємо `history.scrollRestoration = "manual"` — щоб
+ *      браузер на back-навігацію не намагався сам відновити scroll
+ *      (його авто-restore конфліктує з нашим scrollIntoView).
+ *   2. На back/forward завантаженні (Navigation Timing type === "back_forward")
+ *      читаємо запис, скролимо `#fact-card-<slug>` у центр viewport-у і
+ *      повторюємо ще раз на `load`, щоб компенсувати reflow від шрифтів /
+ *      lazy-resources.
+ *   3. На bfcache-restore (`pageshow.persisted === true`) браузер сам
+ *      зберіг scroll — лише прибираємо запис із sessionStorage.
+ *   4. Якщо запису немає (cold-load, прийшли по URL bar тощо) — нічого не
+ *      чіпаємо.
  *
- * No-op для bfcache: коли pageshow має `persisted: true`, скрол вже збережений
- * браузером — не чіпаємо.
+ * Уся логіка усередині try/catch — sessionStorage / Navigation Timing можуть
+ * бути недоступні (приватний режим, старі браузери). Тоді — degrade silently.
  */
 ---
 
@@ -29,11 +34,39 @@
       return STORAGE_PREFIX + window.location.pathname + window.location.search;
     }
 
+    function readSaved() {
+      try {
+        var raw = window.sessionStorage.getItem(getReturnKey());
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function clearSaved() {
+      try {
+        window.sessionStorage.removeItem(getReturnKey());
+      } catch {
+        /* noop */
+      }
+    }
+
+    function performRestore(saved) {
+      if (!saved) return;
+      var anchor = saved.slug ? document.getElementById("fact-card-" + saved.slug) : null;
+      if (anchor) {
+        anchor.scrollIntoView({ block: "center" });
+      } else if (typeof saved.y === "number") {
+        window.scrollTo(0, saved.y);
+      }
+    }
+
     document.addEventListener(
       "click",
       function (e) {
-        // Modifier-ключі = «відкрити в новій вкладці», поточна сторінка не
-        // змінюється — нічого зберігати не треба.
+        // Modifier-кліки = «нова вкладка / нове вікно» — поточна сторінка
+        // не змінюється, нічого зберігати.
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         if (typeof e.button === "number" && e.button !== 0) return;
 
@@ -53,14 +86,25 @@
             JSON.stringify({ slug: match[1], y: window.scrollY }),
           );
         } catch {
-          // sessionStorage може бути вимкнений (приватний режим / квоти) —
-          // тоді просто не відновимо scroll. Не падаємо.
+          // Не можемо зберегти — нічого страшного, scroll просто не відновиться.
+          return;
+        }
+
+        // Виставляємо manual, щоб на back-навігацію браузер не зробив
+        // власний auto-restore у проміжний неправильний Y (lazy-reveal /
+        // font-reflow ще не встигли застосуватись).
+        if ("scrollRestoration" in history) {
+          try {
+            history.scrollRestoration = "manual";
+          } catch {
+            /* noop */
+          }
         }
       },
       true,
     );
 
-    function restoreScroll() {
+    function tryRestoreOnNav() {
       var entries =
         typeof performance !== "undefined" && performance.getEntriesByType
           ? performance.getEntriesByType("navigation")
@@ -68,43 +112,47 @@
       var nav = entries && entries[0];
       if (!nav || nav.type !== "back_forward") return;
 
-      var saved = null;
-      try {
-        var raw = window.sessionStorage.getItem(getReturnKey());
-        if (!raw) return;
-        saved = JSON.parse(raw);
-        window.sessionStorage.removeItem(getReturnKey());
-      } catch {
-        return;
-      }
+      var saved = readSaved();
       if (!saved) return;
+      clearSaved();
 
-      var anchor = saved.slug ? document.getElementById("fact-card-" + saved.slug) : null;
-      var savedY = typeof saved.y === "number" ? saved.y : null;
-
-      // Браузер може спробувати відновити scroll сам — наша робота йде ПІСЛЯ
-      // DOMContentLoaded, тож остання операція виграє. Виключаємо «авто», щоб
-      // не було ривка вгору→вниз.
-      if ("scrollRestoration" in history) {
-        history.scrollRestoration = "manual";
-      }
-
-      // Подвійний rAF — даємо макету (lazy-reveals, шрифти) встановитись.
+      // Скролимо одразу — для миттєвого ефекту, поки браузер ще не
+      // намалював перший кадр.
+      performRestore(saved);
+      // Потім ще раз у наступному кадрі (картка могла зрушитись через
+      // late-applied reveal-стилі / lazy hydration).
       requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          if (anchor) {
-            anchor.scrollIntoView({ block: "center", behavior: "instant" });
-          } else if (savedY != null) {
-            window.scrollTo({ top: savedY, behavior: "instant" });
-          }
-        });
+        performRestore(saved);
       });
+      // І нарешті — після `load`, коли всі ресурси (шрифти, картинки)
+      // прорахували розміри. Це найважливіше для iOS Safari, де reflow
+      // після завантаження кастомних шрифтів може зсунути картку
+      // на 50–100px.
+      if (document.readyState === "complete") {
+        performRestore(saved);
+      } else {
+        window.addEventListener(
+          "load",
+          function onLoad() {
+            window.removeEventListener("load", onLoad);
+            performRestore(saved);
+          },
+          { once: true },
+        );
+      }
     }
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", restoreScroll);
+      document.addEventListener("DOMContentLoaded", tryRestoreOnNav);
     } else {
-      restoreScroll();
+      tryRestoreOnNav();
     }
+
+    // bfcache-restore: браузер уже зберіг scroll position, нічого
+    // скролити не треба — лише чистимо запис, щоб він не злетів при
+    // наступній «справжній» back-навігації.
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) clearSaved();
+    });
   })();
 </script>
