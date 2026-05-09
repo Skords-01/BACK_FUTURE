@@ -14,15 +14,8 @@ export default {
         // Display — Unbounded for "modern, sans, present" headings.
         display: ["Unbounded", "Geist", "Inter", "system-ui", "sans-serif"],
         serif: ["'Source Serif Pro'", "Georgia", "serif"],
-        // Mono — DM Mono for serial numbers, year stamps, marks.
-        mono: [
-          "'DM Mono'",
-          "'JetBrains Mono'",
-          "ui-monospace",
-          "SFMono-Regular",
-          "Menlo",
-          "monospace",
-        ],
+        // Mono — JetBrains Mono for serial numbers, year stamps, marks.
+        mono: ["'JetBrains Mono'", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       maxWidth: {
         prose: "68ch",
