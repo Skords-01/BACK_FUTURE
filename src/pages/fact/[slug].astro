@@ -7,7 +7,7 @@ import SupportBlock from "../../components/SupportBlock.astro";
 import { SITE, SUBJECTS } from "../../config/site";
 import { eraById } from "../../lib/eras";
 import { formatUkShortDate, isoDate } from "../../lib/format";
-import { eraUrl, factSlug, yearUrl } from "../../lib/url";
+import { factSlug, yearUrl } from "../../lib/url";
 
 export async function getStaticPaths() {
   const facts = await getCollection("facts", ({ data }) => !data.draft);
@@ -41,6 +41,7 @@ const regionLabel = fact.data.region === "ukraine" ? "Україна" : "Сві�
 const impactLabel =
   fact.data.impact === "high" ? "Високий" : fact.data.impact === "low" ? "Низький" : "Середній";
 const relatedEras = fact.data.relevantForEras.map((id) => eraById(id));
+const aboutEntities = [subject.label, ...relatedEras.map((era) => era.label), ...fact.data.tags];
 const shareText = `${fact.data.title} — ${SITE.name}`;
 const shareEncoded = encodeURIComponent(shareText);
 const urlEncoded = encodeURIComponent(canonical);
@@ -79,7 +80,7 @@ const articleLd: Record<string, unknown> = {
     url: SITE.defaultUrl,
   },
   mainEntityOfPage: canonical,
-  about: [subject.label, ...relatedEras.map((era) => era.label), ...fact.data.tags],
+  about: aboutEntities,
 };
 
 const breadcrumbsLd: Record<string, unknown> = {
@@ -193,47 +194,40 @@ const breadcrumbsLd: Record<string, unknown> = {
           {fact.data.short}
         </p>
 
-        <dl class="mt-6 grid gap-3 sm:grid-cols-3">
-          <div
-            class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
-          >
+        <dl
+          class="text-ink-700 dark:text-ink-600 mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm"
+        >
+          <div class="inline-flex items-baseline gap-1.5">
             <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
               Регіон
             </dt>
-            <dd class="text-ink-900 mt-1 font-medium">{regionLabel}</dd>
+            <dd class="text-ink-900 font-medium">{regionLabel}</dd>
           </div>
-          <div
-            class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
-          >
+          <span aria-hidden="true" class="text-ink-300 dark:text-ink-600">·</span>
+          <div class="inline-flex items-baseline gap-1.5">
             <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
               Вплив
             </dt>
-            <dd class="text-ink-900 mt-1 font-medium">{impactLabel}</dd>
+            <dd class="text-ink-900 font-medium">{impactLabel}</dd>
           </div>
-          <div
-            class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
-          >
-            <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
-              Оновлено
-            </dt>
-            <dd class="text-ink-900 mt-1 font-medium">
-              {updatedAt ? formatUkShortDate(updatedAt) : "Початкова версія"}
-            </dd>
-          </div>
-        </dl>
-
-        <div class="mt-6 flex flex-wrap gap-2" aria-label="Пов'язані ери">
           {
-            relatedEras.map((era) => (
-              <a
-                href={eraUrl(era.slug)}
-                class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center rounded-full border bg-white px-4 py-2 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
-              >
-                {era.label}
-              </a>
-            ))
+            updatedAt && (
+              <>
+                <span aria-hidden="true" class="text-ink-300 dark:text-ink-600">
+                  ·
+                </span>
+                <div class="inline-flex items-baseline gap-1.5">
+                  <dt class="text-ink-400 dark:text-ink-500 text-xs font-medium tracking-wider uppercase">
+                    Оновлено
+                  </dt>
+                  <dd class="text-ink-900 font-medium">
+                    <time datetime={isoDate(updatedAt)}>{formatUkShortDate(updatedAt)}</time>
+                  </dd>
+                </div>
+              </>
+            )
           }
-        </div>
+        </dl>
       </div>
     </article>
 
