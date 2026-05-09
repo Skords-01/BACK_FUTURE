@@ -6,7 +6,7 @@
  * the dedicated fact page for the full read.
  */
 import type { Fact } from "../lib/filterFacts";
-import { factUrl } from "../lib/url";
+import { factSlug, factUrl } from "../lib/url";
 import { SUBJECTS } from "../config/site";
 
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
 
 const { fact } = Astro.props;
 const detailUrl = factUrl(fact.id);
+const slug = factSlug(fact.id);
 const subject = SUBJECTS.find((s) => s.id === fact.data.subject);
 const mark = subject?.mark ?? "—";
 const subjectLabel = subject?.label ?? "Предмет";
@@ -23,6 +24,7 @@ const isUkraine = fact.data.region === "ukraine";
 ---
 
 <article
+  id={`fact-card-${slug}`}
   class:list={[
     "tl-fc shadow-card hover:shadow-card-hover relative isolate rounded-2xl border bg-[color:var(--card)] px-5 py-4 transition hover:-translate-y-0.5",
     isHighImpact
