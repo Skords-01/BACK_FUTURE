@@ -1,0 +1,110 @@
+---
+/*
+ * ScrollRestore — повертає користувача саме на ту картку факту, з якої він
+ * перейшов на постійну сторінку (`/fact/[slug]`), коли він тисне «назад» у
+ * браузері. Без цього скрипта браузер інколи скролить у верх сторінки —
+ * особливо коли вихідна сторінка має lazy-reveal анімації, що змінюють висоту
+ * документа під час renavigate.
+ *
+ * Логіка:
+ *   1. Кліки по `a[href^="/fact/"]` ловимо у capture-фазі та зберігаємо у
+ *      sessionStorage пару `{ slug, y }` під ключем, що містить поточний URL.
+ *   2. На першому рендері перевіряємо `performance` Navigation Timing — якщо
+ *      це `back_forward`, читаємо запис із sessionStorage і скролимо
+ *      `#fact-card-<slug>` у центр viewport-у. Запис після цього видаляємо.
+ *   3. Якщо записаного слага немає (наприклад, користувач прийшов через bfcache
+ *      або вперше відкрив сторінку), нічого не робимо — браузер сам
+ *      відновлює scroll так, як вважає за потрібне.
+ *
+ * No-op для bfcache: коли pageshow має `persisted: true`, скрол вже збережений
+ * браузером — не чіпаємо.
+ */
+---
+
+<script is:inline>
+  (function () {
+    var STORAGE_PREFIX = "bf:return:";
+
+    function getReturnKey() {
+      return STORAGE_PREFIX + window.location.pathname + window.location.search;
+    }
+
+    document.addEventListener(
+      "click",
+      function (e) {
+        // Modifier-ключі = «відкрити в новій вкладці», поточна сторінка не
+        // змінюється — нічого зберігати не треба.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (typeof e.button === "number" && e.button !== 0) return;
+
+        var target = e.target;
+        if (!target || typeof target.closest !== "function") return;
+
+        var link = target.closest('a[href^="/fact/"]');
+        if (!link) return;
+
+        var href = link.getAttribute("href") || "";
+        var match = href.match(/^\/fact\/([^/?#]+)/);
+        if (!match) return;
+
+        try {
+          window.sessionStorage.setItem(
+            getReturnKey(),
+            JSON.stringify({ slug: match[1], y: window.scrollY }),
+          );
+        } catch {
+          // sessionStorage може бути вимкнений (приватний режим / квоти) —
+          // тоді просто не відновимо scroll. Не падаємо.
+        }
+      },
+      true,
+    );
+
+    function restoreScroll() {
+      var entries =
+        typeof performance !== "undefined" && performance.getEntriesByType
+          ? performance.getEntriesByType("navigation")
+          : null;
+      var nav = entries && entries[0];
+      if (!nav || nav.type !== "back_forward") return;
+
+      var saved = null;
+      try {
+        var raw = window.sessionStorage.getItem(getReturnKey());
+        if (!raw) return;
+        saved = JSON.parse(raw);
+        window.sessionStorage.removeItem(getReturnKey());
+      } catch {
+        return;
+      }
+      if (!saved) return;
+
+      var anchor = saved.slug ? document.getElementById("fact-card-" + saved.slug) : null;
+      var savedY = typeof saved.y === "number" ? saved.y : null;
+
+      // Браузер може спробувати відновити scroll сам — наша робота йде ПІСЛЯ
+      // DOMContentLoaded, тож остання операція виграє. Виключаємо «авто», щоб
+      // не було ривка вгору→вниз.
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+
+      // Подвійний rAF — даємо макету (lazy-reveals, шрифти) встановитись.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (anchor) {
+            anchor.scrollIntoView({ block: "center", behavior: "instant" });
+          } else if (savedY != null) {
+            window.scrollTo({ top: savedY, behavior: "instant" });
+          }
+        });
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", restoreScroll);
+    } else {
+      restoreScroll();
+    }
+  })();
+</script>
