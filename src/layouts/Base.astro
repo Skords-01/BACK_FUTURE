@@ -15,7 +15,13 @@ interface Props {
 }
 
 const defaultOgImage = new URL("/og/default.png", SITE.defaultUrl).toString();
-const { title, description = SITE.description, ogImage = defaultOgImage, jsonLd, noindex = false } = Astro.props;
+const {
+  title,
+  description = SITE.description,
+  ogImage = defaultOgImage,
+  jsonLd,
+  noindex = false,
+} = Astro.props;
 const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
 const jsonLdItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
@@ -55,7 +61,11 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
     <meta name="generator" content={Astro.generator} />
     <meta name="format-detection" content="telephone=no" />
     {noindex && <meta name="robots" content="noindex,nofollow" />}
-    {import.meta.env.SENTRY_DSN && <link rel="dns-prefetch" href="https://browser.sentry-cdn.com" />}
+    {
+      import.meta.env.SENTRY_DSN && (
+        <link rel="dns-prefetch" href="https://browser.sentry-cdn.com" />
+      )
+    }
     {
       googleSiteVerification && (
         <meta name="google-site-verification" content={googleSiteVerification} />

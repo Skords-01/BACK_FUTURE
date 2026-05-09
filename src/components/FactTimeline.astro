@@ -1,6 +1,8 @@
 ---
 // FactTimeline — vertical timeline of facts grouped by subject.
-// Left rail (180px): year + delta + colored dot. Center: 1px line. Right: FactCard.
+// Desktop: rail (140px) with year + delta + colored dot · 1px axis · FactCard.
+// Mobile (< 640px): thin 28px rail with only the colored dot; year/delta move
+// into the FactCard meta row so the card body keeps maximum width.
 import FactCard from "./FactCard.astro";
 import { groupBySubject } from "../lib/filterFacts";
 import type { Fact } from "../lib/filterFacts";
@@ -70,7 +72,7 @@ const groups = groupBySubject(facts);
                   </div>
 
                   <div class="timeline__body">
-                    <FactCard fact={fact} />
+                    <FactCard fact={fact} fromYear={fromYear} />
                   </div>
                 </div>
               );
@@ -98,8 +100,22 @@ const groups = groupBySubject(facts);
 
   @media (max-width: 640px) {
     .timeline__row {
-      grid-template-columns: 80px 1px 1fr;
-      gap: 0 12px;
+      grid-template-columns: 28px 1px minmax(0, 1fr);
+      gap: 0 8px;
+    }
+    .timeline__rail {
+      align-items: center;
+      padding-top: 18px;
+    }
+    .timeline__year,
+    .timeline__delta {
+      display: none;
+    }
+    .timeline__dot {
+      width: 10px;
+      height: 10px;
+      align-self: center;
+      margin-top: 0;
     }
   }
 
