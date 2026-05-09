@@ -16,10 +16,16 @@ const hasCoffee = SITE.buyMeACoffeeUrl.length > 0;
     більше фактів — кинь на каву.
   </p>
 
-  <div class="mt-5 flex flex-wrap gap-3">
+  <div class="mt-5 flex flex-wrap gap-3" id="support-buttons">
     {
       hasJar ? (
-        <a class="btn" href={SITE.monobankJarUrl} target="_blank" rel="noopener noreferrer">
+        <a
+          class="btn"
+          href={SITE.monobankJarUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-support-provider="monobank"
+        >
           Банка Monobank
         </a>
       ) : (
@@ -30,10 +36,32 @@ const hasCoffee = SITE.buyMeACoffeeUrl.length > 0;
     }
     {
       hasCoffee && (
-        <a class="btn-ghost" href={SITE.buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer">
+        <a
+          class="btn-ghost"
+          href={SITE.buyMeACoffeeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-support-provider="buymeacoffee"
+        >
           Buy me a coffee
         </a>
       )
     }
   </div>
 </aside>
+
+<script>
+  import { EVENTS, track } from "../lib/analytics";
+
+  document
+    .querySelectorAll<HTMLAnchorElement>("#support-buttons [data-support-provider]")
+    .forEach((a) => {
+      a.addEventListener(
+        "click",
+        () => {
+          track(EVENTS.supportClicked, { provider: a.dataset.supportProvider ?? null });
+        },
+        { passive: true },
+      );
+    });
+</script>

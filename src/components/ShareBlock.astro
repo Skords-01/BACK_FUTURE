@@ -103,6 +103,7 @@ const targets = [
             href={t.href}
             target="_blank"
             rel="noopener noreferrer"
+            data-share-target={t.id}
             class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
           >
             <span aria-hidden="true">↗</span>
@@ -146,6 +147,28 @@ const targets = [
     const url = root.dataset.shareUrl ?? "";
     const text = root.dataset.shareText ?? "";
 
+    function track(event, props) {
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.capture === "function") ph.capture(event, props);
+      } catch {
+        /* analytics never breaks UI */
+      }
+    }
+
+    // Network share buttons (Telegram / X / Facebook). Click is captured but
+    // the link still navigates (target="_blank"); we only fire `share_clicked`
+    // since outbound success cannot be confirmed for window.open targets.
+    root.querySelectorAll("a[data-share-target]").forEach(function (a) {
+      a.addEventListener(
+        "click",
+        function () {
+          track("share_clicked", { target: a.dataset.shareTarget });
+        },
+        { passive: true },
+      );
+    });
+
     const status = document.getElementById("share-status");
     function showStatus(msg) {
       if (!status) return;
@@ -162,6 +185,7 @@ const targets = [
     if (copyBtn instanceof HTMLButtonElement) {
       const labelSpan = copyBtn.querySelector("[data-state]");
       copyBtn.addEventListener("click", function () {
+        track("share_clicked", { target: "copy" });
         if (!navigator.clipboard || !navigator.clipboard.writeText) {
           showStatus("Скопіюй вручну: " + url);
           return;
@@ -173,6 +197,7 @@ const targets = [
               labelSpan.textContent = "Скопійовано";
             }
             showStatus("Посилання скопійовано в буфер обміну.");
+            track("share_succeeded", { target: "copy" });
             window.setTimeout(function () {
               if (labelSpan instanceof HTMLElement) {
                 labelSpan.textContent = "Скопіювати посилання";
@@ -193,9 +218,15 @@ const targets = [
     ) {
       nativeBtn.hidden = false;
       nativeBtn.addEventListener("click", function () {
-        navigator.share({ title: document.title, text: text, url: url }).catch(function () {
-          // User cancelled or share failed; no UI noise.
-        });
+        track("share_clicked", { target: "native" });
+        navigator
+          .share({ title: document.title, text: text, url: url })
+          .then(function () {
+            track("share_succeeded", { target: "native" });
+          })
+          .catch(function () {
+            // User cancelled or share failed; no UI noise.
+          });
       });
     }
   })();

@@ -104,6 +104,8 @@ const available = SUBJECTS.filter((s) => {
 </style>
 
 <script>
+  import { EVENTS, track } from "../lib/analytics";
+
   function initFilters() {
     const bar = document.getElementById("subject-filter-bar");
     if (!bar) return;
@@ -136,6 +138,7 @@ const available = SUBJECTS.filter((s) => {
     allBtn?.addEventListener("click", () => {
       history.replaceState(null, "", location.pathname + location.search);
       applyFilter(null);
+      track(EVENTS.subjectFilterChanged, { subject_id: null, action: "all" });
     });
 
     subjectBtns.forEach((btn) => {
@@ -145,9 +148,11 @@ const available = SUBJECTS.filter((s) => {
         if (current === subject) {
           history.replaceState(null, "", location.pathname + location.search);
           applyFilter(null);
+          track(EVENTS.subjectFilterChanged, { subject_id: subject, action: "remove" });
         } else {
           history.replaceState(null, "", `${location.pathname}${location.search}#${subject}`);
           applyFilter(subject);
+          track(EVENTS.subjectFilterChanged, { subject_id: subject, action: "add" });
         }
       });
     });

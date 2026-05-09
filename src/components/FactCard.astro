@@ -41,6 +41,9 @@ const isVikha = fact.data.impact === "high";
 
 <article
   id={`fact-card-${slug}`}
+  data-fact-id={fact.id}
+  data-fact-subject={fact.data.subject}
+  data-fact-year={fact.data.yearOfEvent}
   class:list={[
     "fact-card group shadow-card hover:shadow-card-hover relative isolate overflow-hidden rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--card)] px-5 py-6 transition hover:-translate-y-0.5 sm:px-7 sm:py-7",
     isVikha && "vikha-card",
@@ -177,6 +180,30 @@ const isVikha = fact.data.impact === "high";
 </article>
 
 <script>
+  import { EVENTS, track } from "../lib/analytics";
+
+  // Track clicks on the "Докладніше →" CTA inside each fact card. Uses event
+  // delegation so we attach a single listener instead of one per card (there
+  // can be 100+ on /all/).
+  document.addEventListener(
+    "click",
+    (e) => {
+      const target = e.target;
+      if (!(target instanceof Element)) return;
+      const link = target.closest<HTMLAnchorElement>("a[href^='/fact/']");
+      if (!link) return;
+      const card = link.closest<HTMLElement>(".fact-card[data-fact-id]");
+      if (!card) return;
+      const yearAttr = card.dataset.factYear;
+      track(EVENTS.factCardClicked, {
+        fact_id: card.dataset.factId ?? null,
+        subject: card.dataset.factSubject ?? null,
+        year_of_event: yearAttr ? parseInt(yearAttr, 10) : null,
+      });
+    },
+    { capture: true, passive: true },
+  );
+
   (function () {
     const hasHover = window.matchMedia("(hover: hover)").matches;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

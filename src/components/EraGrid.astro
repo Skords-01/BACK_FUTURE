@@ -22,6 +22,8 @@ const { activeEraId } = Astro.props;
           style={`--era-color: ${era.color}; --reveal-delay: ${(era.id - 1) * 80}ms`}
           aria-current={isActive ? "page" : undefined}
           data-active={isActive || undefined}
+          data-era-id={era.id}
+          data-era-slug={era.slug}
           data-reveal
         >
           <span
@@ -75,3 +77,15 @@ const { activeEraId } = Astro.props;
     border-color: var(--era-color);
   }
 </style>
+
+<script>
+  import { EVENTS, track } from "../lib/analytics";
+
+  document.querySelectorAll<HTMLAnchorElement>(".era-card[data-era-id]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const eraId = parseInt(card.dataset.eraId ?? "0", 10);
+      const eraSlug = card.dataset.eraSlug ?? null;
+      track(EVENTS.eraClicked, { era_id: eraId, era_slug: eraSlug });
+    });
+  });
+</script>

@@ -66,6 +66,15 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     const min = Number(form.dataset.min);
     const max = Number(form.dataset.max);
 
+    function track(event, props) {
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.capture === "function") ph.capture(event, props);
+      } catch {
+        /* analytics never breaks UI */
+      }
+    }
+
     function showError(msg) {
       if (!(input instanceof HTMLInputElement)) return;
       if (!err) return;
@@ -95,9 +104,18 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
       const raw = input.value.trim();
       const n = Number(raw);
       if (!Number.isInteger(n) || n < min || n > max) {
+        var reason = !raw ? "empty" : !Number.isInteger(n) ? "not_integer" : "out_of_range";
+        track("year_validation_failed", { reason: reason, min: min, max: max });
         showError(`Введи рік від ${min} до ${max}.`);
         input.focus();
         return;
+      }
+      track("year_submitted", { year: n, source: "manual" });
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.register === "function") ph.register({ year_filter: n });
+      } catch {
+        /* ignore */
       }
       setLoading(true);
       window.location.href = `/${n}/`;
