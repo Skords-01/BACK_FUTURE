@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 // Mobile smoke pack: ловить найдратівніші регресії, які видно лише на вузькому
-// екрані (горизонтальний скрол, обрізана навігація, зламаний `<input type="number">`).
+// екрані (горизонтальний скрол, обрізана навігація, рік-пікер не реагує на тап,
+// фільтри тем виходять за viewport).
 // Запускається тільки в проєкті `mobile-chrome` через `testMatch` у
 // `playwright.config.ts`.
 
@@ -32,14 +33,16 @@ test.describe("mobile @375px", () => {
     });
   }
 
-  test("year submit works with mobile-friendly numeric keyboard", async ({ page }) => {
+  test("year picker can navigate to a year via touch", async ({ page }) => {
+    // Регресія: коли на вузькому екрані degradr в Year Machine (стрічка-+- /
+    // odometer / GoButton-якір) клік не доходив до handler-а через top-level
+    // pointer-event-блокер. Тапаємо одну з QuickPicks (10-ті → 2014), чекаємо,
+    // поки GoButton оновить href через CustomEvent('year:change'), і тапаємо.
     await page.goto("/");
-    const input = page.getByLabel("Рік випуску");
-    await expect(input).toHaveAttribute("inputmode", "numeric");
-    await expect(input).toHaveAttribute("pattern", "[0-9]*");
-    await input.fill("2010");
-    await page.getByRole("button", { name: "Подивитись" }).click();
-    await expect(page).toHaveURL(/\/2010\/?$/);
+    await page.getByRole("button", { name: /Вибрати 2014 рік/ }).click();
+    await expect(page.locator("#go-button")).toHaveAttribute("href", "/2014/");
+    await page.getByRole("link", { name: /ПОЇХАЛИ/ }).click();
+    await expect(page).toHaveURL(/\/2014\/?$/);
   });
 
   test("primary nav remains reachable on narrow viewport", async ({ page }) => {
@@ -90,20 +93,33 @@ test.describe("mobile @375px", () => {
     expect(topAfter).toBeGreaterThan(-50);
   });
 
-  test("filters layout adapts on narrow viewport", async ({ page }) => {
+  test("subject filter bar adapts on narrow viewport", async ({ page }) => {
+    // Sticky chip-bar з фільтрами тем (SubjectFilters.astro) повинна
+    // вкладатись у viewport як блок (внутрішня горизонтальна прокрутка
+    // дозволена, але сам контейнер не повинен виходити за межі екрана).
     await page.goto("/2003/");
-    const filtersForm = page.locator("[data-year-filters]");
-    await expect(filtersForm).toBeVisible();
-    // Селекти не повинні вилазити за viewport (типова регресія, коли
-    // `min-width` десь забутий).
-    const selectsBoxes = await filtersForm.locator("select").evaluateAll((nodes) =>
+    const filterBar = page.locator("#subject-filter-bar");
+    await expect(filterBar).toBeVisible();
+    const barBox = await filterBar.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { right: r.right, width: r.width };
+    });
+    expect(barBox.right).toBeLessThanOrEqual(NARROW_VIEWPORT.width + 1);
+    expect(barBox.width).toBeGreaterThan(120);
+
+    // «Усі» завжди видима — це стартовий стан фільтра.
+    await expect(filterBar.locator("[data-filter-all]")).toBeVisible();
+
+    // Хоча б один tema-chip всередині бару має існувати; кожен достатньо
+    // широкий, щоб його було комфортно тапнути на mobile (≥ 40px).
+    const chipBoxes = await filterBar.locator("[data-filter-subject]").evaluateAll((nodes) =>
       nodes.map((n) => {
         const r = n.getBoundingClientRect();
-        return { right: r.right, width: r.width };
+        return { width: r.width };
       }),
     );
-    for (const box of selectsBoxes) {
-      expect(box.right).toBeLessThanOrEqual(NARROW_VIEWPORT.width + 1);
+    expect(chipBoxes.length).toBeGreaterThan(0);
+    for (const box of chipBoxes) {
       expect(box.width).toBeGreaterThan(40);
     }
   });
