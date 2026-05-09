@@ -8,12 +8,21 @@ import { SUBJECTS } from "../config/site";
 
 interface Props {
   fact: Fact;
+  /**
+   * Year of the surrounding "Випуск {year}" page. When provided, a `+Δ р.`
+   * chip is rendered in the mobile meta row so the year context survives
+   * the thinner mobile timeline rail (which hides its own year/delta).
+   * Optional — leave undefined when FactCard is rendered outside the
+   * year-page timeline (e.g. /all, /era/[slug], /subject/[id]).
+   */
+  fromYear?: number;
 }
 
-const { fact } = Astro.props;
+const { fact, fromYear } = Astro.props;
 const { Content } = await render(fact);
 const updatedAt = fact.data.updatedAt;
 const detailUrl = factUrl(fact.id);
+const delta = typeof fromYear === "number" ? fact.data.yearOfEvent - fromYear : 0;
 
 // Деривація номера-серіалки із id факту: стабільний хеш → 3-значне число.
 // Чисто візуальний "серійник", не для використання в логіці.
@@ -60,6 +69,16 @@ const isVikha = fact.data.impact === "high";
         {fact.data.yearOfEvent}
       </span>
       {
+        delta > 0 && (
+          <span
+            class="text-accent-700 dark:text-accent-300 font-mono text-[11px] font-medium tabular-nums sm:hidden"
+            title={`+${delta} р. після випуску`}
+          >
+            +{delta} р.
+          </span>
+        )
+      }
+      {
         fact.data.region === "ukraine" && (
           <span
             class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 ml-1 inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider uppercase"
@@ -103,49 +122,51 @@ const isVikha = fact.data.impact === "high";
     {fact.data.short}
   </p>
 
-  {
-    quote && (
-      <blockquote class="border-accent-500 bg-paper-50 dark:bg-paper-100/5 mt-5 rounded-r-lg border-l-2 py-3 pr-3 pl-4">
-        <p class="text-ink-800 dark:text-ink-200 font-display text-sm leading-snug italic">
-          «{quote.text}»
-        </p>
-        <footer class="text-ink-500 dark:text-ink-400 mt-1.5 font-mono text-[10px] tracking-wider uppercase">
-          — {quote.author}
-        </footer>
-      </blockquote>
-    )
-  }
+  <div class="card-extras">
+    {
+      quote && (
+        <blockquote class="border-accent-500 bg-paper-50 dark:bg-paper-100/5 mt-5 rounded-r-lg border-l-2 py-3 pr-3 pl-4">
+          <p class="text-ink-800 dark:text-ink-200 font-display text-sm leading-snug italic">
+            «{quote.text}»
+          </p>
+          <footer class="text-ink-500 dark:text-ink-400 mt-1.5 font-mono text-[10px] tracking-wider uppercase">
+            — {quote.author}
+          </footer>
+        </blockquote>
+      )
+    }
 
-  {
-    (fact.data.before || fact.data.after) && (
-      <dl class="before-after border-ink-200 bg-paper-50 mx-auto mt-6 grid max-w-2xl gap-3 rounded-2xl border p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-        {fact.data.before ? (
-          <div class="text-center">
-            <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
-              Було
-            </dt>
-            <dd class="text-ink-700 text-sm leading-relaxed">{fact.data.before}</dd>
+    {
+      (fact.data.before || fact.data.after) && (
+        <dl class="before-after border-ink-200 bg-paper-50 mx-auto mt-6 grid max-w-2xl gap-3 rounded-2xl border p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
+          {fact.data.before ? (
+            <div class="text-center">
+              <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
+                Було
+              </dt>
+              <dd class="text-ink-700 text-sm leading-relaxed">{fact.data.before}</dd>
+            </div>
+          ) : (
+            <div />
+          )}
+          <div aria-hidden="true" class="text-accent-500 dark:text-accent-400 font-bold">
+            <span class="block text-center text-lg sm:hidden">↓</span>
+            <span class="hidden self-center text-2xl sm:block">→</span>
           </div>
-        ) : (
-          <div />
-        )}
-        <div aria-hidden="true" class="text-accent-500 dark:text-accent-400 font-bold">
-          <span class="block text-center text-lg sm:hidden">↓</span>
-          <span class="hidden self-center text-2xl sm:block">→</span>
-        </div>
-        {fact.data.after ? (
-          <div class="text-center">
-            <dt class="text-accent-700 dark:text-accent-300 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
-              Стало
-            </dt>
-            <dd class="text-ink-900 text-sm leading-relaxed">{fact.data.after}</dd>
-          </div>
-        ) : (
-          <div />
-        )}
-      </dl>
-    )
-  }
+          {fact.data.after ? (
+            <div class="text-center">
+              <dt class="text-accent-700 dark:text-accent-300 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
+                Стало
+              </dt>
+              <dd class="text-ink-900 text-sm leading-relaxed">{fact.data.after}</dd>
+            </div>
+          ) : (
+            <div />
+          )}
+        </dl>
+      )
+    }
+  </div>
 
   <a
     href={detailUrl}
@@ -272,6 +293,20 @@ const isVikha = fact.data.impact === "high";
 </script>
 
 <style>
+  /* Mobile (< 640px): keep the card compact by default. Quote and
+     Before/After live inside .card-extras and are revealed only when
+     the user opens the in-card "Докладніше" disclosure. The DOM still
+     contains everything (good for SEO, sharing, copy/paste); we only
+     toggle visual presentation. Desktop is unaffected. */
+  @media (max-width: 640px) {
+    .fact-card .card-extras {
+      display: none;
+    }
+    .fact-card:has(details[open]) .card-extras {
+      display: block;
+    }
+  }
+
   /* Archive/newspaper treatment for high-impact (★ Віха) cards */
   .vikha-card {
     background-image: repeating-linear-gradient(
