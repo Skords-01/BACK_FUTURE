@@ -236,16 +236,14 @@
           return;
         }
 
-        if ("scrollRestoration" in history) {
-          try {
-            history.scrollRestoration = "manual";
-            dlog("click → history.scrollRestoration = manual");
-          } catch {
-            dlog("click → cannot set scrollRestoration=manual");
-          }
-        } else {
-          dlog("click → no history.scrollRestoration support");
-        }
+        // ❗ НЕ виставляємо history.scrollRestoration = "manual" — це ламає
+        // bfcache-restore у iOS Safari: коли Safari дістає сторінку з
+        // bfcache, при manual він НЕ відновлює scroll position сам, а
+        // наш DCL-handler не запускається (DCL не fires на bfcache restore).
+        // Результат — користувач опиняється у scrollY=0. На auto бра́узер
+        // сам поверне scroll із bfcache, а pageshow-handler нижче слугує
+        // safety-net якщо браузер цього не зробив (наприклад, інший reflow).
+        dlog("click → leaving scrollRestoration as auto (bfcache-friendly)");
       },
       true,
     );
@@ -312,9 +310,26 @@
       tryRestoreOnNav();
     }
 
+    // pageshow з persisted=true — це bfcache-restore. На цьому шляху DCL
+    // не fires, тож тут робимо власний restore як safety-net. У 99%
+    // випадків Safari вже сам поставив scroll із bfcache, тоді ми просто
+    // повторно центруємо картку (no-op для користувача). Але якщо чомусь
+    // не поставив (історично — з manual scrollRestoration, або edge-case
+    // з пам'яттю) — тут ми виправляємо.
     window.addEventListener("pageshow", function (e) {
       dlog("pageshow persisted=" + !!e.persisted + " scrollY=" + Math.round(window.scrollY));
-      if (e.persisted) clearSaved();
+      if (!e.persisted) return;
+      var saved = readSaved();
+      if (!saved) {
+        dlog("pageshow(bfcache)  no saved entry → leave as is");
+        return;
+      }
+      dlog("pageshow(bfcache)  saved found slug=" + saved.slug + " y=" + saved.y);
+      clearSaved();
+      performRestore(saved, "pageshow");
+      requestAnimationFrame(function () {
+        performRestore(saved, "pageshow+rAF");
+      });
     });
     window.addEventListener("pagehide", function (e) {
       dlog("pagehide persisted=" + !!e.persisted + " scrollY=" + Math.round(window.scrollY));
