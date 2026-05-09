@@ -266,6 +266,15 @@ const QUESTIONS_COUNT = 5;
     var YEAR_MIN = parseInt(app.dataset.yearMin ?? "1991", 10);
     var YEAR_MAX = parseInt(app.dataset.yearMax ?? "2026", 10);
 
+    function track(event, props) {
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.capture === "function") ph.capture(event, props);
+      } catch {
+        /* analytics never breaks UI */
+      }
+    }
+
     var SUBJECT_MARKS = {
       astronomy: "АСТ",
       biology: "БІО",
@@ -405,6 +414,14 @@ const QUESTIONS_COUNT = 5;
       var isCorrect = chosen === correct;
       if (isCorrect) score++;
 
+      track("quiz_question_answered", {
+        question_index: currentQ,
+        correct: isCorrect,
+        guessed_year: chosen,
+        year: correct,
+        delta: chosen - correct,
+      });
+
       var feedbackEl = document.getElementById("quiz-feedback");
       if (feedbackEl) {
         feedbackEl.hidden = false;
@@ -438,15 +455,19 @@ const QUESTIONS_COUNT = 5;
       if (labelEl) labelEl.textContent = copy[1];
       if (subEl) subEl.textContent = copy[2];
 
+      track("quiz_finished", { score: score, total: QUESTIONS_COUNT });
+
       showScreen("quiz-result");
     }
 
     document.getElementById("quiz-start-btn")?.addEventListener("click", function () {
+      track("quiz_started", null);
       initQuiz();
       showQuestion();
     });
 
     document.getElementById("quiz-retry-btn")?.addEventListener("click", function () {
+      track("quiz_restarted", null);
       initQuiz();
       showQuestion();
     });

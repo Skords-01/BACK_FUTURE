@@ -23,6 +23,7 @@
     "coverage:content": "tsx scripts/content-coverage.ts",
     "dump:source-urls": "tsx scripts/dump-source-urls.ts",
     "audit:lighthouse": "CHROME_PATH=$(tsx scripts/find-chrome.ts) lhci autorun --config=./lighthouserc.cjs",
+    "posthog:setup": "tsx scripts/posthog-setup.ts",
     "format": "prettier --write .",
     "prepare": "husky"
   },

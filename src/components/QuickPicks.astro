@@ -37,16 +37,19 @@ const decades = [
 </div>
 
 <script>
-  import { setYear, randomYear } from "../scripts/year-machine";
+  import { setYear, randomYear, getYear } from "../scripts/year-machine";
+  import { EVENTS, track } from "../lib/analytics";
 
   document.querySelectorAll<HTMLButtonElement>(".quick-pick-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const year = parseInt(btn.dataset.year ?? "2012", 10);
+      track(EVENTS.quickPickClicked, { year, label: btn.textContent?.trim() ?? null });
       setYear(year);
     });
   });
 
   document.getElementById("random-year-btn")?.addEventListener("click", () => {
     randomYear();
+    track(EVENTS.randomYearPicked, { year: getYear() });
   });
 </script>

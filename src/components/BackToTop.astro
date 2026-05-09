@@ -67,6 +67,14 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     btn.addEventListener("click", function () {
       window.scrollTo({ top: 0, behavior: noMotion ? "instant" : "smooth" });
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.capture === "function") {
+          ph.capture("back_to_top_clicked", { scroll_y: Math.round(window.scrollY) });
+        }
+      } catch {
+        /* analytics never breaks UI */
+      }
     });
     onScroll();
   })();

@@ -198,16 +198,69 @@
       document.head.appendChild(script);
     }
 
-    function openSearch() {
+    function track(event, props) {
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.capture === "function") ph.capture(event, props);
+      } catch {
+        /* analytics never breaks UI */
+      }
+    }
+
+    // Track search query *length* only (no PII, no terms). Throttle so we
+    // don't fire on every keystroke — only after typing settles for 700ms.
+    var queryTimer = null;
+    function watchSearchInput() {
+      if (!(dialog instanceof HTMLDialogElement)) return;
+      var input = dialog.querySelector("input[type=text]");
+      if (!(input instanceof HTMLInputElement) || input.dataset.analyticsBound === "1") return;
+      input.dataset.analyticsBound = "1";
+      input.addEventListener("input", function () {
+        if (queryTimer !== null) window.clearTimeout(queryTimer);
+        queryTimer = window.setTimeout(function () {
+          var len = input.value.trim().length;
+          if (len >= 2) track("search_query", { length: len });
+        }, 700);
+      });
+    }
+
+    // Track clicks on result links inside the dialog.
+    function watchResultClicks() {
+      if (!(dialog instanceof HTMLDialogElement)) return;
+      if (dialog.dataset.analyticsResultsBound === "1") return;
+      dialog.dataset.analyticsResultsBound = "1";
+      dialog.addEventListener(
+        "click",
+        function (e) {
+          var t = e.target;
+          if (!(t instanceof Element)) return;
+          var a = t.closest(".pagefind-ui__result-link");
+          if (!(a instanceof HTMLAnchorElement)) return;
+          var results = Array.prototype.slice.call(
+            dialog.querySelectorAll(".pagefind-ui__result-link"),
+          );
+          var idx = results.indexOf(a);
+          track("search_result_clicked", { result_index: idx });
+        },
+        { capture: true, passive: true },
+      );
+    }
+
+    function openSearch(source) {
       loadPagefind();
       dialog.showModal();
+      track("search_opened", { source: source });
       setTimeout(function () {
         var input = dialog.querySelector("input[type=text]");
         if (input instanceof HTMLElement) input.focus();
+        watchSearchInput();
+        watchResultClicks();
       }, 80);
     }
 
-    openBtn.addEventListener("click", openSearch);
+    openBtn.addEventListener("click", function () {
+      openSearch("button");
+    });
 
     closeBtn.addEventListener("click", function () {
       dialog.close();
@@ -226,7 +279,7 @@
     document.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        openSearch();
+        openSearch("shortcut");
       }
     });
   })();

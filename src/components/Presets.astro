@@ -7,13 +7,15 @@ const presets = [
 ];
 ---
 
-<div class="grid gap-4 sm:grid-cols-3">
+<div class="grid gap-4 sm:grid-cols-3" id="preset-cards">
   {
     presets.map((p, i) => (
       <a
         href={`/${p.year}/`}
         class="group hover:shadow-card-hover relative overflow-hidden rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-7 text-left transition hover:-translate-y-1 hover:border-[color:var(--accent)]"
         data-reveal
+        data-preset-year={p.year}
+        data-preset-index={i}
         style={`--reveal-delay: ${i * 90}ms`}
       >
         {/* dog-eared corner */}
@@ -35,3 +37,20 @@ const presets = [
     ))
   }
 </div>
+
+<script>
+  import { EVENTS, track, register } from "../lib/analytics";
+
+  document
+    .querySelectorAll<HTMLAnchorElement>("#preset-cards [data-preset-year]")
+    .forEach((card) => {
+      card.addEventListener("click", () => {
+        const year = parseInt(card.dataset.presetYear ?? "0", 10);
+        const index = parseInt(card.dataset.presetIndex ?? "0", 10);
+        if (!Number.isFinite(year) || year <= 0) return;
+        track(EVENTS.presetClicked, { year, index });
+        track(EVENTS.yearSubmitted, { year, source: "preset" });
+        register({ year_filter: year });
+      });
+    });
+</script>

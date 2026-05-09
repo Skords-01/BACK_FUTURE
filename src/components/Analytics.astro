@@ -22,6 +22,12 @@
  *     PUBLIC_POSTHOG_KEY=phc_...                                    (обов'язково)
  *     PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com                  (опційно, default — eu.i)
  *
+ * Для PostHog використовуємо `persistence: "localStorage"` — без cookies, але
+ * розпізнаємо сесію в межах одного браузера. Якщо `respect_dnt` enabled, юзери з
+ * Do-Not-Track автоматично виключені з трекінгу.
+ *
+ * Кастомні події надсилаємо через хелпер `src/lib/analytics.ts`.
+ *
  * Префікс PUBLIC_ потрібен, щоб Astro прокинув змінну в client-side bundle
  * (https://docs.astro.build/en/guides/environment-variables/).
  */
@@ -57,12 +63,43 @@ function resolveConfig(): AnalyticsConfig {
 
 const config = resolveConfig();
 
-// PostHog снipet екранований під JSON.stringify, щоб уникнути ін'єкцій
+// Конфіг ініціалізації PostHog. Вибрані опції:
+//   persistence: "localStorage"      — без cookies (як обіцяє коментар вище)
+//   respect_dnt: true                — юзери з Do-Not-Track не трекаються взагалі
+//   person_profiles: "identified_only" — анонімні не створюють person profile
+//   capture_pageview / pageleave     — стандартний funnel-стартер
+//   capture_performance.web_vitals   — Core Web Vitals як `$web_vitals` events
+//   autocapture / rageclick          — безкоштовні heatmaps + dead-click інсайти
+const posthogInitOptions =
+  config?.kind === "posthog"
+    ? {
+        api_host: config.host,
+        persistence: "localStorage" as const,
+        respect_dnt: true,
+        person_profiles: "identified_only" as const,
+        capture_pageview: true,
+        capture_pageleave: true,
+        autocapture: true,
+        rageclick: true,
+        capture_performance: { web_vitals: true },
+        disable_session_recording: true,
+      }
+    : null;
+
+// Снipet екрануємо JSON.stringify-ом щоб уникнути ін'єкцій
 // з env-значень (host може бути self-hosted) і подвійних лапок.
 const posthogSnippet =
-  config?.kind === "posthog"
-    ? `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p=t.createElement("script"),p.type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init Te us le we Ne ke De Ce Le ke Pe Me Re ue Ee xe Ie Os ws Ts Es Cs Ls Rs Ps Ms je Ae He Be Fe ze Ye Je Ve $e Xe Qe et tt rt nt st".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init(${JSON.stringify(config.key)},{api_host:${JSON.stringify(config.host)},person_profiles:"identified_only",capture_pageview:true,capture_pageleave:true});`
+  config?.kind === "posthog" && posthogInitOptions
+    ? `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p=t.createElement("script"),p.type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init Te us le we Ne ke De Ce Le ke Pe Me Re ue Ee xe Ie Os ws Ts Es Cs Ls Rs Ps Ms je Ae He Be Fe ze Ye Je Ve $e Xe Qe et tt rt nt st".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init(${JSON.stringify(config.key)},${JSON.stringify(posthogInitOptions)});`
     : "";
+
+// Глобальний хендлер для outbound-кліків. Один раз вішається на document і
+// перехоплює <a href> на зовнішні домени. Якщо юзер тримає Ctrl/Cmd або
+// клацає середньою кнопкою — теж рахуємо (новa вкладка). Жодних PII —
+// тільки `host` і `path`.
+const outboundSnippet = config
+  ? `(function(){function f(){var l=location.host;document.addEventListener('click',function(e){var t=e.target;if(!(t instanceof Element))return;var a=t.closest('a[href]');if(!(a instanceof HTMLAnchorElement))return;var h=a.href;if(!h)return;try{var u=new URL(h,location.href);if(!/^https?:$/.test(u.protocol))return;if(u.host===l)return;var p=window.posthog;if(!p||typeof p.capture!=='function')return;var fc=a.closest('article[id^="fact-card-"]');var fid=fc?fc.id.replace(/^fact-card-/,''):null;p.capture(fid?'fact_source_clicked':'outbound_link_clicked',{host:u.host,path:u.pathname,fact_id:fid});}catch(_){}},{capture:true,passive:true});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',f,{once:true});}else{f();}})();`
+  : "";
 
 if (import.meta.env.DEV && !config) {
   const missing = !provider
@@ -77,6 +114,14 @@ if (import.meta.env.DEV && !config) {
 ---
 
 {
+  config?.kind === "posthog" && (
+    <>
+      <link rel="dns-prefetch" href={config.host} />
+      <link rel="preconnect" href={config.host} crossorigin="anonymous" />
+    </>
+  )
+}
+{
   config?.kind === "plausible" && (
     <script is:inline defer data-domain={config.domain} src={config.src} />
   )
@@ -87,3 +132,4 @@ if (import.meta.env.DEV && !config) {
   )
 }
 {config?.kind === "posthog" && <script is:inline set:html={posthogSnippet} />}
+{config && <script is:inline set:html={outboundSnippet} />}
