@@ -25,7 +25,7 @@
 - **Mobile:** Playwright `mobile-chrome` projektt + 375px smoke pack (PR #82), справжнє burger-меню (PR #83), touch targets ≥44×44 (PR #84), sticky-header fix (PR #89).
 - **`/fact/[slug]` UX:** reading progress bar (PR #94), floating «До YYYY» pill (PR #95).
 - **Глобальний `[data-reveal]`-fade-in observer:** Base.astro (PR #96) — fade-in карток на всіх сторінках з опт-ін атрибутом.
-- **Контент:** 11 предметів підтримуються в схемі/CMS/UI; **усі 11 заповнені — 165 фактів сумарно** (15 на предмет, ~30 з них високий impact — «★ Віха»).
+- **Контент:** 11 предметів підтримуються в схемі/CMS/UI; **усі 11 заповнені — 175 фактів сумарно** (15–16 на предмет, ~30 з них високий impact — «★ Віха»).
 
 ### Лишилось зробити (узагальнено)
 
