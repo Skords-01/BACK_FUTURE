@@ -76,9 +76,9 @@ draft: false
 
 Детальніше в [`docs/content-guidelines.md`](docs/content-guidelines.md).
 
-## Аналітика (опційно)
+## Аналітика та observability (опційно)
 
-Підтримуються Plausible і Umami — privacy-friendly, без cookies. За замовчуванням нічого не вантажиться. Щоб увімкнути, задай env-змінні (див. `.env.example`):
+Підтримуються Plausible, Umami і **PostHog** — privacy-friendly product analytics, без cookies. Окремо інтегрований **Sentry** для error tracking і **Google Search Console** verification meta. Усе env-gated: за замовчуванням жодних скриптів не вантажиться. Щоб увімкнути, задай env-змінні (див. `.env.example`):
 
 ```bash
 # Plausible
@@ -90,7 +90,17 @@ PUBLIC_PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/script.js  # опц., для
 PUBLIC_ANALYTICS_PROVIDER=umami
 PUBLIC_UMAMI_WEBSITE_ID=00000000-0000-0000-0000-000000000000
 PUBLIC_UMAMI_SCRIPT_URL=https://umami.example.com/script.js
+
+# або PostHog (з фунелами і dashboard-as-code)
+PUBLIC_ANALYTICS_PROVIDER=posthog
+PUBLIC_POSTHOG_KEY=phc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+
+# Sentry (error tracking, опційно)
+PUBLIC_SENTRY_DSN=https://xxxxxxxxxxxxxxxx@oXXXXXX.ingest.sentry.io/XXXXXXXX
 ```
+
+Деталі (інструментовані події, фунели, скрипт `posthog-setup.ts` для dashboard-as-code) — у [`docs/analytics.md`](docs/analytics.md).
 
 ## Архітектура
 
