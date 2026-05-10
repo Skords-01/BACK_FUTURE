@@ -2,7 +2,7 @@
 
 > Цей документ — «жива» довгострокова пам'ять проєкту. Тут зафіксовано все, що було спільно проговорено між власником і Devin: бачення, рішення, відкладені моменти, відкриті питання, поточний стан. Оновлюється з кожним значущим етапом. Усі майбутні сесії повинні почати читання саме з цього документа.
 
-Останнє оновлення: травень 2026 року, після PR #97: 11 предметів заповнені (175 фактів), `/timeline` (Variant A), reading-progress + back-to-year pill на `/fact/[slug]`, dark-mode contrast fixes, глобальний `[data-reveal]`-observer, self-hosted фонт-пакет + immutable cache, мобільне burger-меню + 44×44 touch targets.
+Останнє оновлення: травень 2026 року, після PR #133: 11 предметів заповнені (175 фактів), Pagefind-пошук (Cmd/Ctrl+K) і `/quiz`-сторінка, observability-стек (Sentry, PostHog з фунелами і dashboard-as-code, GSC-верифікація) — все env-gated, `userState.ts` (last-year + read-tracking у `localStorage`), 5 design-effects (staggered entrance, magnetic 3D tilt, slot-machine GO, glitch reveal, DensityStrip tooltip), `ScrollRestore` стійкий на iOS Safari + bfcache, прибрано dead code і застарілі шрифти (Fraunces/Lora/IBM Plex Mono), JetBrains Mono замінив IBM Plex Mono як основний моно-шрифт.
 
 ---
 
@@ -103,7 +103,7 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### Цільовий обсяг
 
-**11 предметів підтримуються у схемі/CMS/UI і всі заповнені — 175 фактів сумарно** (15–16 на предмет). Базовий пак 5 предметів у PR-ах #3, #4, #5, #16, #17 (astronomy, biology, geography, history, physics); нові 6 предметів — PR-и #53 (tech), #54 (culture), #56 (ecology), #72 (medicine), #75 (economy), #76 (sport). PR #63 додав `quote` / `before` / `after` / `impact: high` 32 ключовим фактам.
+**11 предметів підтримуються у схемі/CMS/UI і всі заповнені — 175 фактів сумарно** (15–16 на предмет). Базовий пак 5 предметів у PR-ах #3, #4, #5, #16, #17 (astronomy, biology, geography, history, physics); нові 6 предметів — PR-и #53 (tech), #54 (culture), #56 (ecology), #72 (medicine), #75 (economy), #76 (sport). PR #63 додав `quote` / `before` / `after` / `impact: high` 32 ключовим фактам. PR #116 додав ще 10 фактів у різні предмети (165 → 175).
 
 ### Стан батчів
 
@@ -156,19 +156,19 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### 🔥 Швидкі вау-фішки
 
-| #   | Пункт                                 | Згода | Статус                                                                                                                                                  |
-| --- | ------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Динамічна OG-картка по року           | ✓     | Done: SVG у [#20](https://github.com/Skords-01/BACK_FUTURE/pull/20), PNG у [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) (`@resvg/resvg-js`). |
-| 2   | Шер-кнопки + копіювання посилання     | ✓     | Done у [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21).                                                                                         |
-| 3   | Лічильник «База: N фактів» у хедері   | ✓     | Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).                                                                                         |
-| 4   | Анімовані тізери на лендингу          | ✓     | Pending                                                                                                                                                 |
-| 5   | Сторінка `/share/[year]` (PNG-постер) | ✓     | Pending (залежить від #1.3)                                                                                                                             |
+| #   | Пункт                                 | Згода | Статус                                                                                                                                                                                                                                                                                                        |
+| --- | ------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Динамічна OG-картка по року           | ✓     | Done: SVG у [#20](https://github.com/Skords-01/BACK_FUTURE/pull/20), PNG у [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) (`@resvg/resvg-js`).                                                                                                                                                       |
+| 2   | Шер-кнопки + копіювання посилання     | ✓     | Done у [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21).                                                                                                                                                                                                                                               |
+| 3   | Лічильник «База: N фактів» у хедері   | ✓     | Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).                                                                                                                                                                                                                                               |
+| 4   | Анімовані тізери на лендингу          | ✓     | Done у [#107](https://github.com/Skords-01/BACK_FUTURE/pull/107) і [#115](https://github.com/Skords-01/BACK_FUTURE/pull/115): staggered entrance для timeline rows, magnetic 3D tilt на fact cards, slot-machine GO, glitch reveal року, DensityStrip tooltip. Усі ефекти поважають `prefers-reduced-motion`. |
+| 5   | Сторінка `/share/[year]` (PNG-постер) | ✓     | Pending (залежить від #1.3)                                                                                                                                                                                                                                                                                   |
 
 ### 🧠 Контент
 
 | #   | Пункт                              | Згода      | Статус                                                                                                                                                                                      |
 | --- | ---------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 6   | 75 фактів (15 на предмет)          | ✓ (більше) | 5/5 батчів готові                                                                                                                                                                           |
+| 6   | 75 фактів (15 на предмет)          | ✓ (більше) | Done. 11/11 батчів готові — 175 фактів сумарно (15–16 на предмет після +10 у [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116)).                                                    |
 | 7   | Прив'язка до тем шкільної програми | ✓          | Pending                                                                                                                                                                                     |
 | 8   | Розділ «Підручники» з обкладинками | ⊘ (можемо) | Pending                                                                                                                                                                                     |
 | 9   | `/timeline` — хронологія           | ✓          | Done у [#93](https://github.com/Skords-01/BACK_FUTURE/pull/93) і [#97](https://github.com/Skords-01/BACK_FUTURE/pull/97): Variant A (вертикальна вісь, era jump-strip, dark-mode contrast). |
@@ -176,11 +176,11 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### 🎮 Інтерактив
 
-| #   | Пункт                                | Згода       | Статус                                                                                                                              |
-| --- | ------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 11  | Квіз «вгадай рік відкриття»          | ✓           | Pending                                                                                                                             |
-| 12  | «Тоді vs зараз» (порівняльна картка) | ✓ обов'яз.  | Done у [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28) — поля `before` / `after` у `content.config.ts` + рендер у FactCard. |
-| 13  | «Школа в режимі реального часу»      | ⊘ (можливо) | Pending — низький пріоритет                                                                                                         |
+| #   | Пункт                                | Згода       | Статус                                                                                                                                                                                                    |
+| --- | ------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11  | Квіз «вгадай рік відкриття»          | ✓           | Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109) (`/quiz`, 5 питань, вся логіка клієнтська) + [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (фікс leak року у question card). |
+| 12  | «Тоді vs зараз» (порівняльна картка) | ✓ обов'яз.  | Done у [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28) — поля `before` / `after` у `content.config.ts` + рендер у FactCard.                                                                       |
+| 13  | «Школа в режимі реального часу»      | ⊘ (можливо) | Pending — низький пріоритет                                                                                                                                                                               |
 
 ### 💰 Монетизація
 
@@ -195,13 +195,13 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 
 ### 🔧 Інфраструктура
 
-| #   | Пункт                                 | Згода | Статус                                                                                                                                 |
-| --- | ------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 18  | Реальний домен + Vercel/Cloudflare    | ✓     | Pending — після контенту                                                                                                               |
-| 19  | Plausible / simpleanalytics           | ✓     | Done у [#44](https://github.com/Skords-01/BACK_FUTURE/pull/44): Plausible / Umami опційно через env.                                   |
-| 20  | Decap / Sveltia CMS поверх `content/` | ✓     | Частково: Sveltia CMS config є, production auth ще потребує налаштування.                                                              |
-| 21  | GitHub Actions: link checker і ширше  | ✓     | Done. CI у `.github/workflows/ci.yml` + `link-check.yml`; internal docs/build links блокують, зовнішні `sources[].url` — warning-only. |
-| 22  | i18n-ready (`content/uk/`)            | ✓     | Pending — структурно, без перекладів                                                                                                   |
+| #   | Пункт                                 | Згода | Статус                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --- | ------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 18  | Реальний домен + Vercel/Cloudflare    | ✓     | Pending — після контенту                                                                                                                                                                                                                                                                                                                                                                                |
+| 19  | Plausible / simpleanalytics           | ✓     | Done у [#44](https://github.com/Skords-01/BACK_FUTURE/pull/44) (Plausible / Umami); розширено у [#117](https://github.com/Skords-01/BACK_FUTURE/pull/117) (PostHog + Sentry + GSC, env-gated), [#131](https://github.com/Skords-01/BACK_FUTURE/pull/131) (інструментація PostHog подій і фунелів) і [#132](https://github.com/Skords-01/BACK_FUTURE/pull/132) (modern query API для dashboard-as-code). |
+| 20  | Decap / Sveltia CMS поверх `content/` | ✓     | Частково: Sveltia CMS config є, production auth ще потребує налаштування.                                                                                                                                                                                                                                                                                                                               |
+| 21  | GitHub Actions: link checker і ширше  | ✓     | Done. CI у `.github/workflows/ci.yml` + `link-check.yml`; internal docs/build links блокують, зовнішні `sources[].url` — warning-only.                                                                                                                                                                                                                                                                  |
+| 22  | i18n-ready (`content/uk/`)            | ✓     | Pending — структурно, без перекладів                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### 🚀 Масштаб
 
@@ -313,7 +313,7 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 - [#63](https://github.com/Skords-01/BACK_FUTURE/pull/63) — додано `quote` / `before` / `after` / `impact: high` для 32 ключових фактів з усіх предметів.
 - [#72](https://github.com/Skords-01/BACK_FUTURE/pull/72) — 15 фактів у `medicine`.
 - [#75](https://github.com/Skords-01/BACK_FUTURE/pull/75) — 15 фактів у `economy`.
-- [#76](https://github.com/Skords-01/BACK_FUTURE/pull/76) — 15 фактів у `sport`. Після цих PR-ів усі 11 предметів мають 15 фактів, разом 165.
+- [#76](https://github.com/Skords-01/BACK_FUTURE/pull/76) — 15 фактів у `sport`. Після цих PR-ів усі 11 предметів мають 15 фактів, разом 165. PR [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116) додав ще 10 фактів у різні предмети (165 → 175).
 
 ### Сесія 15 (PR #82–#97) — Мобільна оптимізація, фонти, badge, `/timeline`, `/fact` UX
 
@@ -333,6 +333,50 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 - [#95](https://github.com/Skords-01/BACK_FUTURE/pull/95) — floating pill «← До YYYY» (back-to-year) на `/fact/[slug]` з двома IntersectionObserver-ами (hero вийшов з viewport-у І support ще не увійшов).
 - [#96](https://github.com/Skords-01/BACK_FUTURE/pull/96) — винесено `[data-reveal]`-observer у `RevealObserver.astro`, підключено у `Base.astro`, розширено на `/subject/[id]`, `/era/[slug]`, `/timeline`.
 - [#97](https://github.com/Skords-01/BACK_FUTURE/pull/97) — dark-mode contrast: header bg, ThemeToggle (`aria-label`), `Footer`, `metodologia` cards.
+
+### Сесія 16 (PR #99–#117) — Pagefind, `/quiz`, observability, Big Mac index, редизайн епох
+
+- [#99](https://github.com/Skords-01/BACK_FUTURE/pull/99) — docs-drift refresh: roadmap і project-memory після PR-ів #82–#97.
+- [#100](https://github.com/Skords-01/BACK_FUTURE/pull/100) — bulk replace `dark:bg-ink-{700,800,900}` → `--card` у 14 файлах (footer, year quick-pills, тематичні блоки, фільтри, ShareBlock, SupportBlock, FactCard/FeatureFactCard, btn-ghost, 404, metodologia, timeline). `dark:hover:text-ink-100` → `dark:hover:text-ink-900`.
+- [#101](https://github.com/Skords-01/BACK_FUTURE/pull/101) — inline OG preview card у ShareBlock (Telegram/X-style: title + canonical + 1200×630 OG-зображення). Робить link також відкривачем у новій вкладці.
+- [#102](https://github.com/Skords-01/BACK_FUTURE/pull/102) — exclude `d/` (handoff/reference: HANDOFF.md, app.jsx, styles.css, Redesign.html) з prettier і markdownlint.
+- [#103](https://github.com/Skords-01/BACK_FUTURE/pull/103) — `factsForYear` тепер сортує **за зростанням** (oldest first); один тест `filterFacts.test.ts` оновлено.
+- [#104](https://github.com/Skords-01/BACK_FUTURE/pull/104) — додано «Головна» як перший nav-link; e2e keyboard-nav тест оновлено.
+- [#105](https://github.com/Skords-01/BACK_FUTURE/pull/105) — a11y-фікс: видимий «гігантський рік» **сам стає `h1`** (з `aria-label="Випуск {year}"`); раніше він був прихований через `clip:rect(0,0,0,0)` і Playwright `toBeVisible()` падав.
+- [#106](https://github.com/Skords-01/BACK_FUTURE/pull/106) — заміна IBM Plex Mono → JetBrains Mono (cyrillic + latin, 400/500/600). Self-hosted .woff2 у `/public/fonts/`.
+- [#107](https://github.com/Skords-01/BACK_FUTURE/pull/107) — 5 design-effects: staggered entrance (cascading delay 65ms на timeline rows), magnetic 3D tilt на fact cards (`perspective(1200px) rotateX/Y`, hover-only, touch-safe), slot-machine GO (odometer-цифри крутяться випадково перед навігацією), glitch reveal year-h1 (CRT-scramble на page load), DensityStrip rich tooltip (фіксована позиція, year + count + era stripe). Усі ефекти поважають `prefers-reduced-motion`.
+- [#108](https://github.com/Skords-01/BACK_FUTURE/pull/108) — 5 mobile UX: Hero clamp-text + менший top-margin на mobile, MissedCounter `flex-col` на mobile, EraGrid 5-та картка `col-span-2` на mobile, DensityStrip horizontal touch-scroll (min-width 540px), SubjectFilters tracks `--header-h` через `ResizeObserver` у Header.
+- [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109) — **Pagefind search** (`pagefind ^1.3.0`, build script `pagefind --site dist`, `SearchDialog.astro` з lazy-load `/pagefind/pagefind-ui.{js,css}`, native `<dialog>`, Cmd/Ctrl+K), `data-pagefind-body` на `<main>` обмежує індекс. Search-кнопка у Header перед ThemeToggle. **`/quiz`-сторінка** + scroll-animations + about/metodologia редизайн. Закриває **#4.1 Pagefind** і **#6.4 квіз**.
+- [#110](https://github.com/Skords-01/BACK_FUTURE/pull/110) — sync `package-lock.json` з pagefind (#109 змерджився без оновленого lock; npm ci падав на Vercel).
+- [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) — quiz: маска 4-цифрових років у question card (щоб відповідь не прокидалася); `eras.json` short вирівняно з educational range; ThenAside показує рік сторінки як headline; about редагування «Що це не» → «Наші принципи»; Pagefind пошукові терміни обгорнуті в quotes (`"голка"` не матчить `гол`); SERGEANT_GROUP brand-блок у footer.
+- [#112](https://github.com/Skords-01/BACK_FUTURE/pull/112) — прибрано парентезу «(найближчі дані — XXXX р.)» у ThenAside — створювала помилкове враження застарілості.
+- [#113](https://github.com/Skords-01/BACK_FUTURE/pull/113) — «Борщовий набір» з реальними цінами по роках у `content/epoch/*.json`.
+- [#114](https://github.com/Skords-01/BACK_FUTURE/pull/114) — користувач передумав: «Борщовий набір» → **«Біг Мак»** (Big Mac index від The Economist + OBOZ.UA archive). 1995 — «не існував» (McDonald's відкрився у Києві 24.05.1997).
+- [#115](https://github.com/Skords-01/BACK_FUTURE/pull/115) — динамічні анімації + LED flicker + hover-effects + interactive timeline tooltips + global search.
+- [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116) — project evaluation recommendations: `/themes` redirect → 404 у production (dev-only лабораторія), `Analytics.astro` warns у dev коли provider не налаштований, NetlifyCMS admin files прибрано, **`src/lib/userState.ts`** (localStorage: last visited year + read-tracking через IntersectionObserver), lazy fade-in карток на `/all`, **+10 нових фактів** (165 → 175).
+- [#117](https://github.com/Skords-01/BACK_FUTURE/pull/117) — **observability**: Sentry (error tracking з error/replay sample-rate), PostHog (privacy-friendly product analytics), Google Search Console verification meta tag. Усе env-gated: без DSN/KEY жоден SDK не вантажиться (нульовий runtime). PostHog розширено в [#131](https://github.com/Skords-01/BACK_FUTURE/pull/131) і [#132](https://github.com/Skords-01/BACK_FUTURE/pull/132).
+
+### Сесія 17 (PR #118–#125) — Top-N quick wins, мобільні фікси, редизайн карток
+
+- [#118](https://github.com/Skords-01/BACK_FUTURE/pull/118) — mobile UX: freeze 3D tilt коли `<details>` відкритий (щоб розгорнутий текст не качався); `min-h-[44px]` на «Постійна сторінка»; auto-scroll розгорнутих details у viewport на touch; джерела `block + py-1.5` для більших tap-areas.
+- [#119](https://github.com/Skords-01/BACK_FUTURE/pull/119) — top-5 UX: thin reading-progress bar на year pages, BackToTop floating button (з'являється після 300px), Hero «Випадковий рік» + «Повернутись до N» pill з localStorage (закриває **#4.3 «Мій рік» persist**), keyboard nav `←`/`→` між роками на `[year]`, kbd-hint у YearNav.
+- [#120](https://github.com/Skords-01/BACK_FUTURE/pull/120) — 3 UI-engagement improvements + trailing comma fix у IntersectionObserver call.
+- [#121](https://github.com/Skords-01/BACK_FUTURE/pull/121) — top-3 quick wins: BackToTop fade fix (toggle `.is-visible` class замість `[hidden]` атрибуту, бо display:none ігнорує CSS-transitions), keyboard nav guard `dialog[open]` (щоб `←`/`→` не навігували коли SearchDialog відкритий), `npm run ci` script.
+- [#122](https://github.com/Skords-01/BACK_FUTURE/pull/122) — Sentry: міграція на `@sentry/astro v10` config layout (`sentry.client.config.ts` + `sentry.server.config.ts`).
+- [#123](https://github.com/Skords-01/BACK_FUTURE/pull/123) — `/timeline` mobile: cards collapsed by default; thin axis (28px замість 80px). Year + delta переїхали з лівого rail у FactCard meta row.
+- [#124](https://github.com/Skords-01/BACK_FUTURE/pull/124) — e2e тести вирівняно з поточним UI: home-сторінка тепер `YearMachine` (stepper + odometer + GoButton anchor + decade QuickPicks), фільтри року перейшли з `<select>` → chip bar (`#subject-filter-bar`), Header має «Квіз»-link, methodology heading «П'ять ер шкільних програм».
+- [#125](https://github.com/Skords-01/BACK_FUTURE/pull/125) — об'єднано «Постійна сторінка» + «Докладніше» у один CTA на картках; restore scroll on back navigation.
+
+### Сесія 18 (PR #126–#133) — `ScrollRestore` стійкість, fact-page polish, PostHog інструментація, dead code cleanup
+
+- [#126](https://github.com/Skords-01/BACK_FUTURE/pull/126) — `ScrollRestore` стійкий на iOS Safari та reflow-сценаріях (запис позиції на `scrollend` через debounce, retry на `pageshow`).
+- [#127](https://github.com/Skords-01/BACK_FUTURE/pull/127) — `?debug=scroll` діагностичний overlay у `ScrollRestore` (показує state машину у фіксованому overlay).
+- [#128](https://github.com/Skords-01/BACK_FUTURE/pull/128) — drop `history.scrollRestoration = "manual"`; restore через `pageshow` на bfcache (Safari/Firefox bfcache конфліктував з `manual`).
+- [#129](https://github.com/Skords-01/BACK_FUTURE/pull/129) — `/fact/[slug]` hero cleanup: прибрано grid із трьох білих карток (Регіон/Вплив/Оновлено) і блок з посиланнями на `relevantForEras`. Метадані переїхали в компактний inline-рядок; «Оновлено» показується тільки коли є фактична `updatedAt`.
+- [#130](https://github.com/Skords-01/BACK_FUTURE/pull/130) — `/fact/[slug]` mobile padding: `px-7 sm:px-6` на трьох container-prose блоках (28px на mobile, 24px на desktop).
+- [#131](https://github.com/Skords-01/BACK_FUTURE/pull/131) — **PostHog інструментація**: `src/lib/analytics.ts` (typed wrapper з `EVENTS`-константами + тести), `Analytics.astro` (persistence=localStorage без cookies, respect_dnt, web_vitals, autocapture, rageclick, dns-prefetch, global outbound link handler `fact_source_clicked` / `outbound_link_clicked`). Інструментовано: `year_submitted` (manual/preset), quick/random pick, era click, subject filter, fact card click, share (target + succeeded), support, **quiz funnel** (start/answer/finish/restart), search (open/query length only/result), theme toggle, back-to-top.
+- [#132](https://github.com/Skords-01/BACK_FUTURE/pull/132) — `scripts/posthog-setup.ts`: legacy `filters` API повертав 403 «Creating or updating insights with legacy filters is not available for this user» для нових PostHog акаунтів. Перехід на **modern query API** (`InsightVizNode + TrendsQuery/FunnelsQuery`). Перевірено на реальному B|F project (175241): dashboard + 4 funnels + 7 trends створено успішно.
+- [#133](https://github.com/Skords-01/BACK_FUTURE/pull/133) — cleanup: видалено `d/` (дизайн-референс, 4 файли), 3 мертві компоненти (`FeatureFactCard`, `LowFactRow`, `SubjectSection`), Fraunces + Lora woff2 (5 файлів, ~256 KB), IBM Plex Mono woff2 (6 файлів, ~72 KB), `@fontsource/jetbrains-mono` і `@fontsource-variable/unbounded` з dependencies (шрифти self-hosted). У `tailwind.config.mjs` прибрано DM Mono (відсутній) з mono stack. Часткова синхронізація docs (165→175, Manrope/Inter→Unbounded/Geist).
 
 ---
 
@@ -411,6 +455,6 @@ tailwind.config.mjs             ← дизайн-токени (єдине дже
 3. Прочитати `docs/architecture.md` (для розуміння template-генерації).
 4. Перевірити `git status` і відкриті PR-и: можливо, частина батчів вже змерджена.
 5. Перевірити поточний `main` на стан контенту: `ls content/facts/<subject>/`.
-6. Підтвердити з користувачем поточний пріоритет (після PR #97 найімовірніше: Pagefind, `/quiz`, `/compare?a=…&b=…`, issue → draft PR, `/contributors`/`/support`, PWA manifest).
+6. Підтвердити з користувачем поточний пріоритет (після PR #133 найімовірніше: `/compare?a=…&b=…`, `/share/[year]` PNG-постер, `/saved` bookmark-факти, issue → draft PR action, `/contributors` (потребує `authors` поля) і `/support`-сторінка (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing `/uk/`/`/en/`).
 7. Працювати на feature branch, не пушити в main.
 8. Моноширинний шрифт для років, темно-синій для акцентів — НЕ змінювати без явної згоди.
