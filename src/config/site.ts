@@ -10,7 +10,10 @@ export const SITE = {
   description:
     "Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів — українською мовою.",
   locale: "uk-UA",
-  defaultUrl: import.meta.env.PUBLIC_SITE_URL ?? "https://back-future.example.com",
+  // `import.meta.env.SITE` is injected by Astro from the `site:` config in
+  // `astro.config.mjs` (which already applies the PUBLIC_SITE_URL fallback
+  // chain). Single source of truth — do NOT duplicate the placeholder here.
+  defaultUrl: import.meta.env.SITE,
   author: "BACK_FUTURE team",
   twitter: "",
   yearMin: 1991,
