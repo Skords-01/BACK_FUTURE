@@ -102,6 +102,18 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
       crossorigin
     />
     {
+      /* Display-шрифт для h1/h2/h3 — без preload браузер чекає
+       парсингу CSS і ставить FOUT поверх вже намальованого тіла.
+       31 KB кирилиці — найдешевша заявка на стабільний first paint. */
+    }
+    <link
+      rel="preload"
+      href="/fonts/unbounded-cyrillic-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    {
       jsonLdItems.map((item) => (
         <script type="application/ld+json" set:html={serializeJsonLd(item)} />
       ))
