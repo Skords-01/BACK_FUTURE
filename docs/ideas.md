@@ -21,7 +21,6 @@
 ### Нові сторінки
 
 - **`/compare?a=1998&b=2010`** — два роки поруч (6.3 у roadmap).
-- **`/share/[year]`** — рендер постера PNG для соцмереж (#5 у memory; 6.5 у roadmap).
 
 ### SEO і шеринг
 
@@ -100,6 +99,7 @@
 - **OG як PNG** — Done у [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) (через `@resvg/resvg-js`).
 - **JSON-LD `Article` + `BreadcrumbList`** — Done у [#31](https://github.com/Skords-01/BACK_FUTURE/pull/31).
 - **Шер-кнопки (Telegram, X, copy, native share)** — Done у [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21).
+- **`/share/[year]` PNG-постер (1080×1920)** — Done: `src/pages/share/[year].png.ts` (resvg з immutable cache, sans-fallback для великого фонту), `src/pages/share/[year].astro` (preview, download, native share, Telegram/X/Facebook intents), лінк з `ShareBlock`, empty-year fallback, vitest для SVG-шаблону.
 
 ### Пошук і персоналізація (зроблено)
 

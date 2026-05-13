@@ -129,6 +129,15 @@ const targets = [
         <span aria-hidden="true">↗</span>
         Поділитись…
       </button>
+      <a
+        href={`/share/${year}/`}
+        data-share-target="poster"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        aria-label={`Завантажити постер року ${year} для Stories`}
+      >
+        <span aria-hidden="true">⬇</span>
+        Завантажити постер
+      </a>
     </div>
 
     <p
