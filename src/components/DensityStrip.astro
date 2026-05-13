@@ -5,6 +5,7 @@
 import { getCollection } from "astro:content";
 import { ERAS, eraOf } from "../lib/eras";
 import { SITE } from "../config/site";
+import { factsWord } from "../lib/plurals";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 
@@ -47,13 +48,7 @@ const { activeYear, featuredByYear = {} } = Astro.props;
             data-ds-year={year}
             data-ds-count={count}
             data-ds-color={era.color}
-            aria-label={`${year} рік, ${count} ${(() => {
-              const m10 = count % 10,
-                m100 = count % 100;
-              if (m10 === 1 && m100 !== 11) return "факт";
-              if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
-              return "фактів";
-            })()}`}
+            aria-label={`${year} рік, ${count} ${factsWord(count)}`}
           >
             <span class="density__cap" style={`--h: ${hPct}%; --c: ${era.color}`} />
             {showTick && (
@@ -89,6 +84,8 @@ const { activeYear, featuredByYear = {} } = Astro.props;
 </div>
 
 <script>
+  import { factsWord } from "../lib/plurals";
+
   (function () {
     const hasHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     if (!hasHover) return;
@@ -111,11 +108,7 @@ const { activeYear, featuredByYear = {} } = Astro.props;
     if (!wrap) return;
 
     function countLabel(n: number): string {
-      const m10 = n % 10,
-        m100 = n % 100;
-      if (m10 === 1 && m100 !== 11) return `${n} факт`;
-      if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return `${n} факти`;
-      return `${n} фактів`;
+      return `${n} ${factsWord(n)}`;
     }
 
     let hideTimer: ReturnType<typeof setTimeout>;

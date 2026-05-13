@@ -20,7 +20,6 @@
 
 ### Нові сторінки
 
-- **`/compare?a=1998&b=2010`** — два роки поруч (6.3 у roadmap).
 - **`/share/[year]`** — рендер постера PNG для соцмереж (#5 у memory; 6.5 у roadmap).
 
 ### SEO і шеринг
@@ -42,7 +41,7 @@
 ### i18n
 
 - **Astro routing**: `/uk/`, `/en/` — структурно, без перекладів спочатку (9.1 у roadmap).
-- **ICU plurals** у форматерах кількості (9.2 у roadmap).
+- **ICU plurals** у форматерах кількості (9.2 у roadmap) — ✅ зроблено: `src/lib/plurals.ts` із `Intl.PluralRules` + helpers (`factsCount` / `updatesCount` / `yearsAgo`), приймає `locale` → готово до 9.1 i18n routing.
 - **Англомовний UI** — діаспора + органіка (9.3 у roadmap).
 
 ### Інфра / тех-борг
@@ -90,6 +89,7 @@
 - **`/timeline` — лінія часу всіх фактів** — Done у [#93](https://github.com/Skords-01/BACK_FUTURE/pull/93)/[#97](https://github.com/Skords-01/BACK_FUTURE/pull/97) (Variant A: вертикальна вісь, era jump-strip, JSON-LD `ItemList`); mobile collapsed cards у [#123](https://github.com/Skords-01/BACK_FUTURE/pull/123).
 - **`/quiz` — «вгадай рік відкриття»** — Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109) (5 питань, логіка клієнтська) + [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (маска року у question card).
 - **`/all` — список усіх фактів** — lazy fade-in у [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116) (`IntersectionObserver`).
+- **`/compare?a=…&b=…` — два роки поруч** — Done (6.3 у roadmap): side-by-side колонки з era badge, лічильником фактів, топ-3 high-impact, спільними предметами та epoch снепшотом з nearest fallback; форма-пікер + кнопки `Поміняти місцями`/`Випадкова пара`; friendly error при `a === b`; динамічні OG/canonical.
 
 ### SEO і шеринг (зроблено)
 

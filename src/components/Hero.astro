@@ -4,6 +4,7 @@ import YearMachine from "./YearMachine.astro";
 import MissedCounter from "./MissedCounter.astro";
 import QuickPicks from "./QuickPicks.astro";
 import { SITE } from "../config/site";
+import { factsWord } from "../lib/plurals";
 
 interface Props {
   totalFacts: number;
@@ -19,7 +20,9 @@ const currentYear = new Date().getFullYear();
     class="mb-9 flex justify-between font-mono text-[11px] tracking-[0.12em] text-[color:var(--muted)] uppercase"
   >
     <span>№ 001 · просвітницький журнал · українською</span>
-    <span class="hidden sm:inline">видання {currentYear} · {totalFacts} фактів</span>
+    <span class="hidden sm:inline"
+      >видання {currentYear} · {totalFacts} {factsWord(totalFacts)}</span
+    >
   </div>
 
   <h1

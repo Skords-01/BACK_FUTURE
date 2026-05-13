@@ -8,6 +8,7 @@ import Presets from "../components/Presets.astro";
 import InstallPwaButton from "../components/InstallPwaButton.astro";
 import { SITE } from "../config/site";
 import { getCollection } from "astro:content";
+import { factsWord } from "../lib/plurals";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const totalFacts = allFacts.length;
@@ -153,7 +154,8 @@ const websiteLd: Record<string, unknown> = {
           href="/all/"
           class="font-mono text-sm text-[color:var(--muted)] underline-offset-4 hover:text-[color:var(--accent)] hover:underline"
         >
-          Усі {totalFacts} фактів →
+          Усі {totalFacts}
+          {factsWord(totalFacts)} →
         </a>
       </p>
     </section>
