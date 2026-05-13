@@ -46,7 +46,7 @@
 ### i18n
 
 - **Astro routing**: `/uk/`, `/en/` — структурно, без перекладів спочатку (9.1 у roadmap).
-- **ICU plurals** у форматерах кількості (9.2 у roadmap).
+- **ICU plurals** у форматерах кількості (9.2 у roadmap) — ✅ зроблено: `src/lib/plurals.ts` із `Intl.PluralRules` + helpers (`factsCount` / `updatesCount` / `yearsAgo`), приймає `locale` → готово до 9.1 i18n routing.
 - **Англомовний UI** — діаспора + органіка (9.3 у roadmap).
 
 ### Інфра / тех-борг
