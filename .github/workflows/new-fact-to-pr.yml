@@ -1,0 +1,188 @@
+name: New fact issue → draft PR
+
+# Roadmap 7.1: turn an Issue submitted via `.github/ISSUE_TEMPLATE/new-fact.yml`
+# into a draft PR that adds a fully-formed `content/facts/<subject>/<slug>.md`.
+#
+# Trigger conditions:
+# - Fires only when the issue carries the `new-fact-submission` label
+#   (either set at creation by the template or applied later).
+# - Skips re-runs if a `new-fact/<issue>-<slug>` branch already exists.
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: new-fact-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: >-
+      (github.event.action == 'labeled' && github.event.label.name == 'new-fact-submission') ||
+      (github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'new-fact-submission'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install minimal deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate fact markdown
+        id: generate
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: npx tsx scripts/issue-to-fact.ts
+
+      - name: Comment on validation failure
+        if: failure() && steps.generate.outcome == 'failure'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: issueNumber,
+              body: [
+                "❌ Не вдалося згенерувати `.md`-факт із цього issue.",
+                "",
+                `Деталі — в логах джоба: ${runUrl}`,
+                "",
+                "Поправ поля issue (особливо `yearOfEvent`, `sources`, `relevantForEras`) і повтор натисни кнопку «Re-run job» або зніми/постав мітку `new-fact-submission` ще раз.",
+              ].join("\n"),
+            });
+
+      - name: Add subject / era labels (auto-label improvement)
+        if: steps.generate.outputs.ok == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const subject = `${{ steps.generate.outputs.subject }}`;
+            const eraLabels = `${{ steps.generate.outputs.era_labels }}`.split(",").filter(Boolean);
+            const labels = [`subject:${subject}`, ...eraLabels];
+            for (const name of labels) {
+              try {
+                await github.rest.issues.getLabel({ ...context.repo, name });
+              } catch (err) {
+                if (err.status === 404) {
+                  await github.rest.issues.createLabel({
+                    ...context.repo,
+                    name,
+                    color: name.startsWith("era:") ? "0e8a16" : "5319e7",
+                  });
+                } else {
+                  throw err;
+                }
+              }
+            }
+            await github.rest.issues.addLabels({
+              ...context.repo,
+              issue_number: context.issue.number,
+              labels,
+            });
+
+      - name: Configure git identity
+        if: steps.generate.outputs.ok == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Push branch and open draft PR
+        if: steps.generate.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.generate.outputs.branch }}
+          FACT_PATH: ${{ steps.generate.outputs.path }}
+          FACT_TITLE: ${{ steps.generate.outputs.title }}
+          FACT_SUBJECT: ${{ steps.generate.outputs.subject }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+        run: |
+          set -euo pipefail
+
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            echo "Branch $BRANCH already exists on origin — skipping push and PR creation."
+            exit 0
+          fi
+
+          git checkout -b "$BRANCH"
+          git add "$FACT_PATH"
+          git commit -m "content(facts/${FACT_SUBJECT}): додати «${FACT_TITLE}» з issue #${ISSUE_NUMBER}" \
+            -m "Згенеровано автоматично з issue #${ISSUE_NUMBER} (\`new-fact-submission\`)." \
+            -m "Closes #${ISSUE_NUMBER}"
+          git push -u origin "$BRANCH"
+
+          cat >/tmp/pr-body.md <<'EOF'
+          ## Резюме
+
+          Автогенерований факт із issue #${ISSUE_NUMBER}, запропонованого @${ISSUE_USER}.
+
+          Файл: `${FACT_PATH}`
+
+          ## Чекліст ревьювера
+
+          - [ ] Прочитав тіло — науково-популярний тон, 3–5 абзаців
+          - [ ] Заголовок < 80 символів, без розділових знаків у кінці
+          - [ ] `short` — 20–280 символів, є «що нового»
+          - [ ] Принаймні одне першоджерело (academic / нацакадемія / держархів)
+          - [ ] Перевірив сенситивні формулювання (`docs/content-guidelines.md`, секція «Чутливі формулювання»)
+          - [ ] `relevantForEras` має сенс для цього факту
+          - [ ] `impact` встановлено правильно (high — тільки переломні факти)
+
+          Closes #${ISSUE_NUMBER}.
+          EOF
+
+          envsubst </tmp/pr-body.md >/tmp/pr-body-final.md
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "content(facts/${FACT_SUBJECT}): ${FACT_TITLE}" \
+            --body-file /tmp/pr-body-final.md \
+            --label "content" \
+            --label "new-fact-pr" \
+            --draft
+
+      - name: Comment on issue with PR link
+        if: steps.generate.outputs.ok == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const branch = `${{ steps.generate.outputs.branch }}`;
+            const factPath = `${{ steps.generate.outputs.path }}`;
+            const { data: prs } = await github.rest.pulls.list({
+              ...context.repo,
+              state: "open",
+              head: `${context.repo.owner}:${branch}`,
+            });
+            const pr = prs[0];
+            if (!pr) {
+              core.setFailed(`No PR found for branch ${branch}`);
+              return;
+            }
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: [
+                `✅ Згенерував draft PR ${pr.html_url} із файлом \`${factPath}\`.`,
+                "",
+                "Ревьювер: пройдися чек-листом у PR (тон, джерела, чутливі формулювання), додай тіло, якщо воно відсутнє, і зніми статус «draft» коли готово.",
+              ].join("\n"),
+            });

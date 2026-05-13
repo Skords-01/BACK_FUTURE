@@ -4,7 +4,7 @@
 > Цей документ описує **технічні** PR-и (інфра, контент-схема, UX, фічі) — як їх логічно розбити, у якій послідовності й з якими залежностями.
 > Список ідей-першоджерел: [`ideas.md`](./ideas.md).
 
-Останнє оновлення: травень 2026 (після PR #133: Pagefind-пошук, `/quiz`, observability-стек (Sentry/PostHog/GSC), `userState.ts`, 5 design-effects, `ScrollRestore` стійкий на iOS/bfcache, dead-code cleanup, JetBrains Mono замість IBM Plex Mono).
+Останнє оновлення: травень 2026 (після PR `new-fact-action`: GitHub Action issue → draft PR (7.1 Done), `scripts/issue-to-fact.ts` із Zod-валідацією та кириличним slugify, `lint:workflows` через actionlint).
 
 ---
 
@@ -36,7 +36,7 @@
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Сторінки                   | `/compare?a=…&b=…`, `/share/[year]` (PNG-постер), `/saved` (bookmark-факти), `/contributors` (потребує `authors` поля), `/support` (потребує `monobankJarUrl` у `site.ts`). |
 | PWA                        | Manifest + сервіс-воркер (офлайн перегляд).                                                                                                                                 |
-| Спільнота                  | Action: issue з шаблону «Запропонувати факт» → draft PR. Email-дайджест (Buttondown / self-hosted).                                                                         |
+| Спільнота                  | Email-дайджест (Buttondown / self-hosted). (Issue → draft PR action — Done у PR `new-fact-action` / 7.1.)                                                                   |
 | Схема                      | `authors` у frontmatter, `region: country:<iso2>` (зараз тільки `world` / `ukraine`), міграція `image` на `astro:assets`.                                                   |
 | i18n                       | Routing (`/uk/`, `/en/`), ICU plurals у форматерах кількості, англомовний UI.                                                                                               |
 | Блокувальники від власника | Реальний домен (`defaultUrl` досі плейсхолдер), Monobank банка, Twitter handle, production-авторизація Sveltia/Decap CMS.                                                   |
@@ -177,12 +177,12 @@
 
 ## Фаза 7 — Спільнота й контент-операційка
 
-| #   | PR                                               | Розмір | Залежить | Опис                                                                       |
-| --- | ------------------------------------------------ | ------ | -------- | -------------------------------------------------------------------------- |
-| 7.1 | Action: issue (шаблон `new-fact.yml`) → draft PR | M      | —        | Авто-створення `.md`-факту з полями issue. (Сполучає #20 і #21 із memory.) |
-| 7.2 | `/contributors` — всі автори фактів              | S      | —        | Парсимо commit history або frontmatter `authors`.                          |
-| 7.3 | `/support` — як підтримати (Monobank, BMC)       | S      | —        | Підключити коли заповниться `monobankJarUrl` у `site.ts`.                  |
-| 7.4 | Email-дайджест (Buttondown / опційно)            | M      | 4.1      | Раз на місяць — нові факти.                                                |
+| #   | PR                                               | Розмір | Залежить | Опис                                                                                                                                                                                                                                                                                 |
+| --- | ------------------------------------------------ | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 7.1 | Action: issue (шаблон `new-fact.yml`) → draft PR | M      | —        | ✅ Done. Issue Form + `scripts/issue-to-fact.ts` (Zod-валідація, кириличний slugify) + `.github/workflows/new-fact-to-pr.yml`: issue з міткою `new-fact-submission` → draft PR з готовим `content/facts/<subject>/<slug>.md`, auto-label `subject:<id>`/`era:<n>`, коментар у issue. |
+| 7.2 | `/contributors` — всі автори фактів              | S      | —        | Парсимо commit history або frontmatter `authors`.                                                                                                                                                                                                                                    |
+| 7.3 | `/support` — як підтримати (Monobank, BMC)       | S      | —        | Підключити коли заповниться `monobankJarUrl` у `site.ts`.                                                                                                                                                                                                                            |
+| 7.4 | Email-дайджест (Buttondown / опційно)            | M      | 4.1      | Раз на місяць — нові факти.                                                                                                                                                                                                                                                          |
 
 ## Фаза 8 — Бренд і дизайн-система
 
@@ -212,7 +212,7 @@ PR [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) закриває по
 4. **#2.5** — розширення `SUBJECTS` до 11 предметів.
 5. **#2.6** — workflow-патч для `sources[].url`.
 
-Наступні найпрактичніші задачі (після PR #133): `/compare?a=…&b=…`, `/share/[year]` PNG-постер, `/saved` bookmark-факти, issue `new-fact.yml` → draft PR action, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing.
+Наступні найпрактичніші задачі (після PR `new-fact-action`): `/compare?a=…&b=…`, `/share/[year]` PNG-постер, `/saved` bookmark-факти, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing.
 
 ---
 
