@@ -3,6 +3,7 @@ import type { Fact } from "../lib/filterFacts";
 import { formatUkShortDate, isoDate } from "../lib/format";
 import { factSlug, factUrl } from "../lib/url";
 import { SUBJECTS } from "../config/site";
+import BookmarkButton from "./BookmarkButton.astro";
 
 interface Props {
   fact: Fact;
@@ -50,6 +51,8 @@ const isVikha = fact.data.impact === "high";
   ]}
 >
   {isVikha && <div class="bg-accent-500 absolute inset-x-0 top-0 h-1" aria-hidden="true" />}
+
+  <BookmarkButton factId={fact.id} variant="card" />
 
   <header>
     <!-- Meta row: № serial · MARK · year  (UA badge if applicable) -->

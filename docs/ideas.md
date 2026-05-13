@@ -16,7 +16,7 @@
 
 ### UX і навігація
 
-- **Збережені факти** (bookmark) — невелика сторінка `/saved` (4.4 у roadmap).
+_(жодних відкритих ідей — `Збережені факти / /saved` перенесено в «Зроблено»; всі базові навігаційні шари закриті.)_
 
 ### Нові сторінки
 
@@ -72,6 +72,7 @@
 
 ### UX і навігація (зроблено)
 
+- **Збережені факти (`/saved` bookmark)** — Done у поточному PR: `addSaved/removeSaved/isSaved/getSavedSlugs/setSavedSlugs/clearSaved` + `bf_saved_changed` CustomEvent у `src/lib/userState.ts`, `BookmarkButton.astro` (variant `card` для `FactCard`, `inline` для `/fact/[slug]`), сторінка `/saved/` зі сортуванням за `updatedAt` desc, порожнім станом, bulk-clear, експортом/імпортом JSON, share через URL-hash (`/saved#a,b,c`) і клавіатурним шорткатом `S` на сторінці факту; реактивний `★ K` лічильник у `Header`; PostHog події `fact_saved` / `fact_unsaved` / `saved_page_view` / `saved_exported` / `saved_imported` / `saved_cleared`. Закриває 4.4 у roadmap.
 - **Глобальний хедер з лічильником «N фактів»** — Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).
 - **Мобільне меню в `Header.astro`** — Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22) + [#83](https://github.com/Skords-01/BACK_FUTURE/pull/83) (повноцінне burger-меню з a11y).
 - **Хлібні крихти** — Done у [#22](https://github.com/Skords-01/BACK_FUTURE/pull/22).

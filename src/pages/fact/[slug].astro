@@ -6,6 +6,7 @@ import SubjectIcon from "../../components/SubjectIcon.astro";
 import SupportBlock from "../../components/SupportBlock.astro";
 import { SITE, SUBJECTS } from "../../config/site";
 import { eraById } from "../../lib/eras";
+import BookmarkButton from "../../components/BookmarkButton.astro";
 import { formatUkShortDate, isoDate } from "../../lib/format";
 import { factSlug, yearUrl } from "../../lib/url";
 
@@ -351,6 +352,7 @@ const breadcrumbsLd: Record<string, unknown> = {
             <span aria-hidden="true">↗</span>
             Поділитись…
           </button>
+          <BookmarkButton factId={fact.id} variant="inline" />
         </div>
         <p
           id="fact-share-status"
@@ -526,5 +528,31 @@ const breadcrumbsLd: Record<string, unknown> = {
         navigator.share({ title: document.title, text: text, url: url }).catch(function () {});
       });
     }
+  })();
+</script>
+
+<script is:inline>
+  // Keyboard shortcut: press `s` (without modifiers) on a fact detail page
+  // to toggle the bookmark. Guarded against typing in form fields and
+  // honors users with reduced-motion preference (no animation effect).
+  (function () {
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "s" && e.key !== "S") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var t = e.target;
+      if (t instanceof HTMLElement) {
+        var tag = t.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || t.isContentEditable) {
+          return;
+        }
+      }
+      var btn = document.querySelector(
+        "button[data-bookmark-btn].bookmark-btn--inline, button[data-bookmark-btn]",
+      );
+      if (btn instanceof HTMLButtonElement) {
+        e.preventDefault();
+        btn.click();
+      }
+    });
   })();
 </script>

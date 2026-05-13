@@ -1,0 +1,328 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import FactCard from "../components/FactCard.astro";
+import { factSlug } from "../lib/url";
+
+// SSR-time: serialize the full fact catalogue so the client script can
+// resolve slugs from localStorage to fact objects without an extra fetch.
+// We render every fact upfront but hide them; the client unhides only those
+// in the saved set. Same pattern as `/all/` uses for filter state.
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const factsByKey = allFacts.slice().sort((a, b) => {
+  // Default-sort by updatedAt desc, fallback to yearOfEvent desc, then id.
+  const aDate = a.data.updatedAt ? new Date(a.data.updatedAt).getTime() : 0;
+  const bDate = b.data.updatedAt ? new Date(b.data.updatedAt).getTime() : 0;
+  if (aDate !== bDate) return bDate - aDate;
+  if (a.data.yearOfEvent !== b.data.yearOfEvent) {
+    return b.data.yearOfEvent - a.data.yearOfEvent;
+  }
+  return a.id.localeCompare(b.id);
+});
+
+const description =
+  "Збережені факти — твоя особиста добірка. Зберігається у браузері, без облікового запису.";
+---
+
+<Base title="Збережені факти" description={description} noindex={true}>
+  <div class="container-wide py-12">
+    <div class="mb-10 border-b border-[color:var(--rule)] pb-8">
+      <nav class="mb-4 font-mono text-xs text-[color:var(--muted)]">
+        <a href="/" class="underline-offset-2 hover:text-[color:var(--accent)] hover:underline">
+          ← Головна
+        </a>
+      </nav>
+      <h1
+        class="font-display text-[clamp(2.5rem,6vw,5rem)] leading-none font-extrabold tracking-[-0.04em] text-[color:var(--ink)]"
+      >
+        Збережені факти
+      </h1>
+      <p class="mt-3 text-lg text-[color:var(--ink-2)]">
+        Твоя особиста добірка. Працює офлайн, зберігається у цьому браузері.
+      </p>
+      <p
+        id="saved-count"
+        class="mt-2 font-mono text-xs tracking-wider text-[color:var(--muted)] uppercase"
+        aria-live="polite"
+      >
+        — фактів
+      </p>
+    </div>
+
+    <div id="saved-toolbar" class="mb-8 hidden flex-wrap items-center gap-2" data-saved-toolbar>
+      <button
+        type="button"
+        id="saved-export"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-10 items-center gap-2 rounded-full border bg-white px-4 py-2 font-mono text-xs font-medium tracking-wider uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+      >
+        ↓ Експорт JSON
+      </button>
+      <button
+        type="button"
+        id="saved-import"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-10 items-center gap-2 rounded-full border bg-white px-4 py-2 font-mono text-xs font-medium tracking-wider uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+      >
+        ↑ Імпорт JSON
+      </button>
+      <button
+        type="button"
+        id="saved-share"
+        class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-10 items-center gap-2 rounded-full border bg-white px-4 py-2 font-mono text-xs font-medium tracking-wider uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+      >
+        ⎘ Скопіювати посилання
+      </button>
+      <button
+        type="button"
+        id="saved-clear"
+        class="border-ink-200 text-ink-500 ml-auto inline-flex min-h-10 items-center gap-2 rounded-full border bg-white px-4 py-2 font-mono text-xs font-medium tracking-wider uppercase transition hover:border-red-400 hover:text-red-700 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)] dark:hover:border-red-500 dark:hover:text-red-300"
+      >
+        ✕ Очистити все
+      </button>
+    </div>
+
+    <p
+      id="saved-status"
+      class="mb-4 hidden font-mono text-xs text-[color:var(--accent)]"
+      role="status"
+      aria-live="polite"
+    >
+    </p>
+
+    <div id="saved-grid" class="grid hidden gap-6 sm:grid-cols-2 lg:grid-cols-3" data-saved-grid>
+      {
+        factsByKey.map((f) => (
+          <div data-slug={factSlug(f.id)} class="hidden" data-saved-item>
+            <FactCard fact={f} />
+          </div>
+        ))
+      }
+    </div>
+
+    <div
+      id="saved-empty"
+      class="rounded-sm border border-dashed border-[color:var(--card-edge)] p-12 text-center"
+    >
+      <p class="font-display text-xl font-semibold text-[color:var(--ink)]">
+        Ще нічого не збережено.
+      </p>
+      <p class="mt-2 text-[color:var(--ink-2)]">
+        Заходь у факт і тисни на закладку у верхньому куті картки.
+      </p>
+      <p class="mt-2 text-sm text-[color:var(--muted)]">
+        Підказка: натисни <kbd class="kbd">S</kbd> на сторінці факту, щоб зберегти його з клавіатури.
+      </p>
+    </div>
+
+    <input
+      id="saved-import-file"
+      type="file"
+      accept="application/json,.json"
+      class="sr-only"
+      tabindex="-1"
+      aria-hidden="true"
+    />
+  </div>
+</Base>
+
+<style>
+  .kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid var(--rule);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: var(--card);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.75em;
+    color: var(--ink);
+  }
+</style>
+
+<script>
+  import { clearSaved, getSavedSlugs, setSavedSlugs, SAVED_CHANGED_EVENT } from "../lib/userState";
+  import { EVENTS, track } from "../lib/analytics";
+  import { factsCount } from "../lib/plurals";
+
+  const grid = document.getElementById("saved-grid");
+  const empty = document.getElementById("saved-empty");
+  const count = document.getElementById("saved-count");
+  const toolbar = document.getElementById("saved-toolbar");
+  const status = document.getElementById("saved-status");
+  const exportBtn = document.getElementById("saved-export");
+  const importBtn = document.getElementById("saved-import");
+  const shareBtn = document.getElementById("saved-share");
+  const clearBtn = document.getElementById("saved-clear");
+  const importFile = document.getElementById("saved-import-file") as HTMLInputElement | null;
+
+  function setStatus(message: string, isError = false): void {
+    if (!(status instanceof HTMLElement)) return;
+    status.textContent = message;
+    status.classList.toggle("hidden", !message);
+    status.style.color = isError ? "#dc2626" : "";
+    if (message) {
+      window.setTimeout(() => {
+        status.classList.add("hidden");
+        status.textContent = "";
+      }, 4000);
+    }
+  }
+
+  function render(): void {
+    if (!(grid instanceof HTMLElement) || !(empty instanceof HTMLElement)) return;
+    const slugs = getSavedSlugs();
+    const set = new Set(slugs);
+
+    // Build a slug -> element map once per render.
+    const items = grid.querySelectorAll<HTMLElement>("[data-saved-item]");
+    const elBySlug = new Map<string, HTMLElement>();
+    items.forEach((item) => {
+      const s = item.dataset.slug;
+      if (!s) return;
+      elBySlug.set(s, item);
+      item.classList.toggle("hidden", !set.has(s));
+    });
+
+    // Reorder DOM nodes to match the saved order in localStorage (newest at
+    // top — items added later go to the end of savedFacts, so render in
+    // reverse-insertion order).
+    const ordered = slugs.slice().reverse();
+    ordered.forEach((slug) => {
+      const el = elBySlug.get(slug);
+      if (el) grid.appendChild(el);
+    });
+
+    const visible = slugs.filter((s) => elBySlug.has(s));
+    const n = visible.length;
+    if (count instanceof HTMLElement) {
+      count.textContent = factsCount(n, "uk");
+    }
+    const hasSaved = n > 0;
+    grid.classList.toggle("hidden", !hasSaved);
+    empty.classList.toggle("hidden", hasSaved);
+    if (toolbar instanceof HTMLElement) {
+      toolbar.classList.toggle("hidden", !hasSaved);
+      toolbar.classList.toggle("flex", hasSaved);
+    }
+  }
+
+  function applyHashImport(): void {
+    if (!location.hash) return;
+    const raw = location.hash.replace(/^#/, "");
+    if (!raw) return;
+    const slugs = raw
+      .split(",")
+      .map((s) => decodeURIComponent(s.trim()))
+      .filter((s) => /^[a-z0-9-]{1,80}$/i.test(s));
+    if (slugs.length === 0) return;
+    const existing = new Set(getSavedSlugs());
+    const merged = [...existing];
+    slugs.forEach((s) => {
+      if (!existing.has(s)) merged.push(s);
+    });
+    setSavedSlugs(merged);
+    setStatus(`Додано ${slugs.length} з посилання.`);
+    // Strip the hash so refresh doesn't re-import.
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+
+  function downloadJson(): void {
+    const slugs = getSavedSlugs();
+    if (slugs.length === 0) {
+      setStatus("Немає що експортувати.", true);
+      return;
+    }
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      savedFacts: slugs,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `back-future-saved-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    track(EVENTS.savedExported, { count: slugs.length });
+    setStatus(`Експортовано ${slugs.length}.`);
+  }
+
+  function handleImport(file: File): void {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const raw = typeof reader.result === "string" ? reader.result : "";
+        const parsed: unknown = JSON.parse(raw);
+        let candidates: unknown = null;
+        if (Array.isArray(parsed)) candidates = parsed;
+        else if (parsed && typeof parsed === "object" && "savedFacts" in parsed) {
+          candidates = (parsed as { savedFacts: unknown }).savedFacts;
+        }
+        if (!Array.isArray(candidates)) {
+          setStatus("Невірний формат JSON.", true);
+          return;
+        }
+        const existing = new Set(getSavedSlugs());
+        const incoming = candidates.filter(
+          (v): v is string => typeof v === "string" && v.length > 0,
+        );
+        incoming.forEach((s) => existing.add(s));
+        const merged = Array.from(existing);
+        setSavedSlugs(merged);
+        track(EVENTS.savedImported, { count: incoming.length });
+        setStatus(`Імпортовано ${incoming.length}.`);
+      } catch {
+        setStatus("Не вдалося прочитати файл.", true);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  async function copyShareLink(): Promise<void> {
+    const slugs = getSavedSlugs();
+    if (slugs.length === 0) {
+      setStatus("Спочатку збережи факти.", true);
+      return;
+    }
+    const url = `${location.origin}/saved/#${slugs.map(encodeURIComponent).join(",")}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setStatus("Посилання скопійовано.");
+    } catch {
+      setStatus(url, false);
+    }
+  }
+
+  function handleClear(): void {
+    const slugs = getSavedSlugs();
+    if (slugs.length === 0) return;
+    const ok = window.confirm(`Видалити всі ${slugs.length} збережених фактів?`);
+    if (!ok) return;
+    clearSaved();
+    track(EVENTS.savedCleared, { count: slugs.length });
+    setStatus("Очищено.");
+  }
+
+  if (exportBtn) exportBtn.addEventListener("click", downloadJson);
+  if (importBtn && importFile) {
+    importBtn.addEventListener("click", () => importFile.click());
+    importFile.addEventListener("change", () => {
+      const file = importFile.files?.[0];
+      if (file) handleImport(file);
+      importFile.value = "";
+    });
+  }
+  if (shareBtn) shareBtn.addEventListener("click", copyShareLink);
+  if (clearBtn) clearBtn.addEventListener("click", handleClear);
+
+  window.addEventListener(SAVED_CHANGED_EVENT, render);
+  window.addEventListener("storage", (e) => {
+    if (e.key === "bf_user_state") render();
+  });
+
+  applyHashImport();
+  render();
+  track(EVENTS.savedPageView, { count: getSavedSlugs().length });
+</script>
