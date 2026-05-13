@@ -19,6 +19,8 @@
     "test:e2e": "playwright test",
     "lint": "eslint . && prettier --check . && npm run lint:md",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"!node_modules\" \"!dist\" \"!test-results\"",
+    "lint:workflows": "tsx scripts/lint-workflows.ts",
+    "issue-to-fact": "tsx scripts/issue-to-fact.ts",
     "validate:content": "tsx scripts/validate-content.ts",
     "coverage:content": "tsx scripts/content-coverage.ts",
     "dump:source-urls": "tsx scripts/dump-source-urls.ts",

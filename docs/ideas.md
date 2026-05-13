@@ -33,7 +33,6 @@
 
 ### Залучення / community
 
-- **GitHub Action**: issue зі шаблону `new-fact.yml` → draft PR з готовим `.md`-фактом (7.1 у roadmap).
 - **`/contributors`** — список авторів фактів (потребує `authors` поля у frontmatter; 7.2 у roadmap).
 - **`/support`** — Monobank / Buy Me a Coffee, коли URL заповняться у `site.ts` (7.3 у roadmap).
 - **Email-дайджест** — раз на місяць нові факти, Buttondown або self-hosted (7.4 у roadmap).
@@ -106,6 +105,10 @@
 - **Фільтри на сторінці року** (subject / era / region / impact) — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51).
 - **Pagefind — build-time повнотекстовий пошук** — Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109) (`SearchDialog` з lazy-load, native `<dialog>`, Cmd/Ctrl+K) + [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (терміни в quotes).
 - **Read-tracking відвіданих фактів** — Done у [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116) (IntersectionObserver → `localStorage` через `userState.ts`).
+
+### Залучення / community (зроблено)
+
+- **GitHub Action: issue → draft PR** — Done у PR `new-fact-action`: Issue Form з усіма полями (`title`, `subject`, `short`, `yearOfEvent`, `relevantForEras`, `region`, `impact`, `sources`, `body`, `tags`); `scripts/issue-to-fact.ts` із Zod-валідацією і кириличним slugify; `.github/workflows/new-fact-to-pr.yml` тригериться на мітку `new-fact-submission` і відкриває draft PR з `content/facts/<subject>/<slug>.md`, auto-label `subject:<id>` / `era:<n>`.
 
 ### Тех-борг (зроблено)
 

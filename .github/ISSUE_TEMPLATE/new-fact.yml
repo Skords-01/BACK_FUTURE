@@ -1,46 +1,126 @@
-name: Новий факт
-description: Запропонувати факт для BACK_FUTURE
+name: Запропонувати факт
+description: Структурована форма для нового факту BACK_FUTURE. Після створення issue додай мітку `new-fact-submission` — і бот зробить draft PR з готовим `.md`.
 title: "Факт: "
-labels: ["content"]
+labels: ["content", "new-fact-submission"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Дякуємо, що пропонуєш факт. Поля нижче відповідають Zod-схемі (`src/content.config.ts`). Ретельно заповнені поля = бот одразу згенерує валідний `.md` і відкриє draft PR.
+
+        Деталі тону, структури та сенситивних формулювань — у [`docs/content-guidelines.md`](https://github.com/Skords-01/BACK_FUTURE/blob/main/docs/content-guidelines.md).
+
   - type: input
     id: title
     attributes:
-      label: Заголовок
-      description: Коротко сформулюй факт.
+      label: Заголовок (title)
+      description: Короткий заголовок факту. Без розділових знаків у кінці. До 140 символів.
+      placeholder: "Антиводень уперше втримали в пастці"
     validations:
       required: true
+
   - type: dropdown
     id: subject
     attributes:
-      label: Предмет
+      label: Предмет (subject)
+      description: Тематика. Має бути одним зі значень із `SUBJECTS` у `src/config/site.ts`.
       options:
         - astronomy
         - biology
         - geography
         - history
         - physics
+        - tech
+        - medicine
+        - economy
+        - culture
+        - sport
+        - ecology
     validations:
       required: true
-  - type: input
-    id: year
-    attributes:
-      label: Рік події
-      placeholder: "2012"
-    validations:
-      required: true
+
   - type: textarea
-    id: summary
+    id: short
     attributes:
-      label: Чому це важливо
-      description: 2–5 речень у науково-популярному стилі.
+      label: Коротке резюме (short)
+      description: 1–2 речення. Перше враження. **20–280 символів.**
+      placeholder: "У 2010 році експеримент ALPHA в CERN уперше втримав холодні атоми антиводню. Це відкрило шлях до точного порівняння матерії й антиматерії."
     validations:
       required: true
+
+  - type: input
+    id: yearOfEvent
+    attributes:
+      label: Рік події (yearOfEvent)
+      description: Чотиризначний рік від 1990 до 2099. Регекс `^(19[9]\d|20\d\d)$`.
+      placeholder: "2010"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: relevantForEras
+    attributes:
+      label: Для яких ер (relevantForEras)
+      description: Принаймні одна. Ери розписані у [`docs/eras.md`](https://github.com/Skords-01/BACK_FUTURE/blob/main/docs/eras.md).
+      options:
+        - label: "1 — 1991–1998 (рання незалежність)"
+        - label: "2 — 1999–2005 (стабілізація)"
+        - label: "3 — 2006–2013 (євроінтеграційний поворот)"
+        - label: "4 — 2014–2021 (після Майдану)"
+        - label: "5 — 2022–сьогодні (повномасштабна війна)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: region
+    attributes:
+      label: Регіон (region)
+      description: Опційно. `ukraine` додає бейдж «🇺🇦 Україна» на картку.
+      options:
+        - world
+        - ukraine
+      default: 0
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Вплив (impact)
+      description: Опційно. `high` додає бейдж «★ Віха». Тримайся жорсткого порогу — high має бути ~10–15% бібліотеки.
+      options:
+        - low
+        - medium
+        - high
+      default: 1
+
   - type: textarea
     id: sources
     attributes:
-      label: Джерела
-      description: Додай першоджерела або офіційні посилання.
-      placeholder: "- https://..."
+      label: Джерела (sources)
+      description: "Принаймні одне першоджерело. Один рядок = одне джерело у форматі `- Назва|https://url`. Альтернативно можна вказувати markdown-посилання `- [Назва](https://url)`."
+      placeholder: |
+        - CERN: Antimatter atoms produced and trapped|https://home.web.cern.ch/news/press-release/cern/antimatter-atoms-produced-and-trapped-cern
+        - Nature 468, 673–676 (2010)|https://www.nature.com/articles/nature09610
     validations:
       required: true
+
+  - type: textarea
+    id: body
+    attributes:
+      label: Тіло факту (body, markdown)
+      description: Опційно. 3–5 абзаців у науково-популярному стилі. Залиш порожнім — і бот покладе TODO-плейсхолдер у `.md`.
+      placeholder: |
+        Антиматерія звучить як сюжет фантастики, але це звичайна частина сучасної фізики...
+
+  - type: input
+    id: tags
+    attributes:
+      label: Теги (tags)
+      description: "Опційно. Через кому: `антиматерія, CERN, частинки`."
+      placeholder: "антиматерія, CERN, частинки, симетрії"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+        Після створення issue: на нього вже навісилась мітка `new-fact-submission` — це триггер бота. Через хвилину з'явиться коментар із посиланням на draft PR. Якщо валідація фейлить — бот напише, що саме не так. Зміни в issue (`labeled`) перезапускають генерацію.
