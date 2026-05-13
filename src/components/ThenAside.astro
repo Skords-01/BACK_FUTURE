@@ -1,7 +1,9 @@
 ---
 // ThenAside — paper snapshot of the graduation year: president, exchange rate,
 // hit song, gadget, etc. Styled like a torn calendar page.
-// Falls back to the nearest available epoch year if the exact year is absent.
+// Falls back to the nearest available epoch year if the exact year is absent —
+// the data is epoch-scoped, not year-pinned, so the same snapshot is meaningful
+// for adjacent years inside the same era.
 import { getCollection } from "astro:content";
 
 interface Props {
@@ -18,7 +20,6 @@ const sorted = epochEntries.slice().sort((a, b) => {
 });
 const entry = sorted[0];
 const items = entry?.data.items ?? [];
-const displayYear = entry?.data.year ?? year;
 
 // Ukrainian ordinal suffix for display year (2012 → «2012-й»)
 function ordinal(y: number): string {
@@ -28,14 +29,11 @@ function ordinal(y: number): string {
 
 {
   items.length > 0 && (
-    <aside class="then container-wide mt-0 mb-0 py-8" aria-label={`Контекст ${displayYear} року`}>
+    <aside class="then container-wide mt-0 mb-0 py-8" aria-label={`Контекст ${year} року`}>
       <div class="then__inner">
         <div class="then__head">
-          <span class="then__year">{ordinal(displayYear)}</span>
-          <span class="then__sub">
-            контекст · епіграф епохи
-            {displayYear !== year && <span class="ml-2 opacity-60">(дані {displayYear} р.)</span>}
-          </span>
+          <span class="then__year">{ordinal(year)}</span>
+          <span class="then__sub">контекст · тодішній світ</span>
         </div>
         <dl class="then__grid">
           {items.map((item) => (

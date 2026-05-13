@@ -9,7 +9,7 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
 );
 ---
 
-<Base title="404 — нічого тут немає" description={description}>
+<Base title="404 — нічого тут немає" description={description} noindex={true}>
   <section class="ruled-hero">
     <div class="container-prose pt-16 pb-12 sm:pt-24">
       <p
@@ -41,7 +41,7 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
   </section>
 
   <section class="container-prose mt-12">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Або одразу подивись популярні</h2>
+    <h2 class="font-display text-ink-900 text-xl font-bold">Або вибери популярний рік</h2>
     <ul class="-mx-1 mt-4 flex flex-wrap items-center gap-1.5">
       {
         popularYears.map((y) => (
@@ -61,7 +61,7 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
         href={`${SITE.repoUrl}/issues/new?title=${encodeURIComponent("Биті посилання")}`}
         class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
         target="_blank"
-        rel="noopener noreferrer">розкажи</a
+        rel="noopener noreferrer nofollow">розкажи</a
       >, де саме.
     </p>
   </section>

@@ -7,6 +7,7 @@ import { getCollection } from "astro:content";
 import { eraCountsForSubject, factsForSubject } from "../../lib/filterFacts";
 import { ERAS } from "../../lib/eras";
 import { SITE, SUBJECTS, type SubjectId } from "../../config/site";
+import { factsWord } from "../../lib/plurals";
 
 export async function getStaticPaths() {
   return SUBJECTS.map((s) => ({ params: { id: s.id } }));
@@ -26,9 +27,7 @@ const totalCount = items.length;
 
 const otherSubjects = SUBJECTS.filter((s) => s.id !== subjectId);
 
-const description = `${subject.label}: усе, що змінилось за роки в одній стрічці. ${totalCount} ${
-  totalCount === 1 ? "факт" : "фактів"
-} на ${SITE.name}.`;
+const description = `${subject.label}: усе, що змінилось за роки в одній стрічці. ${totalCount} ${factsWord(totalCount)} на ${SITE.name}.`;
 const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
 const homeUrl = `${SITE.defaultUrl}/`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
@@ -108,7 +107,7 @@ const breadcrumbsLd: Record<string, unknown> = {
         <span class="text-ink-500 dark:text-ink-400 font-sans text-xs uppercase">·</span>
         <span class="text-ink-600 font-mono text-xs tabular-nums">
           {totalCount}
-          {totalCount === 1 ? "факт" : "фактів"}
+          {factsWord(totalCount)}
         </span>
       </p>
       <h1

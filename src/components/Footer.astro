@@ -14,23 +14,71 @@ const year = new Date().getFullYear();
         <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">
           {SITE.tagline}
         </p>
+
+        <div
+          class="mt-5 flex items-center gap-3 rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-3"
+          aria-label="SERGEANT_GROUP — бренд, що об'єднує продукти проєкту"
+        >
+          <img
+            src="/brand/sergeant-group.svg"
+            alt=""
+            width="36"
+            height="36"
+            loading="lazy"
+            decoding="async"
+            class="h-9 w-9 shrink-0 rounded-[6px]"
+          />
+          <div class="leading-tight">
+            <p class="font-mono text-[11px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+              частина
+            </p>
+            <p class="font-display text-sm font-bold tracking-[0.04em] text-[color:var(--ink)]">
+              SERGEANT_GROUP
+            </p>
+          </div>
+        </div>
+
         <p class="mt-4 font-mono text-xs text-[color:var(--muted)]">
           © {year} · Зроблено в Україні
         </p>
       </div>
 
       <!-- Project column -->
-      <div>
+      <nav aria-label="Навігація сайту">
         <h2
           class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase"
         >
-          Проєкт
+          Навігація
         </h2>
         <ul class="space-y-2 text-sm">
           <li>
             <a
+              href="/timeline/"
+              class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
+            >
+              Хронологія
+            </a>
+          </li>
+          <li>
+            <a
+              href="/quiz/"
+              class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
+            >
+              Квіз
+            </a>
+          </li>
+          <li>
+            <a
+              href="/all/"
+              class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
+            >
+              Усі факти
+            </a>
+          </li>
+          <li>
+            <a
               href="/metodologia/"
-              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+              class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
               Методологія
             </a>
@@ -38,23 +86,15 @@ const year = new Date().getFullYear();
           <li>
             <a
               href="/about/"
-              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+              class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
               Про проєкт
             </a>
           </li>
           <li>
             <a
-              href="/all/"
-              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
-            >
-              Усі факти
-            </a>
-          </li>
-          <li>
-            <a
               href="/rss.xml"
-              class="inline-flex items-center gap-1.5 text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+              class="inline-flex items-center gap-1.5 text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
               <svg
                 width="14"
@@ -75,14 +115,14 @@ const year = new Date().getFullYear();
               href={SITE.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="GitHub (відкривається в новій вкладці)"
-              class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+              aria-label="GitHub — відкривається в новій вкладці"
+              class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
               GitHub <span aria-hidden="true">↗</span>
             </a>
           </li>
         </ul>
-      </div>
+      </nav>
 
       <!-- Support column -->
       <div>

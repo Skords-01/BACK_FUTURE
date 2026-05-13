@@ -1,6 +1,6 @@
 import type { CollectionEntry } from "astro:content";
 import { ERAS, eraForGraduationYear, type EraId } from "./eras";
-import { SUBJECTS, type SubjectId } from "../config/site";
+import { SITE, SUBJECTS, type SubjectId } from "../config/site";
 
 export type Fact = CollectionEntry<"facts">;
 export type Region = "world" | "ukraine";
@@ -44,6 +44,7 @@ export function factsForYear(
   year: number,
   filters: FactFilters = {},
 ): Fact[] {
+  if (year < SITE.yearMin || year > SITE.yearMax) return [];
   const era: EraId = eraForGraduationYear(year);
   return facts
     .filter((f) => !f.data.draft)

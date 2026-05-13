@@ -1,64 +1,252 @@
 ---
 import Base from "../layouts/Base.astro";
 import { ERAS } from "../lib/eras";
+import { SUBJECTS, SITE } from "../config/site";
 ---
 
 <Base title="Методологія">
-  <section class="container-prose pt-16">
-    <h1 class="font-display text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
+  <div class="container-prose pt-16">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · редакційна політика
+    </span>
+
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
+      data-reveal
+    >
       Методологія
     </h1>
 
-    <div
-      class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-700 mt-8 max-w-none"
-    >
-      <h2>Як ми обираємо факти</h2>
-      <ol>
-        <li>
-          <strong>Перевіреність.</strong> Кожен факт має принаймні одне першоджерело — академічну публікацію,
-          офіційну заяву інституції чи резолюцію.
-        </li>
-        <li>
-          <strong>Релевантність шкільній програмі.</strong> Беремо те, що змінює відповідь на питання
-          з підручника відповідної ери.
-        </li>
-        <li>
-          <strong>Стійкість.</strong> Уникаємо «гарячих» новин — тільки те, що ввійшло в науковий чи юридичний
-          консенсус.
-        </li>
-      </ol>
+    <p class="mt-4 max-w-[560px] text-lg text-[color:var(--ink-2)]" data-reveal>
+      Як ми обираємо факти, ділимо час на ери і пишемо про складні теми.
+    </p>
 
-      <h2>Ери шкільних програм</h2>
-      <p>
-        Замість того, щоб робити окремий підручниковий контент для кожного з ~35 років, ми ділимо
-        період 1991–сьогодні на п'ять ер державних стандартів і програм:
-      </p>
-      <ul class="not-prose mt-4 space-y-3">
+    <!-- Criteria -->
+    <section class="mt-14">
+      <h2
+        class="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        Критерії відбору фактів
+      </h2>
+      <ol class="mt-6 grid gap-4 sm:grid-cols-3">
         {
-          ERAS.map((e) => (
-            <li class="border-ink-100 rounded-2xl border bg-white p-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-              <div class="font-display text-ink-900 font-bold">{e.label}</div>
-              <div class="text-ink-600 mt-1 text-sm">{e.summary}</div>
+          (
+            [
+              {
+                n: "01",
+                title: "Перевіреність",
+                text: "Кожен факт має принаймні одне першоджерело — академічну публікацію, офіційну заяву інституції чи резолюцію міжнародного органу.",
+              },
+              {
+                n: "02",
+                title: "Релевантність",
+                text: "Беремо те, що змінює відповідь на питання з підручника відповідної ери. Це може бути нове відкриття, переосмислення консенсусу або зміна геополітичного факту.",
+              },
+              {
+                n: "03",
+                title: "Стійкість",
+                text: "Уникаємо «гарячих» новин — тільки те, що ввійшло в науковий, правовий чи географічний консенсус і малоймовірно змінюється.",
+              },
+            ] as { n: string; title: string; text: string }[]
+          ).map((c, i) => (
+            <li
+              class="rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-5"
+              data-reveal
+              style={`--reveal-delay: ${i * 80}ms`}
+            >
+              <span class="font-mono text-[10px] font-bold tracking-[0.15em] text-[color:var(--accent)] uppercase">
+                {c.n}
+              </span>
+              <strong class="font-display mt-2 mb-2 block text-lg font-semibold tracking-tight text-[color:var(--ink)]">
+                {c.title}
+              </strong>
+              <p class="text-sm leading-relaxed text-[color:var(--ink-2)]">{c.text}</p>
             </li>
           ))
         }
-      </ul>
+      </ol>
+    </section>
 
-      <h2>Як ми пишемо про історію</h2>
-      <p>Історія — політично чутлива тема. Ми керуємось такими принципами:</p>
-      <ul>
-        <li>
-          Спираємось на офіційні документи (резолюції парламентів, рішення судів, держархіви).
-        </li>
-        <li>Розрізняємо «факт» і «інтерпретацію»; явно маркуємо другу.</li>
-        <li>Не використовуємо проєкт як політичну трибуну.</li>
-      </ul>
-
-      <h2>Помилка чи неточність?</h2>
-      <p>
-        Якщо ти знайшов фактичну помилку або кращу формулювання — відкрий issue або pull request у
-        репозиторії на GitHub. Ми переглядаємо весь зворотний зв'язок.
+    <!-- Eras -->
+    <section class="mt-16">
+      <h2
+        class="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        П'ять ер шкільних програм
+      </h2>
+      <p class="mt-3 text-[color:var(--ink-2)]" data-reveal>
+        Замість окремого контенту для кожного з ~35 років ми ділимо 1991–сьогодні на п'ять епох
+        навчальних програм. Факт позначено епохою — він «новий» для всіх, хто закінчив школу в межах
+        цього часового вікна.
       </p>
-    </div>
-  </section>
+      <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          ERAS.map((era, i) => (
+            <a
+              href={`/era/${era.slug}/`}
+              class="era-method-card"
+              data-reveal
+              style={`--era-color: ${era.color}; --reveal-delay: ${i * 70}ms`}
+            >
+              <span
+                class="font-mono text-[11px] font-semibold tracking-[0.15em] uppercase"
+                style="color: var(--era-color)"
+              >
+                {era.short}
+              </span>
+              <strong class="font-display mt-2 block text-lg font-semibold tracking-tight text-[color:var(--ink)]">
+                {era.name}
+              </strong>
+              <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">{era.summary}</p>
+              <span class="mt-3 block font-mono text-xs text-[color:var(--muted)]">
+                Перейти до епохи →
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- Subjects -->
+    <section class="mt-16">
+      <h2
+        class="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        Предметні рубрики
+      </h2>
+      <p class="mt-3 text-[color:var(--ink-2)]" data-reveal>
+        Кожен факт прив'язаний до одного з 11 шкільних предметів. Рубрика — це і навігаційний
+        фільтр, і підказка «до якого підручника належить цей матеріал».
+      </p>
+      <div class="mt-5 flex flex-wrap gap-2" data-reveal>
+        {
+          SUBJECTS.map((s) => (
+            <a
+              href={`/subject/${s.id}/`}
+              class="subject-chip"
+              style={`--chip-color: var(--subject-${s.id})`}
+            >
+              <span class="chip-mark">{s.mark}</span>
+              <span class="chip-label">{s.label}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- History writing principles -->
+    <section class="mt-16">
+      <h2
+        class="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        Як ми пишемо про історію
+      </h2>
+      <div
+        class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-700 mt-4 max-w-none"
+        data-reveal
+      >
+        <p>Історія — політично чутлива тема. Ми керуємось такими принципами:</p>
+        <ul>
+          <li>
+            Спираємось на офіційні документи (резолюції парламентів, рішення судів, держархіви).
+          </li>
+          <li>Розрізняємо «факт» і «інтерпретацію»; явно маркуємо другу.</li>
+          <li>Не використовуємо проєкт як політичну трибуну.</li>
+          <li>
+            Терміни й назви — відповідно до українського законодавства та академічного стандарту.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Report error + quiz CTA -->
+    <section class="mt-16 pb-4">
+      <div class="grid gap-4 sm:grid-cols-2" data-reveal>
+        <div
+          class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--paper-2)] p-6"
+        >
+          <h2 class="font-display text-lg font-bold text-[color:var(--ink)]">
+            Помилка чи неточність?
+          </h2>
+          <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">
+            Якщо ти знайшов фактичну помилку або маєш краще формулювання — створи завдання або
+            надішли зміни у репозиторії на GitHub.
+          </p>
+          <a
+            href={SITE.repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-4 inline-flex items-center font-mono text-sm font-semibold text-[color:var(--accent)] underline-offset-2 hover:underline"
+          >
+            GitHub репозиторій ↗
+          </a>
+        </div>
+        <div class="rounded-sm border-2 border-[color:var(--accent)] bg-[color:var(--card)] p-6">
+          <h2 class="font-display text-lg font-bold text-[color:var(--ink)]">Перевір себе</h2>
+          <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">
+            Вгадай рік 5 відкриттів — дізнайся, наскільки добре знаєш, що змінилось у науці після
+            твого випуску.
+          </p>
+          <a
+            href="/quiz/"
+            class="mt-4 inline-flex items-center rounded-sm bg-[color:var(--accent)] px-5 py-2.5 font-mono text-sm font-semibold text-[#fff7ec] transition hover:opacity-90"
+          >
+            Почати квіз →
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
 </Base>
+
+<style>
+  .era-method-card {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-top: 4px solid var(--era-color);
+    border-radius: 4px;
+    text-decoration: none;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .era-method-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .subject-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--card-edge);
+    background: var(--card);
+    text-decoration: none;
+    color: var(--ink-2);
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .subject-chip:hover {
+    border-color: var(--chip-color, var(--accent));
+    color: var(--chip-color, var(--accent));
+  }
+  .chip-mark {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--chip-color, var(--accent));
+  }
+  .chip-label {
+    font-family: var(--font-sans);
+  }
+</style>

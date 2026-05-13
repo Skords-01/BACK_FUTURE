@@ -1,19 +1,26 @@
 ---
-import { render } from "astro:content";
-
 import type { Fact } from "../lib/filterFacts";
 import { formatUkShortDate, isoDate } from "../lib/format";
-import { factUrl } from "../lib/url";
+import { factSlug, factUrl } from "../lib/url";
 import { SUBJECTS } from "../config/site";
 
 interface Props {
   fact: Fact;
+  /**
+   * Year of the surrounding "Випуск {year}" page. When provided, a `+Δ р.`
+   * chip is rendered in the mobile meta row so the year context survives
+   * the thinner mobile timeline rail (which hides its own year/delta).
+   * Optional — leave undefined when FactCard is rendered outside the
+   * year-page timeline (e.g. /all, /era/[slug], /subject/[id]).
+   */
+  fromYear?: number;
 }
 
-const { fact } = Astro.props;
-const { Content } = await render(fact);
+const { fact, fromYear } = Astro.props;
 const updatedAt = fact.data.updatedAt;
 const detailUrl = factUrl(fact.id);
+const slug = factSlug(fact.id);
+const delta = typeof fromYear === "number" ? fact.data.yearOfEvent - fromYear : 0;
 
 // Деривація номера-серіалки із id факту: стабільний хеш → 3-значне число.
 // Чисто візуальний "серійник", не для використання в логіці.
@@ -33,6 +40,10 @@ const isVikha = fact.data.impact === "high";
 ---
 
 <article
+  id={`fact-card-${slug}`}
+  data-fact-id={fact.id}
+  data-fact-subject={fact.data.subject}
+  data-fact-year={fact.data.yearOfEvent}
   class:list={[
     "fact-card group shadow-card hover:shadow-card-hover relative isolate overflow-hidden rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--card)] px-5 py-6 transition hover:-translate-y-0.5 sm:px-7 sm:py-7",
     isVikha && "vikha-card",
@@ -60,6 +71,16 @@ const isVikha = fact.data.impact === "high";
         {fact.data.yearOfEvent}
       </span>
       {
+        delta > 0 && (
+          <span
+            class="text-accent-700 dark:text-accent-300 font-mono text-[11px] font-medium tabular-nums sm:hidden"
+            title={`+${delta} р. після випуску`}
+          >
+            +{delta} р.
+          </span>
+        )
+      }
+      {
         fact.data.region === "ukraine" && (
           <span
             class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 ml-1 inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider uppercase"
@@ -83,7 +104,7 @@ const isVikha = fact.data.impact === "high";
         updatedAt && (
           <time
             datetime={isoDate(updatedAt)}
-            class="text-ink-400 dark:text-ink-500 ml-auto inline-flex items-center gap-1 text-[10px] font-medium tabular-nums"
+            class="text-ink-400 dark:text-ink-500 mt-0.5 basis-full text-[10px] font-medium tabular-nums sm:mt-0 sm:ml-auto sm:inline-flex sm:basis-auto sm:items-center sm:gap-1"
             title="Дата останнього оновлення цього факту"
           >
             оновл. {formatUkShortDate(updatedAt)}
@@ -103,108 +124,118 @@ const isVikha = fact.data.impact === "high";
     {fact.data.short}
   </p>
 
-  {
-    quote && (
-      <blockquote class="border-accent-500 bg-paper-50 dark:bg-paper-100/5 mt-5 rounded-r-lg border-l-2 py-3 pr-3 pl-4">
-        <p class="text-ink-800 dark:text-ink-200 font-display text-sm leading-snug italic">
-          «{quote.text}»
-        </p>
-        <footer class="text-ink-500 dark:text-ink-400 mt-1.5 font-mono text-[10px] tracking-wider uppercase">
-          — {quote.author}
-        </footer>
-      </blockquote>
-    )
-  }
+  <div class="card-extras">
+    {
+      quote && (
+        <blockquote class="border-accent-500 bg-paper-50 dark:bg-paper-100/5 mt-5 rounded-r-lg border-l-2 py-3 pr-3 pl-4">
+          <p class="text-ink-800 dark:text-ink-200 font-display text-sm leading-snug italic">
+            «{quote.text}»
+          </p>
+          <footer class="text-ink-500 dark:text-ink-400 mt-1.5 font-mono text-[10px] tracking-wider uppercase">
+            — {quote.author}
+          </footer>
+        </blockquote>
+      )
+    }
 
-  {
-    (fact.data.before || fact.data.after) && (
-      <dl class="before-after border-ink-200 bg-paper-50 mx-auto mt-6 grid max-w-2xl gap-3 rounded-2xl border p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
-        {fact.data.before ? (
-          <div class="text-center">
-            <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
-              Було
-            </dt>
-            <dd class="text-ink-700 text-sm leading-relaxed">{fact.data.before}</dd>
+    {
+      (fact.data.before || fact.data.after) && (
+        <dl class="before-after border-ink-200 bg-paper-50 mx-auto mt-6 grid max-w-2xl gap-3 rounded-2xl border p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch sm:gap-4 dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]">
+          {fact.data.before ? (
+            <div class="text-center">
+              <dt class="text-ink-500 dark:text-ink-400 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
+                Було
+              </dt>
+              <dd class="text-ink-700 text-sm leading-relaxed">{fact.data.before}</dd>
+            </div>
+          ) : (
+            <div />
+          )}
+          <div aria-hidden="true" class="text-accent-500 dark:text-accent-400 font-bold">
+            <span class="block text-center text-lg sm:hidden">↓</span>
+            <span class="hidden self-center text-2xl sm:block">→</span>
           </div>
-        ) : (
-          <div />
-        )}
-        <div aria-hidden="true" class="text-accent-500 dark:text-accent-400 font-bold">
-          <span class="block text-center text-lg sm:hidden">↓</span>
-          <span class="hidden self-center text-2xl sm:block">→</span>
-        </div>
-        {fact.data.after ? (
-          <div class="text-center">
-            <dt class="text-accent-700 dark:text-accent-300 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
-              Стало
-            </dt>
-            <dd class="text-ink-900 text-sm leading-relaxed">{fact.data.after}</dd>
-          </div>
-        ) : (
-          <div />
-        )}
-      </dl>
-    )
-  }
+          {fact.data.after ? (
+            <div class="text-center">
+              <dt class="text-accent-700 dark:text-accent-300 mb-1 font-mono text-[10px] tracking-[0.2em] uppercase">
+                Стало
+              </dt>
+              <dd class="text-ink-900 text-sm leading-relaxed">{fact.data.after}</dd>
+            </div>
+          ) : (
+            <div />
+          )}
+        </dl>
+      )
+    }
+  </div>
 
   <a
     href={detailUrl}
-    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 mt-5 inline-flex items-center gap-1 font-mono text-xs tracking-wider uppercase underline-offset-2 hover:underline"
-    aria-label={`Відкрити постійну сторінку факту: ${fact.data.title}`}
+    class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 mt-5 inline-flex min-h-[44px] items-center gap-1 font-mono text-xs tracking-wider uppercase underline-offset-2 hover:underline"
+    aria-label={`Відкрити сторінку факту: ${fact.data.title}`}
   >
-    Постійна сторінка →
+    Докладніше →
   </a>
-
-  <details class="group/details mt-5">
-    <summary
-      class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 inline-flex min-h-[44px] cursor-pointer items-center gap-1 text-sm font-medium select-none [&::-webkit-details-marker]:hidden"
-    >
-      <span class="group-open/details:hidden">Докладніше</span>
-      <span class="hidden group-open/details:inline">Згорнути</span>
-      <svg
-        class="h-4 w-4 transition group-open/details:rotate-180"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-          clip-rule="evenodd"></path>
-      </svg>
-    </summary>
-
-    <div
-      class="prose prose-ink prose-headings:font-display prose-a:text-accent-700 dark:prose-invert dark:prose-a:text-accent-300 text-ink-800 dark:text-ink-700 mt-4 max-w-none"
-    >
-      <Content />
-    </div>
-
-    {
-      fact.data.sources.length > 0 && (
-        <div class="border-ink-100 text-ink-500 dark:text-ink-400 mt-4 border-t pt-3 text-xs dark:border-[color:var(--card-edge)]">
-          <div class="text-ink-400 dark:text-ink-500 mb-1 font-mono tracking-wider uppercase">
-            Джерела
-          </div>
-          <ul class="space-y-1">
-            {fact.data.sources.map((s) => (
-              <li>
-                <a
-                  class="hover:text-ink-900 dark:hover:text-ink-900"
-                  href={s.url}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {s.title} ↗
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-  </details>
 </article>
+
+<script>
+  import { EVENTS, track } from "../lib/analytics";
+
+  // Track clicks on the "Докладніше →" CTA inside each fact card. Uses event
+  // delegation so we attach a single listener instead of one per card (there
+  // can be 100+ on /all/).
+  document.addEventListener(
+    "click",
+    (e) => {
+      const target = e.target;
+      if (!(target instanceof Element)) return;
+      const link = target.closest<HTMLAnchorElement>("a[href^='/fact/']");
+      if (!link) return;
+      const card = link.closest<HTMLElement>(".fact-card[data-fact-id]");
+      if (!card) return;
+      const yearAttr = card.dataset.factYear;
+      track(EVENTS.factCardClicked, {
+        fact_id: card.dataset.factId ?? null,
+        subject: card.dataset.factSubject ?? null,
+        year_of_event: yearAttr ? parseInt(yearAttr, 10) : null,
+      });
+    },
+    { capture: true, passive: true },
+  );
+
+  (function () {
+    const hasHover = window.matchMedia("(hover: hover)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!hasHover) return;
+
+    const cards = document.querySelectorAll<HTMLElement>(".fact-card");
+    cards.forEach((card, i) => {
+      // Alternate idle tilt like original CSS nth-of-type pattern
+      const idleRot = i % 2 === 0 ? -0.35 : 0.3;
+      card.style.setProperty("--idle-rot", `${idleRot}deg`);
+
+      if (reducedMotion) return;
+
+      card.addEventListener("mousemove", (e: MouseEvent) => {
+        const r = card.getBoundingClientRect();
+        const dx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        const dy = ((e.clientY - r.top) / r.height - 0.5) * 2;
+        card.style.setProperty("--tilt-x", `${-dy * 4}deg`);
+        card.style.setProperty("--tilt-y", `${dx * 4}deg`);
+        card.style.setProperty("--idle-rot", "0deg");
+        card.style.setProperty("--lift", "-3px");
+      });
+
+      card.addEventListener("mouseleave", () => {
+        card.style.setProperty("--tilt-x", "0deg");
+        card.style.setProperty("--tilt-y", "0deg");
+        card.style.setProperty("--idle-rot", `${idleRot}deg`);
+        card.style.setProperty("--lift", "0px");
+      });
+    });
+  })();
+</script>
 
 <style>
   /* Archive/newspaper treatment for high-impact (★ Віха) cards */
@@ -228,32 +259,23 @@ const isVikha = fact.data.impact === "high";
     );
   }
 
-  /* Subtle paper-card tilt — чергується між парними/непарними картками,
-     як справжній стос паперів. Активний лише на пристроях зі справжнім
-     hover-курсором: інакше планшети в портреті (iPad ≥640px з touch)
-     отримували випадковий rotate без можливості його "зняти" hover-ом. */
+  /* Magnetic 3D tilt — cursor-following perspective tilt (hover devices only).
+     JS sets --tilt-x / --tilt-y / --idle-rot / --lift via inline style.
+     Degrades gracefully: touch-only devices and reduced-motion see no effect. */
   @media (hover: hover) {
-    .fact-card:nth-of-type(odd) {
-      transform: rotate(-0.35deg);
+    .fact-card {
+      transform: perspective(1200px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+        rotate(var(--idle-rot, 0deg)) translateY(var(--lift, 0px));
       transform-origin: 50% 50%;
-    }
-    .fact-card:nth-of-type(even) {
-      transform: rotate(0.3deg);
-      transform-origin: 50% 50%;
-    }
-    .fact-card:hover {
-      transform: rotate(0deg) translateY(-2px);
+      will-change: transform;
     }
   }
   @media (hover: hover) and (prefers-reduced-motion: reduce) {
     .fact-card {
+      /* keep gentle tilt but skip 3D/animated tilt entirely */
+      transform: rotate(var(--idle-rot, 0deg));
       transition: none;
-    }
-    .fact-card:nth-of-type(odd):hover {
-      transform: rotate(-0.35deg);
-    }
-    .fact-card:nth-of-type(even):hover {
-      transform: rotate(0.3deg);
+      will-change: auto;
     }
   }
 </style>

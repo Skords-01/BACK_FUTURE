@@ -72,7 +72,16 @@
     }
 
     btn.addEventListener("click", function () {
-      apply(effectiveTheme() === "dark" ? "light" : "dark");
+      var next = effectiveTheme() === "dark" ? "light" : "dark";
+      apply(next);
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.capture === "function") {
+          ph.capture("theme_toggled", { mode: next });
+        }
+      } catch {
+        /* analytics never breaks UI */
+      }
     });
 
     // Якщо користувач не виставляв preference — реагуємо на зміни system.

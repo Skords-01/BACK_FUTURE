@@ -1,6 +1,11 @@
 ---
 import "../styles/global.css";
 
+// Design lab is dev-only — redirect to 404 in production builds
+if (import.meta.env.PROD) {
+  return Astro.redirect("/404", 302);
+}
+
 const teasers = [
   {
     subject: "🪐 Астрономія",

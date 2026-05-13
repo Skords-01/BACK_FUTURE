@@ -1,0 +1,78 @@
+name: testing-back-future
+description: Test BACK_FUTURE site changes end-to-end. Use when verifying content edits (epoch snapshots, facts, eras), UI components, or page rendering. Covers the local-build workaround for SSO-protected Vercel previews.
+---
+ 
+# Testing BACK_FUTURE
+ 
+Astro static site for educational `back to the future` content. Build is fully static (`output: "static"` in `astro.config.mjs`), so any test can run against `dist/` via a simple HTTP server.
+ 
+## Vercel preview is SSO-protected
+ 
+The Vercel preview URL (e.g. `back-future-git-<branch>-skords-01s-projects.vercel.app`) requires Vercel SSO. Anonymous `curl` returns **HTTP 401**. Do NOT attempt to test against Vercel preview — go local.
+ 
+## Local test workflow
+ 
+From the repo root, with the PR branch checked out:
+ 
+```bash
+npm install        # only if node_modules is stale
+npm run build      # produces dist/ — runs astro check + astro build + pagefind
+python3 -m http.server 4321 --directory dist > /tmp/preview.log 2>&1 &
+```
+ 
+Then check pages: `curl -s http://localhost:4321/2024/`. URLs use trailing slashes (`/<year>/`, not `/<year>`). Stop the server with `pkill -f "http.server 4321"`.
+ 
+## Epoch snapshot data model
+ 
+- Files: `content/epoch/<year>.json` for each epoch year (currently 1995, 2000, 2005, 2010, 2012, 2014, 2015, 2020, 2024).
+- Schema: `{ year: number, items: [{ k: string, v: string }, ...] }`.
+- Rendered by `src/components/ThenAside.astro` as `<dt>{item.k}</dt><dd>{item.v}</dd>`.
+- Used on every `/<year>/` page via `src/pages/[year].astro`.
+ 
+### Fallback behaviour
+ 
+`ThenAside` picks the **nearest** epoch by absolute distance, with ties going to the earlier year:
+ 
+```ts
+epochEntries.slice().sort((a, b) => {
+  const da = Math.abs(a.data.year - year);
+  const db = Math.abs(b.data.year - year);
+  return da - db || a.data.year - b.data.year;
+});
+```
+ 
+So `/1998/` shows the **2000** snapshot (distance 2 vs distance 3 to 1995). `/1997/` is equidistant (2 to 1995, 3 to 2000) → also picks 1995 because of the tiebreaker. Useful to test both an in-between year and an exact-epoch year.
+ 
+## Grep gotchas
+ 
+- Astro encodes apostrophes as `&#39;` in rendered HTML. When searching for raw values that contain `'` (e.g. `McDonald's`), grep for the entity form.
+- Cyrillic content is UTF-8; use `grep -F` for literal multibyte strings to avoid regex surprises.
+ 
+## Useful commands
+ 
+```bash
+# Lint + typecheck + build (locally, no CI needed)
+npm run lint           # ESLint + Prettier + markdownlint
+npm run typecheck      # tsc --noEmit
+npm run build          # full Astro build with content validation
+npm run validate:content   # JSON schema validation only
+npm test               # unit tests
+```
+ 
+## CI notes
+ 
+- The `verify` job runs Playwright e2e Smoke tests. As of May 2026, mobile-375px and year-flow tests are flaky/broken on `main` (same failures regardless of PR contents). Don't block merging on them when the PR is content-only or changes don't touch those flows.
+- `Link check` and the Vercel preview deployment are the most reliable signals for content/build regressions.
+ 
+## Scope of GUI testing
+ 
+- Year pages (`/<year>/`) — ThenAside, YearHero, FactTimeline, SubjectFilters
+- Quiz (`/quiz/`)
+- Search (Pagefind, opens via the search icon in the nav)
+- Footer (SERGEANT_GROUP block)
+- About (`/about/`), Methodology (`/metodologia/`), Themes (`/themes/`)
+- Era pages (`/era/<slug>/`), Subject pages (`/subject/<id>/`), Fact pages (`/fact/<slug>/`)
+ 
+## Devin Secrets Needed
+ 
+- `Git_PAT` — only if direct GitHub authentication is needed when the git-manager proxy returns 403 (used to push branches and read PR metadata). Format: `git push "https://x-access-token:${Git_PAT}@github.com/Skords-01/BACK_FUTURE.git" <branch>:<branch>`.

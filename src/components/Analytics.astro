@@ -4,7 +4,7 @@
  *
  * Опціональний — якщо env-змінні не задані, нічого не рендеримо.
  *
- * Підтримуються два провайдери (вибрати один через PUBLIC_ANALYTICS_PROVIDER):
+ * Підтримуються три провайдери (вибрати один через PUBLIC_ANALYTICS_PROVIDER):
  *
  * - "plausible":
  *     PUBLIC_ANALYTICS_PROVIDER=plausible
@@ -17,6 +17,17 @@
  *     PUBLIC_UMAMI_WEBSITE_ID=00000000-0000-0000-0000-000000000000  (обов'язково)
  *     PUBLIC_UMAMI_SCRIPT_URL=https://umami.example.com/script.js   (обов'язково)
  *
+ * - "posthog":
+ *     PUBLIC_ANALYTICS_PROVIDER=posthog
+ *     PUBLIC_POSTHOG_KEY=phc_...                                    (обов'язково)
+ *     PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com                  (опційно, default — eu.i)
+ *
+ * Для PostHog використовуємо `persistence: "localStorage"` — без cookies, але
+ * розпізнаємо сесію в межах одного браузера. Якщо `respect_dnt` enabled, юзери з
+ * Do-Not-Track автоматично виключені з трекінгу.
+ *
+ * Кастомні події надсилаємо через хелпер `src/lib/analytics.ts`.
+ *
  * Префікс PUBLIC_ потрібен, щоб Astro прокинув змінну в client-side bundle
  * (https://docs.astro.build/en/guides/environment-variables/).
  */
@@ -25,7 +36,8 @@ const provider = import.meta.env.PUBLIC_ANALYTICS_PROVIDER;
 
 type PlausibleConfig = { kind: "plausible"; src: string; domain: string };
 type UmamiConfig = { kind: "umami"; src: string; websiteId: string };
-type AnalyticsConfig = PlausibleConfig | UmamiConfig | null;
+type PosthogConfig = { kind: "posthog"; key: string; host: string };
+type AnalyticsConfig = PlausibleConfig | UmamiConfig | PosthogConfig | null;
 
 function resolveConfig(): AnalyticsConfig {
   if (provider === "plausible") {
@@ -40,12 +52,75 @@ function resolveConfig(): AnalyticsConfig {
     if (!websiteId || !src) return null;
     return { kind: "umami", src, websiteId };
   }
+  if (provider === "posthog") {
+    const key = import.meta.env.PUBLIC_POSTHOG_KEY;
+    if (!key) return null;
+    const host = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://eu.i.posthog.com";
+    return { kind: "posthog", key, host };
+  }
   return null;
 }
 
 const config = resolveConfig();
+
+// Конфіг ініціалізації PostHog. Вибрані опції:
+//   persistence: "localStorage"      — без cookies (як обіцяє коментар вище)
+//   respect_dnt: true                — юзери з Do-Not-Track не трекаються взагалі
+//   person_profiles: "identified_only" — анонімні не створюють person profile
+//   capture_pageview / pageleave     — стандартний funnel-стартер
+//   capture_performance.web_vitals   — Core Web Vitals як `$web_vitals` events
+//   autocapture / rageclick          — безкоштовні heatmaps + dead-click інсайти
+const posthogInitOptions =
+  config?.kind === "posthog"
+    ? {
+        api_host: config.host,
+        persistence: "localStorage" as const,
+        respect_dnt: true,
+        person_profiles: "identified_only" as const,
+        capture_pageview: true,
+        capture_pageleave: true,
+        autocapture: true,
+        rageclick: true,
+        capture_performance: { web_vitals: true },
+        disable_session_recording: true,
+      }
+    : null;
+
+// Снipet екрануємо JSON.stringify-ом щоб уникнути ін'єкцій
+// з env-значень (host може бути self-hosted) і подвійних лапок.
+const posthogSnippet =
+  config?.kind === "posthog" && posthogInitOptions
+    ? `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p=t.createElement("script"),p.type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init Te us le we Ne ke De Ce Le ke Pe Me Re ue Ee xe Ie Os ws Ts Es Cs Ls Rs Ps Ms je Ae He Be Fe ze Ye Je Ve $e Xe Qe et tt rt nt st".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init(${JSON.stringify(config.key)},${JSON.stringify(posthogInitOptions)});`
+    : "";
+
+// Глобальний хендлер для outbound-кліків. Один раз вішається на document і
+// перехоплює <a href> на зовнішні домени. Якщо юзер тримає Ctrl/Cmd або
+// клацає середньою кнопкою — теж рахуємо (новa вкладка). Жодних PII —
+// тільки `host` і `path`.
+const outboundSnippet = config
+  ? `(function(){function f(){var l=location.host;document.addEventListener('click',function(e){var t=e.target;if(!(t instanceof Element))return;var a=t.closest('a[href]');if(!(a instanceof HTMLAnchorElement))return;var h=a.href;if(!h)return;try{var u=new URL(h,location.href);if(!/^https?:$/.test(u.protocol))return;if(u.host===l)return;var p=window.posthog;if(!p||typeof p.capture!=='function')return;var fc=a.closest('article[id^="fact-card-"]');var fid=fc?fc.id.replace(/^fact-card-/,''):null;p.capture(fid?'fact_source_clicked':'outbound_link_clicked',{host:u.host,path:u.pathname,fact_id:fid});}catch(_){}},{capture:true,passive:true});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',f,{once:true});}else{f();}})();`
+  : "";
+
+if (import.meta.env.DEV && !config) {
+  const missing = !provider
+    ? "PUBLIC_ANALYTICS_PROVIDER"
+    : provider === "plausible"
+      ? "PUBLIC_PLAUSIBLE_DOMAIN"
+      : provider === "umami"
+        ? "PUBLIC_UMAMI_WEBSITE_ID and/or PUBLIC_UMAMI_SCRIPT_URL"
+        : "PUBLIC_POSTHOG_KEY";
+  console.info(`[Analytics] Tracking disabled. To enable, set ${missing} in .env`);
+}
 ---
 
+{
+  config?.kind === "posthog" && (
+    <>
+      <link rel="dns-prefetch" href={config.host} />
+      <link rel="preconnect" href={config.host} crossorigin="anonymous" />
+    </>
+  )
+}
 {
   config?.kind === "plausible" && (
     <script is:inline defer data-domain={config.domain} src={config.src} />
@@ -56,3 +131,5 @@ const config = resolveConfig();
     <script is:inline defer data-website-id={config.websiteId} src={config.src} />
   )
 }
+{config?.kind === "posthog" && <script is:inline set:html={posthogSnippet} />}
+{config && <script is:inline set:html={outboundSnippet} />}

@@ -1,18 +1,29 @@
 ---
 // Presets — 3 scenario cards for the homepage (2005, 2012, 2024).
-const presets = [
-  { year: 2005, title: "Закінчив школу у 2005-му", note: "21 рік новин" },
-  { year: 2012, title: "Вишівський диплом 2012", note: "14 років новин" },
-  { year: 2024, title: "Молодший брат 2024-го", note: "2 роки новин" },
+import { yearsWord } from "../lib/plurals";
+
+const currentYear = new Date().getFullYear();
+const presetYears = [
+  { year: 2005, title: "Закінчив школу у 2005-му" },
+  { year: 2012, title: "Вишівський диплом 2012" },
+  { year: 2024, title: "Молодший брат 2024-го" },
 ];
+const presets = presetYears.map((p) => {
+  const delta = currentYear - p.year;
+  return { ...p, note: `${delta} ${yearsWord(delta)} новин` };
+});
 ---
 
-<div class="grid gap-4 sm:grid-cols-3">
+<div class="grid gap-4 sm:grid-cols-3" id="preset-cards">
   {
-    presets.map((p) => (
+    presets.map((p, i) => (
       <a
         href={`/${p.year}/`}
         class="group hover:shadow-card-hover relative overflow-hidden rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-7 text-left transition hover:-translate-y-1 hover:border-[color:var(--accent)]"
+        data-reveal
+        data-preset-year={p.year}
+        data-preset-index={i}
+        style={`--reveal-delay: ${i * 90}ms`}
       >
         {/* dog-eared corner */}
         <span
@@ -33,3 +44,20 @@ const presets = [
     ))
   }
 </div>
+
+<script>
+  import { EVENTS, track, register } from "../lib/analytics";
+
+  document
+    .querySelectorAll<HTMLAnchorElement>("#preset-cards [data-preset-year]")
+    .forEach((card) => {
+      card.addEventListener("click", () => {
+        const year = parseInt(card.dataset.presetYear ?? "0", 10);
+        const index = parseInt(card.dataset.presetIndex ?? "0", 10);
+        if (!Number.isFinite(year) || year <= 0) return;
+        track(EVENTS.presetClicked, { year, index });
+        track(EVENTS.yearSubmitted, { year, source: "preset" });
+        register({ year_filter: year });
+      });
+    });
+</script>

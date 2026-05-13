@@ -24,8 +24,9 @@ const available = SUBJECTS.filter((s) => {
 {
   available.length > 1 && (
     <div
-      class="sticky top-0 z-30 border-b border-[color:var(--rule)] bg-[color:var(--paper)]/90 backdrop-blur-sm"
+      class="sticky z-30 border-b border-[color:var(--rule)] bg-[color:var(--paper)]/90 backdrop-blur-sm"
       id="subject-filter-bar"
+      style="top: var(--header-h, 0px)"
     >
       <div class="container-wide">
         <div class="scrollbar-none flex items-center gap-1.5 overflow-x-auto py-3">
@@ -103,6 +104,8 @@ const available = SUBJECTS.filter((s) => {
 </style>
 
 <script>
+  import { EVENTS, track } from "../lib/analytics";
+
   function initFilters() {
     const bar = document.getElementById("subject-filter-bar");
     if (!bar) return;
@@ -135,6 +138,7 @@ const available = SUBJECTS.filter((s) => {
     allBtn?.addEventListener("click", () => {
       history.replaceState(null, "", location.pathname + location.search);
       applyFilter(null);
+      track(EVENTS.subjectFilterChanged, { subject_id: null, action: "all" });
     });
 
     subjectBtns.forEach((btn) => {
@@ -144,9 +148,11 @@ const available = SUBJECTS.filter((s) => {
         if (current === subject) {
           history.replaceState(null, "", location.pathname + location.search);
           applyFilter(null);
+          track(EVENTS.subjectFilterChanged, { subject_id: subject, action: "remove" });
         } else {
           history.replaceState(null, "", `${location.pathname}${location.search}#${subject}`);
           applyFilter(subject);
+          track(EVENTS.subjectFilterChanged, { subject_id: subject, action: "add" });
         }
       });
     });

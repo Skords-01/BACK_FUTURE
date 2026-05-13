@@ -7,10 +7,14 @@ import FactTimeline from "../components/FactTimeline.astro";
 import YearNav from "../components/YearNav.astro";
 import ShareBlock from "../components/ShareBlock.astro";
 import SupportBlock from "../components/SupportBlock.astro";
+import QuizCta from "../components/QuizCta.astro";
+import ReadingProgress from "../components/ReadingProgress.astro";
+import BackToTop from "../components/BackToTop.astro";
 import { getCollection } from "astro:content";
 import { factsForYear, pickFallbackYears, sampleFacts, type Fact } from "../lib/filterFacts";
 import { eraOf } from "../lib/eras";
 import { SITE, SUBJECTS } from "../config/site";
+import { factsWord, updatesCount } from "../lib/plurals";
 
 export async function getStaticPaths() {
   const years: { params: { year: string } }[] = [];
@@ -34,14 +38,7 @@ const totalCount = matched.length;
 const yearNow = new Date().getFullYear();
 const yearsPassed = yearNow - year;
 
-function pluralize(n: number, forms: [string, string, string]): string {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return forms[0];
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return forms[1];
-  return forms[2];
-}
-const updatesLabel = pluralize(totalCount, ["оновлення", "оновлення", "оновлень"]);
+const updatesLabel = updatesCount(totalCount);
 
 const description = `Якщо ти випустився ${year}-го — ось що змінилось у науці й історії після того, як ти закрив підручник. ${SITE.name}.`;
 const ogImage = new URL(`/og/${year}.png`, SITE.defaultUrl).toString();
@@ -99,7 +96,10 @@ const subjectCounts = SUBJECTS.map((s) => ({
   description={description}
   ogImage={ogImage}
   jsonLd={[articleLd, breadcrumbsLd]}
+  noindex={totalCount === 0}
 >
+  <ReadingProgress />
+  <BackToTop />
   <YearHero year={year} era={era} yearsPassed={yearsPassed} totalCount={totalCount} />
 
   <ThenAside year={year} />
@@ -117,7 +117,7 @@ const subjectCounts = SUBJECTS.map((s) => ({
             Поки що для цього року тихо.
           </p>
           <p class="mt-2 text-base text-[color:var(--ink-2)]">
-            Ми постійно додаємо факти. Поки що — спробуй ери, де в нас точно є про що розказати:
+            Ми постійно додаємо факти. Поки — спробуй ери, де вже є про що розповісти:
           </p>
 
           {fallbackYears.length > 0 && (
@@ -135,7 +135,7 @@ const subjectCounts = SUBJECTS.map((s) => ({
                       <span class="text-xs text-[color:var(--muted)]">{f.eraLabel}</span>
                     </span>
                     <span class="font-mono text-xs text-[color:var(--muted)] tabular-nums">
-                      {f.count} {f.count === 1 ? "факт" : "фактів"}
+                      {f.count} {factsWord(f.count)}
                     </span>
                   </a>
                 </li>
@@ -146,7 +146,7 @@ const subjectCounts = SUBJECTS.map((s) => ({
           {teaserFacts.length > 0 && (
             <div class="mt-8">
               <p class="mb-3 font-mono text-xs tracking-widest text-[color:var(--muted)] uppercase">
-                Щоб ти не йшов з порожніми руками — ось що є в нас:
+                Щоб не іти з порожніми руками — ось що вже є:
               </p>
               <div class="grid gap-4">
                 {teaserFacts.map((f: Fact) => {
@@ -177,7 +177,7 @@ const subjectCounts = SUBJECTS.map((s) => ({
               href={issueUrl}
               class="text-[color:var(--accent)] underline-offset-2 hover:underline"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
             >
               Запропонуй у GitHub
             </a>
@@ -187,7 +187,86 @@ const subjectCounts = SUBJECTS.map((s) => ({
     )
   }
 
+  {totalCount > 0 && <QuizCta factsCount={totalCount} />}
   <ShareBlock year={year} factsCount={totalCount} />
   <SupportBlock />
   <YearNav year={year} />
 </Base>
+
+<script>
+  // Persist last visited year and track read facts via Intersection Observer.
+  // State stored in localStorage under key "bf_user_state".
+  const BF_KEY = "bf_user_state";
+
+  function bfLoad() {
+    try {
+      const raw = localStorage.getItem(BF_KEY);
+      const s = raw ? JSON.parse(raw) : {};
+      return {
+        lastYear: typeof s.lastYear === "number" ? s.lastYear : null,
+        readFacts: Array.isArray(s.readFacts) ? s.readFacts : [],
+        savedFacts: Array.isArray(s.savedFacts) ? s.savedFacts : [],
+      };
+    } catch {
+      return { lastYear: null, readFacts: [] as string[], savedFacts: [] as string[] };
+    }
+  }
+
+  function bfSave(s: { lastYear: number | null; readFacts: string[]; savedFacts: string[] }) {
+    try {
+      localStorage.setItem(BF_KEY, JSON.stringify(s));
+    } catch {}
+  }
+
+  // Derive year from URL path (e.g. /2003/ → 2003)
+  const yearMatch = location.pathname.match(/\/(\d{4})\/?$/);
+  const pageYear = yearMatch ? parseInt(yearMatch[1], 10) : null;
+
+  if (pageYear) {
+    const s = bfLoad();
+    s.lastYear = pageYear;
+    bfSave(s);
+  }
+
+  const readObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const slug = (entry.target as HTMLElement).dataset.factSlug;
+        if (!slug) return;
+        const s = bfLoad();
+        if (!s.readFacts.includes(slug)) {
+          s.readFacts.push(slug);
+          bfSave(s);
+        }
+        readObserver.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.5 },
+  );
+
+  document
+    .querySelectorAll<HTMLElement>("[data-fact-slug]")
+    .forEach((el) => readObserver.observe(el));
+</script>
+
+<script
+  define:vars={{
+    prevYear: year > SITE.yearMin ? year - 1 : null,
+    nextYear: year < SITE.yearMax ? year + 1 : null,
+  }}
+>
+  // Keyboard navigation: ← prev year, → next year
+  document.addEventListener("keydown", function (e) {
+    var tag = e.target && e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    // Don't navigate when a dialog (e.g. search) is open
+    if (document.querySelector("dialog[open]")) return;
+    if (e.key === "ArrowLeft" && prevYear) {
+      window.location.href = "/" + prevYear + "/";
+    } else if (e.key === "ArrowRight" && nextYear) {
+      window.location.href = "/" + nextYear + "/";
+    }
+  });
+</script>

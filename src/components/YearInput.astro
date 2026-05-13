@@ -29,7 +29,7 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     max={SITE.yearMax}
     placeholder="2003"
     value={defaultYear}
-    aria-describedby="year-error"
+    aria-describedby="year-hint year-error"
     required
     class={`flex-1 rounded-3xl border border-ink-200 bg-white px-6 text-center font-mono font-bold tabular-nums tracking-tight text-ink-900 shadow-card outline-none transition focus:border-accent-700 focus:ring-2 focus:ring-accent-200 dark:border-ink-300 dark:bg-ink-100 dark:focus:border-accent-400 dark:focus:ring-accent-700/40 ${inputClass}`}
   />
@@ -49,7 +49,10 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
   </button>
 </form>
 
-<p id="year-error" class="mt-2 hidden text-sm text-red-600 dark:text-red-400"></p>
+<p id="year-hint" class="text-ink-400 dark:text-ink-600 mt-1 text-center text-xs">
+  від {SITE.yearMin} до {SITE.yearMax}
+</p>
+<p id="year-error" class="mt-1 hidden text-sm text-red-600 dark:text-red-400"></p>
 
 <script is:inline>
   (function () {
@@ -62,6 +65,15 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
     const btnSpinner = submitBtn && submitBtn.querySelector("[data-btn-spinner]");
     const min = Number(form.dataset.min);
     const max = Number(form.dataset.max);
+
+    function track(event, props) {
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.capture === "function") ph.capture(event, props);
+      } catch {
+        /* analytics never breaks UI */
+      }
+    }
 
     function showError(msg) {
       if (!(input instanceof HTMLInputElement)) return;
@@ -92,9 +104,18 @@ const inputClass = size === "lg" ? "h-20 text-5xl sm:h-24 sm:text-6xl" : "h-14 t
       const raw = input.value.trim();
       const n = Number(raw);
       if (!Number.isInteger(n) || n < min || n > max) {
+        var reason = !raw ? "empty" : !Number.isInteger(n) ? "not_integer" : "out_of_range";
+        track("year_validation_failed", { reason: reason, min: min, max: max });
         showError(`Введи рік від ${min} до ${max}.`);
         input.focus();
         return;
+      }
+      track("year_submitted", { year: n, source: "manual" });
+      try {
+        var ph = window.posthog;
+        if (ph && typeof ph.register === "function") ph.register({ year_filter: n });
+      } catch {
+        /* ignore */
       }
       setLoading(true);
       window.location.href = `/${n}/`;

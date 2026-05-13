@@ -14,6 +14,11 @@ const PAGES = [
   { path: "/metodologia/", label: "methodology" },
   { path: "/timeline/", label: "vertical timeline" },
   { path: "/about/", label: "about" },
+  { path: "/all/", label: "all facts" },
+  { path: "/quiz/", label: "quiz" },
+  { path: "/fact/crispr-cas9/", label: "fact detail" },
+  { path: "/era/1991-1995/", label: "era detail" },
+  { path: "/subject/biology/", label: "subject detail" },
 ] as const;
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];

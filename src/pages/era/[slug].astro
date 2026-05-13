@@ -8,6 +8,7 @@ import { factsForEra, groupBySubject } from "../../lib/filterFacts";
 import { ERAS } from "../../lib/eras";
 import { SITE } from "../../config/site";
 import { eraUrl, yearUrl } from "../../lib/url";
+import { factsWord, updatesCount } from "../../lib/plurals";
 
 export async function getStaticPaths() {
   return ERAS.map((era) => ({ params: { slug: era.slug } }));
@@ -29,7 +30,7 @@ const otherEras = ERAS.filter((e) => e.id !== era.id);
 const description = `${era.label}: факти, релевантні випускникам ${era.yearStart}–${Math.min(
   era.yearEnd,
   SITE.yearMax,
-)} років. ${totalCount} ${totalCount === 1 ? "факт" : "фактів"} на ${SITE.name}.`;
+)} років. ${totalCount} ${factsWord(totalCount)} на ${SITE.name}.`;
 const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
 const homeUrl = `${SITE.defaultUrl}/`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
@@ -123,7 +124,7 @@ const breadcrumbsLd: Record<string, unknown> = {
       <p class="text-ink-700 mt-4 max-w-prose text-lg">{era.summary}</p>
       <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
         {totalCount}
-        {totalCount === 1 ? "факт" : "фактів"} у цій ері, згруповано за предметами.
+        {factsWord(totalCount)} у цій ері, згруповано за предметами.
       </p>
     </div>
   </section>
@@ -164,8 +165,7 @@ const breadcrumbsLd: Record<string, unknown> = {
                 {g.label}
               </h2>
               <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
-                {g.items.length}
-                {g.items.length === 1 ? "оновлення" : "оновлень"}
+                {g.items.length} {updatesCount(g.items.length)}
               </span>
             </header>
             <div class="grid gap-4">

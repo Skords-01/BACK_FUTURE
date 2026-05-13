@@ -3,6 +3,7 @@
 // Stamp badge, and the era-based summary sentence.
 import Stamp from "./Stamp.astro";
 import type { Era } from "../lib/eras";
+import { updatesCount, yearsWord } from "../lib/plurals";
 
 interface Props {
   year: number;
@@ -12,14 +13,8 @@ interface Props {
 }
 
 const { year, era, yearsPassed, totalCount } = Astro.props;
-const yearsPassedLabel =
-  yearsPassed % 10 === 1 && yearsPassed % 100 !== 11
-    ? "рік"
-    : yearsPassed % 10 >= 2 &&
-        yearsPassed % 10 <= 4 &&
-        (yearsPassed % 100 < 12 || yearsPassed % 100 > 14)
-      ? "роки"
-      : "років";
+const yearsPassedLabel = yearsWord(yearsPassed);
+const updatesLabel = updatesCount(totalCount);
 ---
 
 <section class="ruled-hero relative overflow-hidden pt-12 pb-10">
@@ -53,7 +48,7 @@ const yearsPassedLabel =
         <!-- Giant year — h1 wraps the decorative span; aria-label provides clean accessible name -->
         <div class="relative inline-block">
           <h1
-            class="font-display leading-none font-extrabold tracking-[-0.04em] text-[color:var(--ink)] select-none"
+            class="year-glitch font-display leading-none font-extrabold tracking-[-0.04em] text-[color:var(--ink)] select-none"
             style="font-size: clamp(5rem, 17vw, 13rem); line-height: 0.9;"
             aria-label={`Випуск ${year}`}
           >
@@ -74,12 +69,24 @@ const yearsPassedLabel =
             totalCount > 0 && (
               <span>
                 Ти пропустив{" "}
-                <strong class="font-semibold text-[color:var(--ink)]">{totalCount}</strong>
-                {totalCount === 1 ? " оновлення" : " оновлень"}.
+                <strong class="font-semibold text-[color:var(--ink)]">{totalCount}</strong>{" "}
+                {updatesLabel}.
               </span>
             )
           }
         </p>
+
+        <!-- Reading progress counter — hydrated client-side from localStorage -->
+        {
+          totalCount > 0 && (
+            <p
+              id="facts-read-counter"
+              data-total={totalCount}
+              class="mt-3 font-mono text-xs text-[color:var(--muted)]"
+              aria-live="polite"
+            />
+          )
+        }
       </div>
 
       <!-- Era color accent block -->
@@ -92,3 +99,95 @@ const yearsPassedLabel =
     </div>
   </div>
 </section>
+
+<style>
+  @keyframes year-glitch {
+    0% {
+      opacity: 0;
+      text-shadow:
+        -6px 0 var(--accent),
+        6px 0 #3b6e8f;
+      letter-spacing: 0.06em;
+      filter: blur(3px);
+    }
+    12% {
+      opacity: 1;
+      text-shadow:
+        4px 0 var(--accent),
+        -4px 0 #5e3a7a;
+      letter-spacing: 0.01em;
+      filter: blur(1px);
+    }
+    22% {
+      text-shadow:
+        -3px 0 var(--accent),
+        3px 0 #3b6e8f;
+      letter-spacing: -0.02em;
+      filter: blur(0);
+    }
+    32% {
+      text-shadow:
+        2px 0 #c89034,
+        -2px 0 var(--accent);
+      letter-spacing: -0.04em;
+    }
+    42% {
+      text-shadow: none;
+      letter-spacing: -0.04em;
+    }
+    52% {
+      text-shadow:
+        -1px 0 var(--accent),
+        1px 0 #5e3a7a;
+    }
+    62% {
+      text-shadow: none;
+    }
+    100% {
+      text-shadow: none;
+      letter-spacing: -0.04em;
+      opacity: 1;
+    }
+  }
+
+  .year-glitch {
+    animation: year-glitch 0.85s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .year-glitch {
+      animation: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var el = document.getElementById("facts-read-counter");
+    if (!el) return;
+    var total = Number(el.dataset.total) || 0;
+    try {
+      var stored = localStorage.getItem("bf_user_state");
+      var readFacts = stored ? JSON.parse(stored).readFacts || [] : [];
+      if (!Array.isArray(readFacts) || readFacts.length === 0) return;
+      // Intersect with slugs actually present on this page to avoid counting
+      // facts read on other year pages.
+      var pageSlugs = new Set(
+        Array.from(document.querySelectorAll("[data-fact-slug]")).map(function (n) {
+          return n.getAttribute("data-fact-slug");
+        }),
+      );
+      var readOnPage =
+        pageSlugs.size > 0
+          ? readFacts.filter(function (s) {
+              return pageSlugs.has(s);
+            }).length
+          : Math.min(readFacts.length, total);
+      if (readOnPage > 0) {
+        el.textContent = "Прочитано: " + readOnPage + " з " + total;
+      }
+    } catch {
+      // localStorage unavailable — skip counter
+    }
+  })();
+</script>

@@ -3,6 +3,8 @@
 import YearMachine from "./YearMachine.astro";
 import MissedCounter from "./MissedCounter.astro";
 import QuickPicks from "./QuickPicks.astro";
+import { SITE } from "../config/site";
+import { factsWord } from "../lib/plurals";
 
 interface Props {
   totalFacts: number;
@@ -18,7 +20,9 @@ const currentYear = new Date().getFullYear();
     class="mb-9 flex justify-between font-mono text-[11px] tracking-[0.12em] text-[color:var(--muted)] uppercase"
   >
     <span>№ 001 · просвітницький журнал · українською</span>
-    <span class="hidden sm:inline">видання {currentYear} · {totalFacts} фактів</span>
+    <span class="hidden sm:inline"
+      >видання {currentYear} · {totalFacts} {factsWord(totalFacts)}</span
+    >
   </div>
 
   <h1
@@ -34,12 +38,71 @@ const currentYear = new Date().getFullYear();
     після випускного?
   </h1>
 
-  <p class="mb-14 max-w-[640px] text-[22px] leading-relaxed font-normal text-[color:var(--ink-2)]">
+  <p
+    class="mb-8 max-w-[640px] text-[clamp(1.125rem,4.5vw,1.375rem)] leading-relaxed font-normal text-[color:var(--ink-2)] sm:mb-14"
+  >
     Введи рік випуску — отримай стрічку оновлень у науці, історії й світі від&nbsp;тих часів.
     Стисло, науково-популярно, з&nbsp;джерелами.
   </p>
 
   <YearMachine defaultYear={defaultYear} />
+
+  <!-- Random year + last-visited-year restore (client-side only) -->
+  <div class="mb-5 flex flex-wrap items-center gap-3">
+    <button
+      id="random-year-btn"
+      type="button"
+      data-year-min={SITE.yearMin}
+      data-year-max={SITE.yearMax}
+      class="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-[color:var(--card-edge)] bg-[color:var(--card)] px-4 py-1.5 font-mono text-xs text-[color:var(--ink-2)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+    >
+      <span aria-hidden="true">⚄</span>
+      Випадковий рік
+    </button>
+    <a
+      id="last-year-link"
+      href="#"
+      hidden
+      class="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-[color:var(--card-edge)] bg-[color:var(--card)] px-4 py-1.5 font-mono text-xs text-[color:var(--ink-2)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+    >
+      <span aria-hidden="true">←</span>
+      <span id="last-year-label">Повернутись до …</span>
+    </a>
+  </div>
+
   <MissedCounter defaultYear={defaultYear} factsFromYear={factsFromYear} />
   <QuickPicks />
 </section>
+
+<script is:inline>
+  (function () {
+    // Random year navigation
+    var randBtn = document.getElementById("random-year-btn");
+    if (randBtn instanceof HTMLButtonElement) {
+      var min = parseInt(randBtn.dataset.yearMin ?? "1991", 10);
+      var max = parseInt(randBtn.dataset.yearMax ?? "2026", 10);
+      randBtn.addEventListener("click", function () {
+        var year = Math.floor(Math.random() * (max - min + 1)) + min;
+        window.location.href = "/" + year + "/";
+      });
+    }
+
+    // Restore last visited year from localStorage
+    var lastYearLink = document.getElementById("last-year-link");
+    var lastYearLabel = document.getElementById("last-year-label");
+    if (lastYearLink && lastYearLabel) {
+      try {
+        var raw = localStorage.getItem("bf_user_state");
+        var state = raw ? JSON.parse(raw) : {};
+        var lastYear = typeof state.lastYear === "number" ? state.lastYear : null;
+        if (lastYear) {
+          lastYearLabel.textContent = "Повернутись до " + lastYear;
+          lastYearLink.setAttribute("href", "/" + lastYear + "/");
+          lastYearLink.hidden = false;
+        }
+      } catch {
+        // localStorage unavailable or parse error — silently skip
+      }
+    }
+  })();
+</script>

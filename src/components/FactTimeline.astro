@@ -1,9 +1,12 @@
 ---
 // FactTimeline — vertical timeline of facts grouped by subject.
-// Left rail (180px): year + delta + colored dot. Center: 1px line. Right: FactCard.
+// Desktop: rail (140px) with year + delta + colored dot · 1px axis · FactCard.
+// Mobile (< 640px): thin 28px rail with only the colored dot; year/delta move
+// into the FactCard meta row so the card body keeps maximum width.
 import FactCard from "./FactCard.astro";
 import { groupBySubject } from "../lib/filterFacts";
 import type { Fact } from "../lib/filterFacts";
+import { factsWord } from "../lib/plurals";
 
 interface Props {
   facts: Fact[];
@@ -41,23 +44,20 @@ const groups = groupBySubject(facts);
               {g.label}
             </h2>
             <span class="ml-auto font-mono text-xs text-[color:var(--muted)]">
-              {g.items.length}{" "}
-              {(() => {
-                const n = g.items.length,
-                  m10 = n % 10,
-                  m100 = n % 100;
-                if (m10 === 1 && m100 !== 11) return "факт";
-                if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
-                return "фактів";
-              })()}
+              {g.items.length} {factsWord(g.items.length)}
             </span>
           </header>
 
           <div class="timeline">
-            {g.items.map((fact) => {
+            {g.items.map((fact, index) => {
               const delta = fact.data.yearOfEvent - fromYear;
               return (
-                <div class="timeline__row" data-reveal>
+                <div
+                  class="timeline__row"
+                  data-reveal
+                  data-fact-slug={fact.id}
+                  style={`--reveal-delay: ${index * 65}ms`}
+                >
                   <div class="timeline__rail" style={`--dot-color: var(--subject-${g.subject})`}>
                     <span class="timeline__year">{fact.data.yearOfEvent}</span>
                     {delta > 0 && <span class="timeline__delta">+{delta} р.</span>}
@@ -65,7 +65,7 @@ const groups = groupBySubject(facts);
                   </div>
 
                   <div class="timeline__body">
-                    <FactCard fact={fact} />
+                    <FactCard fact={fact} fromYear={fromYear} />
                   </div>
                 </div>
               );
@@ -93,8 +93,22 @@ const groups = groupBySubject(facts);
 
   @media (max-width: 640px) {
     .timeline__row {
-      grid-template-columns: 80px 1px 1fr;
-      gap: 0 12px;
+      grid-template-columns: 28px 1px minmax(0, 1fr);
+      gap: 0 8px;
+    }
+    .timeline__rail {
+      align-items: center;
+      padding-top: 18px;
+    }
+    .timeline__year,
+    .timeline__delta {
+      display: none;
+    }
+    .timeline__dot {
+      width: 10px;
+      height: 10px;
+      align-self: center;
+      margin-top: 0;
     }
   }
 

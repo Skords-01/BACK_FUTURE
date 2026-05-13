@@ -35,3 +35,5 @@ Thumbs.db
 playwright-report/
 reports/
 test-results/
+.vercel
+.env*.local

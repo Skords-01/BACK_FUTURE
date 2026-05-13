@@ -19,6 +19,7 @@ import type { Fact } from "../lib/filterFacts";
 import { ERAS, eraForGraduationYear, type EraId } from "../lib/eras";
 import { SITE } from "../config/site";
 import { eraUrl } from "../lib/url";
+import { factsWord, yearsWord } from "../lib/plurals";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 
@@ -56,7 +57,7 @@ const ukraineFacts = allFacts.filter((f) => f.data.region === "ukraine").length;
 const highImpactFacts = allFacts.filter((f) => f.data.impact === "high").length;
 const yearsCovered = orderedYears.length;
 
-const description = `Повна хронологічна стрічка ${totalFacts} фактів про науку, історію й світ від ${SITE.yearMin} до ${SITE.yearMax} року. ${ukraineFacts} українських внесків, ${highImpactFacts} переломних подій. Українською.`;
+const description = `Повна хронологічна стрічка ${totalFacts} ${factsWord(totalFacts)} про науку, історію й світ від ${SITE.yearMin} до ${SITE.yearMax} року. ${ukraineFacts} українських внесків, ${highImpactFacts} переломних подій. Українською.`;
 const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
 const homeUrl = `${SITE.defaultUrl}/`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
@@ -93,14 +94,6 @@ const breadcrumbsLd: Record<string, unknown> = {
     },
   ],
 };
-
-function pluralizeFacts(n: number): string {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return "факт";
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
-  return "фактів";
-}
 
 function eraIdForYear(y: number): EraId {
   return eraForGraduationYear(y);
@@ -143,7 +136,8 @@ function eraIdForYear(y: number): EraId {
         Світ між {SITE.yearMin} і {SITE.yearMax}
       </h1>
       <p class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
-        {totalFacts} фактів про науку, історію й світ — розкладені по роках, від року здобуття незалежності
+        {totalFacts}
+        {factsWord(totalFacts)} про науку, історію й світ — розкладені по роках, від року здобуття незалежності
         до сьогодні. Прокручуй донизу або стрибай до своєї ери.
       </p>
 
@@ -155,14 +149,14 @@ function eraIdForYear(y: number): EraId {
           <dd class="text-ink-900 inline text-base font-semibold">
             {totalFacts}
           </dd>
-          <span class="ml-1.5">{pluralizeFacts(totalFacts)}</span>
+          <span class="ml-1.5">{factsWord(totalFacts)}</span>
         </div>
         <div>
           <dt class="sr-only">Років з контентом</dt>
           <dd class="text-ink-900 inline text-base font-semibold">
             {yearsCovered}
           </dd>
-          <span class="ml-1.5">років з контентом</span>
+          <span class="ml-1.5">{yearsWord(yearsCovered)} з контентом</span>
         </div>
         <div>
           <dt class="sr-only">Українських внесків</dt>

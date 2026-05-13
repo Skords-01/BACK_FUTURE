@@ -1,45 +1,167 @@
 ---
 import Base from "../layouts/Base.astro";
-import { SITE } from "../config/site";
+import { SITE, SUBJECTS } from "../config/site";
+import { getCollection } from "astro:content";
+import { factsWord } from "../lib/plurals";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const factsCount = allFacts.length;
 ---
 
 <Base title="Про проєкт">
-  <section class="container-prose pt-16">
-    <h1 class="font-display text-ink-900 text-4xl font-extrabold tracking-tight sm:text-5xl">
+  <div class="container-prose pt-16">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · про нас
+    </span>
+
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
+      data-reveal
+    >
       Про проєкт
     </h1>
 
+    <!-- Stats row -->
+    <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4" data-reveal>
+      {
+        (
+          [
+            { n: String(factsCount), l: `${factsWord(factsCount)} у базі` },
+            { n: String(SUBJECTS.length), l: "навчальних предметів" },
+            { n: "5", l: "навчальних епох" },
+            { n: `${SITE.yearMin}–${SITE.yearMax}`, l: "роки охоплення" },
+          ] as { n: string; l: string }[]
+        ).map((stat) => (
+          <div class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-4">
+            <div class="font-display text-[clamp(1.75rem,4vw,2.25rem)] leading-none font-extrabold text-[color:var(--accent)] tabular-nums">
+              {stat.n}
+            </div>
+            <div class="mt-1.5 font-mono text-[10px] tracking-wider text-[color:var(--muted)] uppercase">
+              {stat.l}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Main content -->
     <div
-      class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-700 mt-8 max-w-none"
+      class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-700 mt-12 max-w-none"
     >
-      <p>
-        <strong>{SITE.name}</strong> — український просвітницький сайт, який допомагає швидко зрозуміти,
-        що змінилось у науці, історії й світі від твого випускного року. Без підписок, без paywall, без
-        агресивної реклами.
+      <p data-reveal>
+        <strong>{SITE.name}</strong> — безкоштовний просвітницький сайт. Вводиш рік свого випуску — отримуєш
+        персоналізовану стрічку відкриттів і подій: що змінилось у науці, географії та історії від того
+        часу, коли ти закрив підручник. Усе написано українською, з першоджерелами.
       </p>
 
-      <h2>Навіщо</h2>
-      <p>
-        Шкільні програми оновлюються повільно, а світ — швидко. Якщо ти закінчив школу 10, 20 або 30
-        років тому, твій підручник з фізики не знає про бозон Хіггса; підручник з біології — про
-        CRISPR; з географії — про Південний Судан. Ми збираємо такі оновлення в одну стрічку,
-        прив'язану до твого року випуску, і пишемо про них українською в науково-популярному
-        форматі.
+      <p data-reveal>
+        Це проєкт від ветерана. Усе, що ти тут читаєш, зібрано українськими руками — без редакції,
+        без реклами, без політики.
       </p>
 
-      <h2>Що це не</h2>
-      <ul>
-        <li>Не конспект шкільного курсу.</li>
-        <li>Не вичерпна енциклопедія.</li>
-        <li>Не політична трибуна.</li>
+      <h2 data-reveal>Навіщо</h2>
+      <p data-reveal>
+        Шкільні програми оновлюються повільно. Якщо ти закінчив школу до 2015 року, твій підручник
+        фізики не знає про гравітаційні хвилі; підручник біології — про CRISPR і мРНК-вакцини;
+        підручник географії — про Південний Судан, Косово й нові кордони після 2014-го. Ми збираємо
+        саме такі оновлення: короткі, перевірені, прив'язані до конкретного шкільного предмету.
+      </p>
+
+      <h2 data-reveal>Наші принципи</h2>
+      <ul data-reveal>
+        <li>Стабільні, консенсусні факти — без новинного шуму.</li>
+        <li>Кожне твердження — з першоджерелом, яке можна відкрити й перевірити.</li>
+        <li>Українською мовою, без перекладів через кальку.</li>
+        <li>Без реклами, без трекерів, без думок редакції.</li>
       </ul>
 
-      <h2>Підтримати</h2>
-      <p>
-        Сайт некомерційний. Якщо хочеш підтримати — слідкуй за оновленнями (банка з'явиться згодом),
-        ділись посиланнями, надсилай ідеї фактів через GitHub: <a href={SITE.repoUrl}>репозиторій</a
-        >.
+      <h2 data-reveal>Як влаштований сайт</h2>
+    </div>
+
+    <!-- 3-column how-it-works -->
+    <div class="mt-6 grid gap-4 sm:grid-cols-3" data-reveal>
+      {
+        (
+          [
+            {
+              mark: "01",
+              title: "Факти",
+              text: "Перевірена зміна після 1991 року, прив'язана до теми шкільного підручника. Завжди з першоджерелом.",
+            },
+            {
+              mark: "02",
+              title: "Ери",
+              text: "П'ять навчальних епох (1991–сьогодні) — кожна зі своїм набором фактів, новим саме для твого покоління.",
+            },
+            {
+              mark: "03",
+              title: "Рубрики",
+              text: "11 предметів від астрономії до спорту. Фільтрація на сторінці року — щоб бачити тільки своє.",
+            },
+          ] as { mark: string; title: string; text: string }[]
+        ).map((col) => (
+          <div class="rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-5">
+            <span class="font-mono text-[10px] font-bold tracking-[0.15em] text-[color:var(--accent)] uppercase">
+              {col.mark}
+            </span>
+            <strong class="font-display mt-2 mb-2 block text-lg font-semibold tracking-tight text-[color:var(--ink)]">
+              {col.title}
+            </strong>
+            <p class="text-sm leading-relaxed text-[color:var(--ink-2)]">{col.text}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div
+      class="prose prose-ink prose-headings:font-display dark:prose-invert text-ink-800 dark:text-ink-700 mt-12 max-w-none"
+    >
+      <h2 data-reveal>Як долучитись</h2>
+      <p data-reveal>
+        Усі матеріали у відкритому репозиторії на GitHub. Якщо ти знайшов помилку, маєш джерело для
+        нового факту або хочеш запропонувати тему — створи завдання (issue) або надішли зміни.
       </p>
     </div>
-  </section>
+
+    <!-- CTAs -->
+    <div class="mt-6 flex flex-wrap gap-3" data-reveal>
+      <a
+        href={SITE.repoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center rounded-sm border-2 border-[color:var(--ink)] px-6 py-3 font-mono text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[color:var(--ink)] hover:text-[color:var(--paper)]"
+      >
+        GitHub репозиторій ↗
+      </a>
+      <a
+        href="/quiz/"
+        class="inline-flex items-center rounded-sm border-2 border-[color:var(--accent)] px-6 py-3 font-mono text-sm font-semibold text-[color:var(--accent)] transition hover:bg-[color:var(--accent)] hover:text-[#fff7ec]"
+      >
+        Спробувати квіз →
+      </a>
+    </div>
+
+    <!-- Support block (visible only when monobank URL is set) -->
+    {
+      SITE.monobankJarUrl && (
+        <div
+          class="mt-12 rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--paper-2)] p-6 sm:p-8"
+          data-reveal
+        >
+          <h2 class="font-display text-xl font-bold text-[color:var(--ink)]">Підтримати проєкт</h2>
+          <p class="mt-2 text-[color:var(--ink-2)]">
+            Сайт безкоштовний і без реклами. Якщо подобається — пригости кавою.
+          </p>
+          <a
+            href={SITE.monobankJarUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-4 inline-flex items-center rounded-sm border border-[color:var(--accent)] px-5 py-2.5 font-mono text-sm font-semibold text-[color:var(--accent)] transition hover:bg-[color:var(--accent)] hover:text-white"
+          >
+            monobank · банка →
+          </a>
+        </div>
+      )
+    }
+  </div>
 </Base>

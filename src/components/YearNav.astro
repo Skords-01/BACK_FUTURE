@@ -53,6 +53,38 @@ const next = year < SITE.yearMax ? year + 1 : null;
   }
 </nav>
 
+<p class="ynav-hint" aria-hidden="true">
+  <kbd>←</kbd><kbd>→</kbd> для навігації між роками
+</p>
+
+<style>
+  .ynav-hint {
+    margin-top: 12px;
+    padding-bottom: 16px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .ynav-hint kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid var(--card-edge);
+    border-radius: 4px;
+    background: var(--card);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    margin: 0 2px;
+  }
+  @media (hover: none) {
+    .ynav-hint {
+      display: none;
+    }
+  }
+</style>
+
 <style>
   .ynav {
     display: grid;
@@ -83,6 +115,7 @@ const next = year < SITE.yearMax ? year + 1 : null;
   .ynav__b:not(.ynav__b--disabled):hover,
   .ynav__b:not(.ynav__b--disabled):focus-visible {
     border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--card));
     transform: translateY(-2px);
     outline: 2px solid var(--accent);
     outline-offset: 2px;

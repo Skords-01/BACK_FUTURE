@@ -1,0 +1,338 @@
+---
+/*
+ * ScrollRestore — повертає користувача саме на ту картку факту, з якої він
+ * перейшов на постійну сторінку (`/fact/[slug]`), коли він тисне «назад» у
+ * браузері. Без цього скрипта браузер інколи скролить у верх сторінки —
+ * особливо на iOS Safari, коли bfcache відсутній, або коли вихідна сторінка
+ * має lazy-reveal анімації, що змінюють розміри під час renavigate.
+ *
+ * Логіка:
+ *   1. Перед самим навігаційним переходом по `a[href^="/fact/"]` зберігаємо
+ *      у sessionStorage пару `{ slug, y }` під ключем поточного URL і
+ *      одразу виставляємо `history.scrollRestoration = "manual"` — щоб
+ *      браузер на back-навігацію не намагався сам відновити scroll
+ *      (його авто-restore конфліктує з нашим scrollIntoView).
+ *   2. На back/forward завантаженні (Navigation Timing type === "back_forward")
+ *      читаємо запис, скролимо `#fact-card-<slug>` у центр viewport-у і
+ *      повторюємо ще раз на `load`, щоб компенсувати reflow від шрифтів /
+ *      lazy-resources.
+ *   3. На bfcache-restore (`pageshow.persisted === true`) браузер сам
+ *      зберіг scroll — лише прибираємо запис із sessionStorage.
+ *   4. Якщо запису немає (cold-load, прийшли по URL bar тощо) — нічого не
+ *      чіпаємо.
+ *
+ * Діагностика: при `?debug=scroll` (або `localStorage["bf:debug:scroll"] === "1"`)
+ * у верхньому лівому кутку показуємо жовтий overlay з повним логом подій
+ * (click → save, navtype, restore attempts, anchor lookup, final scrollY).
+ * Лог зберігається у sessionStorage, тож після back-навігації видно і запис
+ * "click" зі сторінки звідки прийшли. Прибрати: `localStorage.removeItem`
+ * і відкрити URL без `?debug=scroll`.
+ *
+ * Уся логіка усередині try/catch — sessionStorage / Navigation Timing можуть
+ * бути недоступні (приватний режим, старі браузери). Тоді — degrade silently.
+ */
+---
+
+<script is:inline>
+  (function () {
+    var STORAGE_PREFIX = "bf:return:";
+    var DEBUG_LOG_KEY = "bf:debug:scroll:log";
+    var DEBUG_FLAG_KEY = "bf:debug:scroll";
+    var MAX_LOG = 40;
+
+    function isDebugEnabled() {
+      try {
+        if (window.location.search.indexOf("debug=scroll") !== -1) {
+          // Persist у localStorage щоб після кліку на /fact/X лог продовжувався.
+          window.localStorage.setItem(DEBUG_FLAG_KEY, "1");
+          return true;
+        }
+        return window.localStorage.getItem(DEBUG_FLAG_KEY) === "1";
+      } catch {
+        return false;
+      }
+    }
+
+    var DEBUG = isDebugEnabled();
+
+    function readLog() {
+      try {
+        var raw = window.sessionStorage.getItem(DEBUG_LOG_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function writeLog(arr) {
+      try {
+        window.sessionStorage.setItem(DEBUG_LOG_KEY, JSON.stringify(arr.slice(-MAX_LOG)));
+      } catch {
+        /* noop */
+      }
+    }
+
+    function dlog(line) {
+      if (!DEBUG) return;
+      var arr = readLog();
+      var ts = new Date();
+      var hms =
+        String(ts.getHours()).padStart(2, "0") +
+        ":" +
+        String(ts.getMinutes()).padStart(2, "0") +
+        ":" +
+        String(ts.getSeconds()).padStart(2, "0") +
+        "." +
+        String(ts.getMilliseconds()).padStart(3, "0");
+      arr.push(hms + "  " + line);
+      writeLog(arr);
+      renderOverlay();
+    }
+
+    var overlayEl = null;
+    function renderOverlay() {
+      if (!DEBUG) return;
+      if (!document.body) return;
+      if (!overlayEl) {
+        overlayEl = document.createElement("div");
+        overlayEl.id = "bf-scroll-debug";
+        overlayEl.style.cssText =
+          "position:fixed;top:0;left:0;right:0;z-index:99999;" +
+          "background:#fff7ae;color:#000;font:11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;" +
+          "padding:6px 8px 8px;border-bottom:1px solid #b58900;max-height:48vh;overflow:auto;" +
+          "box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:pre-wrap;word-break:break-word;";
+        var hdr = document.createElement("div");
+        hdr.style.cssText =
+          "display:flex;justify-content:space-between;align-items:center;font-weight:bold;margin-bottom:4px;";
+        hdr.innerHTML =
+          '<span>scroll-debug</span><span style="display:flex;gap:8px"><a href="#" id="bf-debug-clear" style="color:#b58900;text-decoration:underline">clear</a><a href="#" id="bf-debug-off" style="color:#b58900;text-decoration:underline">off</a></span>';
+        overlayEl.appendChild(hdr);
+        var body = document.createElement("pre");
+        body.id = "bf-debug-body";
+        body.style.cssText = "margin:0;font:inherit;white-space:pre-wrap;";
+        overlayEl.appendChild(body);
+        document.body.appendChild(overlayEl);
+
+        document.getElementById("bf-debug-clear").addEventListener("click", function (e) {
+          e.preventDefault();
+          try {
+            window.sessionStorage.removeItem(DEBUG_LOG_KEY);
+          } catch {}
+          var b = document.getElementById("bf-debug-body");
+          if (b) b.textContent = "";
+        });
+        document.getElementById("bf-debug-off").addEventListener("click", function (e) {
+          e.preventDefault();
+          try {
+            window.localStorage.removeItem(DEBUG_FLAG_KEY);
+            window.sessionStorage.removeItem(DEBUG_LOG_KEY);
+          } catch {}
+          if (overlayEl) overlayEl.remove();
+          overlayEl = null;
+          DEBUG = false;
+        });
+      }
+      var b = document.getElementById("bf-debug-body");
+      if (b) {
+        b.textContent = readLog().join("\n");
+        overlayEl.scrollTop = overlayEl.scrollHeight;
+      }
+    }
+
+    function getReturnKey() {
+      // Не включаємо ?debug=scroll у ключ — бо тоді записи не співпадають
+      // між сторінкою-джерелом без query і сторінкою з ним.
+      var search = window.location.search.replace(/[?&]debug=scroll(&|$)/, function (_m, end) {
+        return end === "&" ? "?" : "";
+      });
+      if (search === "?") search = "";
+      return STORAGE_PREFIX + window.location.pathname + search;
+    }
+
+    function readSaved() {
+      try {
+        var raw = window.sessionStorage.getItem(getReturnKey());
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function clearSaved() {
+      try {
+        window.sessionStorage.removeItem(getReturnKey());
+      } catch {
+        /* noop */
+      }
+    }
+
+    function performRestore(saved, label) {
+      if (!saved) return;
+      var anchor = saved.slug ? document.getElementById("fact-card-" + saved.slug) : null;
+      if (anchor) {
+        var rect = anchor.getBoundingClientRect();
+        var targetY = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
+        anchor.scrollIntoView({ block: "center" });
+        dlog(
+          "restore[" +
+            label +
+            "]: anchor#fact-card-" +
+            saved.slug +
+            " ✓  " +
+            "rect.top=" +
+            Math.round(rect.top) +
+            " targetY=" +
+            Math.round(targetY) +
+            " → scrollY=" +
+            Math.round(window.scrollY),
+        );
+      } else if (typeof saved.y === "number") {
+        window.scrollTo(0, saved.y);
+        dlog(
+          "restore[" +
+            label +
+            "]: anchor MISSING (slug=" +
+            saved.slug +
+            ") fallback scrollTo(0," +
+            saved.y +
+            ") → scrollY=" +
+            Math.round(window.scrollY),
+        );
+      }
+    }
+
+    document.addEventListener(
+      "click",
+      function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (typeof e.button === "number" && e.button !== 0) return;
+
+        var target = e.target;
+        if (!target || typeof target.closest !== "function") return;
+
+        var link = target.closest('a[href^="/fact/"]');
+        if (!link) return;
+
+        var href = link.getAttribute("href") || "";
+        var match = href.match(/^\/fact\/([^/?#]+)/);
+        if (!match) return;
+
+        try {
+          window.sessionStorage.setItem(
+            getReturnKey(),
+            JSON.stringify({ slug: match[1], y: window.scrollY }),
+          );
+          dlog(
+            "click → save key=" +
+              getReturnKey() +
+              " slug=" +
+              match[1] +
+              " y=" +
+              Math.round(window.scrollY),
+          );
+        } catch {
+          dlog("click → sessionStorage.setItem THREW (private mode?)");
+          return;
+        }
+
+        // ❗ НЕ виставляємо history.scrollRestoration = "manual" — це ламає
+        // bfcache-restore у iOS Safari: коли Safari дістає сторінку з
+        // bfcache, при manual він НЕ відновлює scroll position сам, а
+        // наш DCL-handler не запускається (DCL не fires на bfcache restore).
+        // Результат — користувач опиняється у scrollY=0. На auto бра́узер
+        // сам поверне scroll із bfcache, а pageshow-handler нижче слугує
+        // safety-net якщо браузер цього не зробив (наприклад, інший reflow).
+        dlog("click → leaving scrollRestoration as auto (bfcache-friendly)");
+      },
+      true,
+    );
+
+    function tryRestoreOnNav() {
+      var entries =
+        typeof performance !== "undefined" && performance.getEntriesByType
+          ? performance.getEntriesByType("navigation")
+          : null;
+      var nav = entries && entries[0];
+      var navType = nav ? nav.type : "(no navtiming)";
+      dlog(
+        "DCL  pathname=" +
+          window.location.pathname +
+          window.location.search +
+          " navtype=" +
+          navType +
+          " sr=" +
+          (history.scrollRestoration || "?") +
+          " scrollY=" +
+          Math.round(window.scrollY) +
+          " bodyH=" +
+          (document.body ? document.body.scrollHeight : "?"),
+      );
+
+      if (!nav || nav.type !== "back_forward") {
+        dlog("DCL  navtype !== back_forward → skip restore");
+        return;
+      }
+
+      var saved = readSaved();
+      if (!saved) {
+        dlog("DCL  no saved entry under " + getReturnKey() + " → skip");
+        return;
+      }
+      dlog("DCL  saved found: slug=" + saved.slug + " y=" + saved.y);
+      clearSaved();
+
+      performRestore(saved, "DCL");
+      requestAnimationFrame(function () {
+        performRestore(saved, "rAF");
+      });
+      if (document.readyState === "complete") {
+        performRestore(saved, "alreadyComplete");
+      } else {
+        window.addEventListener(
+          "load",
+          function onLoad() {
+            window.removeEventListener("load", onLoad);
+            performRestore(saved, "load");
+          },
+          { once: true },
+        );
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () {
+        renderOverlay();
+        tryRestoreOnNav();
+      });
+    } else {
+      renderOverlay();
+      tryRestoreOnNav();
+    }
+
+    // pageshow з persisted=true — це bfcache-restore. На цьому шляху DCL
+    // не fires, тож тут робимо власний restore як safety-net. У 99%
+    // випадків Safari вже сам поставив scroll із bfcache, тоді ми просто
+    // повторно центруємо картку (no-op для користувача). Але якщо чомусь
+    // не поставив (історично — з manual scrollRestoration, або edge-case
+    // з пам'яттю) — тут ми виправляємо.
+    window.addEventListener("pageshow", function (e) {
+      dlog("pageshow persisted=" + !!e.persisted + " scrollY=" + Math.round(window.scrollY));
+      if (!e.persisted) return;
+      var saved = readSaved();
+      if (!saved) {
+        dlog("pageshow(bfcache)  no saved entry → leave as is");
+        return;
+      }
+      dlog("pageshow(bfcache)  saved found slug=" + saved.slug + " y=" + saved.y);
+      clearSaved();
+      performRestore(saved, "pageshow");
+      requestAnimationFrame(function () {
+        performRestore(saved, "pageshow+rAF");
+      });
+    });
+    window.addEventListener("pagehide", function (e) {
+      dlog("pagehide persisted=" + !!e.persisted + " scrollY=" + Math.round(window.scrollY));
+    });
+  })();
+</script>
