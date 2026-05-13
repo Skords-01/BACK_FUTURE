@@ -6,6 +6,7 @@
 import FactCard from "./FactCard.astro";
 import { groupBySubject } from "../lib/filterFacts";
 import type { Fact } from "../lib/filterFacts";
+import { factsWord } from "../lib/plurals";
 
 interface Props {
   facts: Fact[];
@@ -43,15 +44,7 @@ const groups = groupBySubject(facts);
               {g.label}
             </h2>
             <span class="ml-auto font-mono text-xs text-[color:var(--muted)]">
-              {g.items.length}{" "}
-              {(() => {
-                const n = g.items.length,
-                  m10 = n % 10,
-                  m100 = n % 100;
-                if (m10 === 1 && m100 !== 11) return "факт";
-                if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "факти";
-                return "фактів";
-              })()}
+              {g.items.length} {factsWord(g.items.length)}
             </span>
           </header>
 
