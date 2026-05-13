@@ -35,12 +35,13 @@ function isActive(href: string): boolean {
 
 // URL-и навігації — локалезалежний префікс. Контент-маршрути (`/era/...`,
 // `/subject/...`, `/fact/...`) в `/en/` поки відсутні (фаза 9.3) — лінкуємо
-// в UK-версії з нав-баром обмеженого набору.
+// в UK-версії з нав-баром обмеженого набору. `/compare/` поки лише UK-версія.
 const prefix = locale === "en" ? enPrefix : "";
 const navLinks: { href: string; label: string }[] = [
   { href: locale === "en" ? "/en/" : "/", label: t("nav.home") },
   { href: `${prefix}/timeline/`, label: t("nav.timeline") },
   { href: `${prefix}/all/`, label: t("nav.all") },
+  ...(locale === "uk" ? [{ href: "/compare/", label: t("nav.compare") }] : []),
   { href: `${prefix}/quiz/`, label: t("nav.quiz") },
   { href: `${prefix}/metodologia/`, label: t("nav.metodologia") },
   { href: `${prefix}/about/`, label: t("nav.about") },

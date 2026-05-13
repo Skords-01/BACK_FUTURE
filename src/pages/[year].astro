@@ -190,6 +190,17 @@ const subjectCounts = SUBJECTS.map((s) => ({
   {totalCount > 0 && <QuizCta factsCount={totalCount} />}
   <ShareBlock year={year} factsCount={totalCount} />
   <SupportBlock />
+
+  <section class="container-wide mt-12 mb-4 text-center">
+    <a
+      href={`/compare/?a=${year}`}
+      class="compare-cta border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex items-center gap-2 rounded-full border bg-white px-5 py-2.5 font-mono text-xs font-medium tracking-[0.14em] uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+    >
+      <span aria-hidden="true">⇄</span>
+      Порівняти {year}-й з іншим роком
+    </a>
+  </section>
+
   <YearNav year={year} />
 </Base>
 
