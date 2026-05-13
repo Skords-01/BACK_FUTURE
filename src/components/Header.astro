@@ -6,23 +6,10 @@ import SearchDialog from "./SearchDialog.astro";
 import LangSwitcher from "./LangSwitcher.astro";
 import { DEFAULT_LOCALE, type Locale } from "../i18n/ui";
 import { getT, toLocale } from "../i18n/t";
+import { factsWord } from "../lib/plurals";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const factsCount = allFacts.length;
-
-function pluralizeFacts(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "факт";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "факти";
-  return "фактів";
-}
-
-// English-side скаффолд використовує статичну форму однини/множини («facts»),
-// але лічильник у бейджі все одно з реальних даних.
-function factsLabelEn(n: number): string {
-  return n === 1 ? "fact" : "facts";
-}
 
 const path = Astro.url.pathname;
 const enPrefix = "/en";
@@ -31,7 +18,9 @@ const astroLocale = toLocale(Astro.currentLocale);
 const locale: Locale = astroLocale === "en" || isEnPath ? "en" : DEFAULT_LOCALE;
 const t = getT(locale);
 
-const factsLabel = locale === "en" ? factsLabelEn(factsCount) : pluralizeFacts(factsCount);
+// `factsWord` — CLDR-aware вибір форми «fact / факт / факти / фактів» відповідно до
+// активної локалі (roadmap 9.2 / PR #141, `src/lib/plurals.ts`).
+const factsLabel = factsWord(factsCount, locale);
 
 const homeHref = locale === "en" ? "/en/" : "/";
 

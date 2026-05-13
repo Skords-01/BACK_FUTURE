@@ -14,6 +14,7 @@
 - `eras.ts` — мапить рік випуску → ера програми (1..5).
 - `filterFacts.ts` — фільтрує факти за роком, предметом, ерою, регіоном і impact; групує по предметах / ерах.
 - `url.ts` — генерує стабільні URL для років, предметів, ер і сторінок фактів.
+- `plurals.ts` — ICU plurals через `Intl.PluralRules` із кешуванням на locale; generic `plural(n, locale, forms)` + helpers `factsCount` / `factsWord` / `updatesCount` / `yearsAgo` / `yearsWord` / `subjectsCount`. Підтримує uk/en (та будь-який CLDR-locale), форми як рядок або callback `(n) => string` для richer markup. Edge: `0` → природна форма («жодного факту» / «no facts»), negatives через `Math.abs`, floats — CLDR-default. Усі UI-місця, де раніше були ручні `m10===1 && m100!==11` тощо, переведені на ці helpers.
 
 UI-компоненти (Astro) працюють з результатами цих функцій. Це ключ до того, щоб переписати сайт під іншу тему — змінити або замінити ці функції, лишивши UI.
 
