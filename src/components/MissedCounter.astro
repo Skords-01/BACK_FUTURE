@@ -2,6 +2,7 @@
 // MissedCounter — shows how many discoveries the user missed + era name.
 // Updated reactively via year:change event.
 import { ERAS } from "../lib/eras";
+import { yearsWord } from "../lib/plurals";
 
 interface Props {
   defaultYear?: number;
@@ -19,14 +20,6 @@ const erasForClient = ERAS.map((e) => ({
   yearStart: e.yearStart,
   yearEnd: e.yearEnd,
 }));
-
-function pluralize(n: number): string {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return "рік";
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
-  return "років";
-}
 ---
 
 <div
@@ -46,7 +39,7 @@ function pluralize(n: number): string {
   <div class="text-lg leading-snug text-[color:var(--ink-2)]">
     <strong class="text-[color:var(--ink)]">відкриттів</strong> ти пропустив<br />
     за <em class="text-[color:var(--accent)] italic" id="counter-years">{defaultYearsAgo}</em>
-    <span id="counter-years-word">{pluralize(defaultYearsAgo)}</span> після
+    <span id="counter-years-word">{yearsWord(defaultYearsAgo)}</span> після
     <span id="counter-base-year">{defaultYear}</span>-го.
     <span
       class="mt-1.5 block font-mono text-xs tracking-wider"
@@ -56,6 +49,8 @@ function pluralize(n: number): string {
 </div>
 
 <script>
+  import { yearsWord } from "../lib/plurals";
+
   type EraEntry = { id: number; name: string; color: string; yearStart: number; yearEnd: number };
   const container = document.getElementById("missed-counter");
   let erasData: EraEntry[] = [];
@@ -68,14 +63,6 @@ function pluralize(n: number): string {
       erasData.find((e) => year >= e.yearStart && year <= e.yearEnd) ??
       erasData[erasData.length - 1]!
     );
-  }
-
-  function pluralize(n: number): string {
-    const m10 = n % 10;
-    const m100 = n % 100;
-    if (m10 === 1 && m100 !== 11) return "рік";
-    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "роки";
-    return "років";
   }
 
   const numEl = document.getElementById("counter-num");
@@ -157,7 +144,7 @@ function pluralize(n: number): string {
       animateTo(count, true);
     }
     if (yearsEl) yearsEl.textContent = String(yearsAgo);
-    if (yearsWordEl) yearsWordEl.textContent = pluralize(yearsAgo);
+    if (yearsWordEl) yearsWordEl.textContent = yearsWord(yearsAgo);
     if (baseYearEl) baseYearEl.textContent = String(year);
     if (eraEl) {
       eraEl.textContent = `· епоха «${era.name}»`;
