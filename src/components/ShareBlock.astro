@@ -1,5 +1,6 @@
 ---
 import { SITE } from "../config/site";
+import { updatesCount } from "../lib/plurals";
 
 interface Props {
   year: number;
@@ -12,7 +13,7 @@ const shareUrl = new URL(`/${year}/`, SITE.defaultUrl);
 const url = shareUrl.toString();
 const messageBase =
   factsCount > 0
-    ? `Випустився ${year}-го. З тих пір пропустив ${factsCount} оновлень у науці й історії.`
+    ? `Випустився ${year}-го. З тих пір пропустив ${factsCount} ${updatesCount(factsCount)} у науці й історії.`
     : `Як змінились наука й історія від випуску ${year}-го?`;
 const message = `${messageBase} ${SITE.tagline} — ${SITE.name}.`;
 

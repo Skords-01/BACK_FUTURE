@@ -2,6 +2,7 @@ import type { CollectionEntry } from "astro:content";
 import { SITE, SUBJECTS } from "../config/site";
 import { eraById, eraForGraduationYear } from "./eras";
 import { factsForYear, groupBySubject } from "./filterFacts";
+import { subjectsCount, updatesCount } from "./plurals";
 
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
@@ -14,25 +15,17 @@ function escapeXml(value: string): string {
     .replaceAll('"', "&quot;");
 }
 
-function pluralize(n: number, forms: [one: string, few: string, many: string]): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return forms[0];
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
-  return forms[2];
-}
-
 export function buildYearOgSvg(year: number, allFacts: CollectionEntry<"facts">[]): string {
   const era = eraById(eraForGraduationYear(year));
   const matched = factsForYear(allFacts, year);
   const groups = groupBySubject(matched);
   const totalCount = matched.length;
-  const subjectsCount = groups.length;
+  const subjectsTotal = groups.length;
 
   const title = escapeXml(`Випуск ${year}`);
   const subtitle = escapeXml(era.label);
-  const factsLabel = pluralize(totalCount, ["оновлення", "оновлення", "оновлень"]);
-  const subjectsLabel = pluralize(subjectsCount, ["предмет", "предмети", "предметів"]);
+  const factsLabel = updatesCount(totalCount);
+  const subjectsLabel = subjectsCount(subjectsTotal);
 
   const headline =
     totalCount > 0
@@ -64,7 +57,7 @@ export function buildYearOgSvg(year: number, allFacts: CollectionEntry<"facts">[
 
   const stats =
     totalCount > 0
-      ? escapeXml(`${totalCount} ${factsLabel} · ${subjectsCount} ${subjectsLabel}`)
+      ? escapeXml(`${totalCount} ${factsLabel} · ${subjectsTotal} ${subjectsLabel}`)
       : escapeXml("Сайт постійно поповнюється");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_WIDTH}" height="${OG_HEIGHT}" viewBox="0 0 ${OG_WIDTH} ${OG_HEIGHT}">
