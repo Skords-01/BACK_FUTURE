@@ -1,8 +1,19 @@
 ---
+import { plural, factsWord } from "../lib/plurals";
+
 interface Props {
   factsCount: number;
 }
 const { factsCount } = Astro.props;
+
+// Use the verb "new fact / new facts / new facts" form here — the noun phrase
+// is grammatically tied to the adjective "новий" / "нові" / "нових".
+const learnedLabel = plural(factsCount, "uk", {
+  one: "новий факт",
+  few: "нові факти",
+  many: "нових фактів",
+  other: "нових фактів",
+});
 ---
 
 <section class="container-wide py-12">
@@ -18,18 +29,9 @@ const { factsCount } = Astro.props;
       Вгадай, коли це сталось?
     </h2>
     <p class="max-w-md text-base text-[color:var(--ink-2)]">
-      Ти щойно дізнався{" "}
-      {factsCount}{" "}
-      {
-        (() => {
-          const n = factsCount,
-            m10 = n % 10,
-            m100 = n % 100;
-          if (m10 === 1 && m100 !== 11) return "новий факт";
-          if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "нові факти";
-          return "нових фактів";
-        })()
-      }. Тепер перевір, чи зможеш вгадати рік кожної події — 5 питань, нові факти щоразу.
+      Ти щойно дізнався {factsCount}
+      {learnedLabel}. Тепер перевір, чи зможеш вгадати рік кожної події — 5 питань, нові факти
+      щоразу.
     </p>
     <a
       href="/quiz/"
@@ -38,7 +40,11 @@ const { factsCount } = Astro.props;
       Почати квіз →
     </a>
     <p class="font-mono text-xs text-[color:var(--muted)]">
-      {factsCount > 0 ? `${factsCount} фактів у пулі` : "165 фактів у пулі"} · нові питання щоразу
+      {
+        factsCount > 0
+          ? `${factsCount} ${factsWord(factsCount)} у пулі`
+          : `165 ${factsWord(165)} у пулі`
+      } · нові питання щоразу
     </p>
   </div>
 </section>
