@@ -1,0 +1,94 @@
+---
+// /en/timeline/ — scaffold page. The Ukrainian `/timeline/` ships the full
+// vertical-axis view; the English shell links there for now and offers a
+// minimal alternative (subject list, fact counts). Full English timeline
+// is deferred to roadmap 9.3.
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { ERAS } from "../../lib/eras";
+import { SITE, SUBJECTS } from "../../config/site";
+import { getT } from "../../i18n/t";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const t = getT("en");
+const totalFacts = allFacts.length;
+
+const factsByEra: Record<string, number> = {};
+for (const era of ERAS) {
+  factsByEra[era.slug] = allFacts.filter(
+    (f) => f.data.yearOfEvent >= era.yearStart && f.data.yearOfEvent <= era.yearEnd,
+  ).length;
+}
+---
+
+<Base title={t("page.timeline.title")}>
+  <div class="container-prose pt-16 pb-24">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · {t("page.timeline.title").toLowerCase()}
+    </span>
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
+      data-reveal
+    >
+      {t("page.timeline.title")}
+    </h1>
+    <p class="mt-4 max-w-prose text-lg text-[color:var(--ink-2)]" data-reveal>
+      {totalFacts} facts, {SITE.yearMin}—today, grouped by five school eras.
+    </p>
+
+    <div
+      class="mt-8 rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-5 text-sm leading-relaxed text-[color:var(--ink-2)]"
+      role="note"
+    >
+      <strong class="font-display block text-base font-semibold text-[color:var(--ink)]">
+        {t("scaffold.banner.title")}
+      </strong>
+      <p class="mt-1">{t("scaffold.banner.body")}</p>
+      <p class="mt-3">
+        <a
+          href="/timeline/"
+          class="font-mono text-[11px] tracking-[0.08em] text-[color:var(--accent)] uppercase underline-offset-2 hover:underline"
+        >
+          → Full Ukrainian vertical timeline
+        </a>
+      </p>
+    </div>
+
+    <ol class="mt-12 space-y-4">
+      {
+        ERAS.map((era) => (
+          <li class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-5">
+            <div class="flex items-baseline justify-between gap-4">
+              <strong class="font-display text-xl font-semibold tracking-tight text-[color:var(--ink)]">
+                {era.label}
+              </strong>
+              <span class="font-mono text-xs text-[color:var(--muted)] tabular-nums">
+                {era.yearStart}—{era.yearEnd}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-[color:var(--ink-2)]">
+              {factsByEra[era.slug] ?? 0} facts in this era.
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <section class="mt-14">
+      <h2
+        class="font-display text-[clamp(1.25rem,3vw,1.75rem)] font-bold tracking-tight text-[color:var(--ink)]"
+      >
+        Subjects
+      </h2>
+      <ul class="mt-4 flex flex-wrap gap-2 text-sm">
+        {
+          SUBJECTS.map((subject) => (
+            <li class="rounded-full border border-[color:var(--card-edge)] bg-[color:var(--card)] px-3 py-1 font-mono text-xs text-[color:var(--ink-2)]">
+              {subject.id}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</Base>

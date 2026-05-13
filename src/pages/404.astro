@@ -19,21 +19,25 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
           class="bg-accent-50 text-accent-700 dark:bg-accent-900/40 dark:text-accent-200 rounded-full px-3 py-1 font-mono text-xs"
           >404</span
         >
-        <span>Помилка адреси</span>
+        <span data-i18n-404="error_label">Помилка адреси</span>
       </p>
       <h1
         class="font-display text-ink-900 text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-6xl"
+        data-i18n-404="heading"
       >
         Тут поки нічого немає.
       </h1>
-      <p class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl">
+      <p
+        class="text-ink-700 mt-5 max-w-prose text-lg leading-relaxed sm:text-xl"
+        data-i18n-404="body"
+      >
         Можливо, посилання застаріле, або ти набрав адресу руками. Спробуй з року випуску — це
         головний шлях у {SITE.name}.
       </p>
 
       <div class="mt-10 pb-4">
         <YearInput defaultYear={2003} size="md" />
-        <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
+        <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm" data-i18n-404="year_range">
           Підтримуються роки {SITE.yearMin}–{SITE.yearMax}.
         </p>
       </div>
@@ -41,7 +45,9 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
   </section>
 
   <section class="container-prose mt-12">
-    <h2 class="font-display text-ink-900 text-xl font-bold">Або вибери популярний рік</h2>
+    <h2 class="font-display text-ink-900 text-xl font-bold" data-i18n-404="popular_heading">
+      Або вибери популярний рік
+    </h2>
     <ul class="-mx-1 mt-4 flex flex-wrap items-center gap-1.5">
       {
         popularYears.map((y) => (
@@ -56,7 +62,7 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
         ))
       }
     </ul>
-    <p class="text-ink-500 dark:text-ink-400 mt-6 text-sm">
+    <p class="text-ink-500 dark:text-ink-400 mt-6 text-sm" data-i18n-404="report_broken">
       Якщо ти потрапив сюди з нашого ж посилання — <a
         href={`${SITE.repoUrl}/issues/new?title=${encodeURIComponent("Биті посилання")}`}
         class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline"
@@ -70,8 +76,51 @@ const popularYears = [1995, 2000, 2005, 2010, 2015, 2020].filter(
     <a
       href="/"
       class="text-ink-500 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-900 inline-flex items-center gap-1 text-sm underline-offset-2 hover:underline"
+      data-i18n-404="back_home_link"
     >
       ← На головну
     </a>
   </section>
+
+  <script is:inline>
+    // Localize 404 strings based on the actually-visited path (Astro builds a
+    // single static 404.html, so locale detection has to happen at runtime).
+    // If the user landed via `/en/...`, swap the visible copy to English and
+    // rewrite the "back home" anchor to `/en/`. Ukrainian remains the default.
+    (function () {
+      try {
+        var path = window.location.pathname || "";
+        if (path.indexOf("/en") !== 0) return;
+        var t = {
+          title: "404 — nothing to see here",
+          error_label: "Address error",
+          heading: "Nothing here yet.",
+          body: "The link might be stale or mistyped. Start from a graduation year — that's the main path.",
+          year_range: "Supported years: 1991–today.",
+          popular_heading: "Or pick a popular year",
+          report_broken:
+            'If our own link sent you here — please <a href="' +
+            "https://github.com/Skords-01/BACK_FUTURE/issues/new" +
+            '" class="text-accent-700 hover:text-accent-800 dark:text-accent-300 dark:hover:text-accent-200 underline-offset-2 hover:underline" target="_blank" rel="noopener noreferrer nofollow">tell us</a> where exactly.',
+          back_home_link: "← Back to home",
+        };
+        document.documentElement.lang = "en";
+        document.title = t.title;
+        var nodes = document.querySelectorAll("[data-i18n-404]");
+        nodes.forEach(function (el) {
+          var key = el.getAttribute("data-i18n-404");
+          if (!key || !t[key]) return;
+          if (key === "report_broken") {
+            el.innerHTML = t[key];
+          } else {
+            el.textContent = t[key];
+          }
+        });
+        var backHome = document.querySelector('a[data-i18n-404="back_home_link"]');
+        if (backHome) backHome.setAttribute("href", "/en/");
+      } catch {
+        // localStorage / DOM API недоступні — нічого не робимо.
+      }
+    })();
+  </script>
 </Base>

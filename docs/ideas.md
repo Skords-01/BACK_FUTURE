@@ -45,9 +45,10 @@
 
 ### i18n
 
-- **Astro routing**: `/uk/`, `/en/` — структурно, без перекладів спочатку (9.1 у roadmap).
-- **ICU plurals** у форматерах кількості (9.2 у roadmap).
-- **Англомовний UI** — діаспора + органіка (9.3 у roadmap).
+- ~~**Astro routing**: `/uk/`, `/en/` — структурно, без перекладів спочатку (9.1 у roadmap).~~ Зроблено (LangSwitcher, hreflang, og:locale, auto-redirect, локалізований 404, словник `src/i18n/ui.ts`).
+- **ICU plurals** у форматерах кількості (9.2 у roadmap). Зараз ручний `pluralizeFacts` у Header — після 9.2 переїде в `Intl.PluralRules`.
+- **Англомовний UI** — діаспора + органіка (9.3 у roadmap). EN-сторінки наразі — структурний scaffold з посиланням «→ Full UA version». Наступний крок: перекласти Hero / EraGrid / FactCard / FactTimeline / усі компоненти, що рендеряться під `/en/[year]/`.
+- **RTL-готовність**: міграція на logical properties (`margin-inline-*`, `padding-inline-*`) — пре-вимога, якщо колись додамо `ar` / `he`. Зараз код переважно LTR-only.
 
 ### Інфра / тех-борг
 

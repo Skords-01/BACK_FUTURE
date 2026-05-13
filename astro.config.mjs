@@ -52,7 +52,34 @@ const sentryIntegration = sentryDsn
 
 export default defineConfig({
   site,
-  integrations: [sitemap(), ...sentryIntegration],
+  // i18n routing scaffold (roadmap 9.1): `uk` лишається без префіксу
+  // (домашня локаль), `/en/` — англомовний дзеркальний скаффолд.
+  // `redirectToDefaultLocale: false` гарантує, що корінь `/` обслуговує
+  // українські сторінки без редиректів. Локалізація UI-словника живе в
+  // `src/i18n/`, факти-контент поки залишається українським — переклад
+  // контенту винесено у фазу 9.3.
+  i18n: {
+    defaultLocale: "uk",
+    locales: ["uk", "en"],
+    routing: {
+      prefixDefaultLocale: false,
+      redirectToDefaultLocale: false,
+    },
+  },
+  integrations: [
+    sitemap({
+      // Обидві локалі видимі в sitemap; alternate-релейшени між версіями
+      // даємо через `<link rel="alternate" hreflang>` у `Base.astro`.
+      i18n: {
+        defaultLocale: "uk",
+        locales: {
+          uk: "uk-UA",
+          en: "en",
+        },
+      },
+    }),
+    ...sentryIntegration,
+  ],
   output: "static",
   build: {
     inlineStylesheets: "auto",

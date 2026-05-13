@@ -3,6 +3,9 @@ import { getCollection } from "astro:content";
 import { SITE } from "../config/site";
 import ThemeToggle from "./ThemeToggle.astro";
 import SearchDialog from "./SearchDialog.astro";
+import LangSwitcher from "./LangSwitcher.astro";
+import { DEFAULT_LOCALE, type Locale } from "../i18n/ui";
+import { getT, toLocale } from "../i18n/t";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const factsCount = allFacts.length;
@@ -15,9 +18,23 @@ function pluralizeFacts(n: number): string {
   return "фактів";
 }
 
-const factsLabel = pluralizeFacts(factsCount);
+// English-side скаффолд використовує статичну форму однини/множини («facts»),
+// але лічильник у бейджі все одно з реальних даних.
+function factsLabelEn(n: number): string {
+  return n === 1 ? "fact" : "facts";
+}
 
 const path = Astro.url.pathname;
+const enPrefix = "/en";
+const isEnPath = path === enPrefix || path.startsWith(`${enPrefix}/`);
+const astroLocale = toLocale(Astro.currentLocale);
+const locale: Locale = astroLocale === "en" || isEnPath ? "en" : DEFAULT_LOCALE;
+const t = getT(locale);
+
+const factsLabel = locale === "en" ? factsLabelEn(factsCount) : pluralizeFacts(factsCount);
+
+const homeHref = locale === "en" ? "/en/" : "/";
+
 function isActive(href: string): boolean {
   // Normalize both sides so a clean URL `/about/` matches `/about` or
   // `/about.html`. We strip the optional `.html` extension and then any
@@ -27,14 +44,26 @@ function isActive(href: string): boolean {
   return current === normalized;
 }
 
-const navLinks = [
-  { href: "/", label: "Головна" },
-  { href: "/timeline/", label: "Хронологія" },
-  { href: "/all/", label: "Усі факти" },
-  { href: "/quiz/", label: "Квіз" },
-  { href: "/metodologia/", label: "Методологія" },
-  { href: "/about/", label: "Про проєкт" },
-] as const;
+// URL-и навігації — локалезалежний префікс. Контент-маршрути (`/era/...`,
+// `/subject/...`, `/fact/...`) в `/en/` поки відсутні (фаза 9.3) — лінкуємо
+// в UK-версії з нав-баром обмеженого набору.
+const prefix = locale === "en" ? enPrefix : "";
+const navLinks: { href: string; label: string }[] = [
+  { href: locale === "en" ? "/en/" : "/", label: t("nav.home") },
+  { href: `${prefix}/timeline/`, label: t("nav.timeline") },
+  { href: `${prefix}/all/`, label: t("nav.all") },
+  { href: `${prefix}/quiz/`, label: t("nav.quiz") },
+  { href: `${prefix}/metodologia/`, label: t("nav.metodologia") },
+  { href: `${prefix}/about/`, label: t("nav.about") },
+];
+
+const homeAriaLabel = locale === "en" ? `${SITE.name} — go to home` : `${SITE.name} — на головну`;
+const factsCountTitle =
+  locale === "en"
+    ? `${factsCount} ${factsLabel} in the database`
+    : `${factsCount} ${factsLabel} у базі`;
+const openMenuLabel = locale === "en" ? "Open menu" : "Відкрити меню";
+const primaryNavLabel = locale === "en" ? "Primary navigation" : "Основна навігація";
 ---
 
 <header
@@ -43,15 +72,15 @@ const navLinks = [
 >
   <div class="container-wide relative flex items-center justify-between gap-3 py-4">
     <a
-      href="/"
-      aria-label={`${SITE.name} — на головну`}
+      href={homeHref}
+      aria-label={homeAriaLabel}
       class="font-display text-ink-900 flex items-center gap-2 text-lg font-bold tracking-tight"
     >
       {SITE.name}
       <span
         class="bg-accent-50 text-accent-700 dark:bg-accent-900/50 dark:text-accent-200 hidden rounded-full px-2 py-0.5 font-mono text-xs font-medium tabular-nums sm:inline"
-        aria-label={`${factsCount} ${factsLabel} у базі`}
-        title={`${factsCount} ${factsLabel} у базі`}
+        aria-label={factsCountTitle}
+        title={factsCountTitle}
       >
         {factsCount}
         {factsLabel}
@@ -61,7 +90,7 @@ const navLinks = [
     <div class="flex items-center gap-1 sm:gap-3">
       <nav
         id="primary-nav"
-        aria-label="Основна навігація"
+        aria-label={primaryNavLabel}
         data-state="closed"
         class="primary-nav text-ink-600 dark:text-ink-800 text-sm"
       >
@@ -89,6 +118,7 @@ const navLinks = [
 
       <SearchDialog />
       <ThemeToggle />
+      <LangSwitcher variant="header" />
 
       <button
         type="button"
@@ -96,7 +126,7 @@ const navLinks = [
         class="border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:hover:border-accent-400 dark:hover:text-accent-300 bg-paper-50 inline-flex h-11 w-11 items-center justify-center rounded-full border transition sm:hidden dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
         aria-controls="primary-nav"
         aria-expanded="false"
-        aria-label="Відкрити меню"
+        aria-label={openMenuLabel}
       >
         <svg
           data-icon="open"

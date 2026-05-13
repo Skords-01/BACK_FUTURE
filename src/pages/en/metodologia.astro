@@ -1,0 +1,101 @@
+---
+import Base from "../../layouts/Base.astro";
+import { ERAS } from "../../lib/eras";
+import { SUBJECTS, SITE } from "../../config/site";
+import { getT } from "../../i18n/t";
+
+const t = getT("en");
+---
+
+<Base title={t("page.metodologia.title")}>
+  <div class="container-prose pt-16">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · editorial policy
+    </span>
+
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
+      data-reveal
+    >
+      {t("page.metodologia.title")}
+    </h1>
+
+    <p class="mt-4 max-w-[560px] text-lg text-[color:var(--ink-2)]" data-reveal>
+      How we choose facts, divide time into eras, and write about complex topics.
+    </p>
+
+    <div
+      class="mt-8 rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-5 text-sm leading-relaxed text-[color:var(--ink-2)]"
+      role="note"
+    >
+      <strong class="font-display block text-base font-semibold text-[color:var(--ink)]">
+        {t("scaffold.banner.title")}
+      </strong>
+      <p class="mt-1">{t("scaffold.banner.body")}</p>
+      <p class="mt-3">
+        <a
+          href="/metodologia/"
+          class="font-mono text-[11px] tracking-[0.08em] text-[color:var(--accent)] uppercase underline-offset-2 hover:underline"
+        >
+          → Full Ukrainian methodology
+        </a>
+      </p>
+    </div>
+
+    <section class="mt-14">
+      <h2
+        class="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        Fact selection criteria
+      </h2>
+      <ul class="mt-6 space-y-3 text-[color:var(--ink-2)]" data-reveal>
+        <li>Recency relative to the user's graduation year.</li>
+        <li>Educational value — must explain or update something taught at school.</li>
+        <li>Verifiable primary sources (peer-reviewed or institutional).</li>
+        <li>Neutral, science-popular tone.</li>
+      </ul>
+    </section>
+
+    <section class="mt-14">
+      <h2
+        class="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        Five eras ({SITE.yearMin}—today)
+      </h2>
+      <ul class="mt-6 grid gap-3 sm:grid-cols-2" data-reveal>
+        {
+          ERAS.map((era) => (
+            <li class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-4 text-sm leading-relaxed">
+              <strong class="font-display block text-base font-semibold text-[color:var(--ink)]">
+                {era.label}
+              </strong>
+              <span class="font-mono text-xs text-[color:var(--muted)]">
+                {era.yearStart}—{era.yearEnd}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="mt-14">
+      <h2
+        class="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        Subjects ({SUBJECTS.length})
+      </h2>
+      <ul class="mt-6 flex flex-wrap gap-2 text-sm" data-reveal>
+        {
+          SUBJECTS.map((subject) => (
+            <li class="rounded-full border border-[color:var(--card-edge)] bg-[color:var(--card)] px-3 py-1 font-mono text-xs text-[color:var(--ink-2)]">
+              {subject.id}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</Base>

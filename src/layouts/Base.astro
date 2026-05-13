@@ -6,6 +6,14 @@ import Footer from "../components/Footer.astro";
 import Analytics from "../components/Analytics.astro";
 import RevealObserver from "../components/RevealObserver.astro";
 import ScrollRestore from "../components/ScrollRestore.astro";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  LOCALE_HTML_LANG,
+  LOCALE_OG_LOCALE,
+  type Locale,
+} from "../i18n/ui";
+import { getT, toLocale } from "../i18n/t";
 
 interface Props {
   title?: string;
@@ -23,9 +31,41 @@ const {
   jsonLd,
   noindex = false,
 } = Astro.props;
+
+// Локаль визначаємо за URL — це джерело правди для статичних сторінок під
+// `/en/*`. `Astro.currentLocale` теж доступний (з i18n-конфігу), але шлях
+// надійніший для special-cases як 404 чи статичні редиректи. Якщо у
+// майбутньому з'являться додаткові локалі — оновити `enPrefix` на map.
+const pathname = Astro.url.pathname;
+const enPrefix = "/en";
+const isEnPath = pathname === enPrefix || pathname.startsWith(`${enPrefix}/`);
+const astroLocale = toLocale(Astro.currentLocale);
+const locale: Locale = astroLocale === "en" || isEnPath ? "en" : DEFAULT_LOCALE;
+const t = getT(locale);
+
 const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
-const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+const canonical = new URL(pathname, SITE.defaultUrl).toString();
 const jsonLdItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+// Обчислюємо «канонічний UK-шлях» — однаковий для обох локалей. Звідти
+// будуємо `hreflang`-альтернативи. Trailing slash зберігаємо, бо `format:
+// directory` у Astro фіксує `/about/`.
+const ukPath: string =
+  pathname.startsWith(`${enPrefix}/`) || pathname === enPrefix
+    ? pathname.slice(enPrefix.length) || "/"
+    : pathname;
+const enPath: string = ukPath === "/" ? `${enPrefix}/` : `${enPrefix}${ukPath}`;
+const ukHref = new URL(ukPath, SITE.defaultUrl).toString();
+const enHref = new URL(enPath, SITE.defaultUrl).toString();
+const alternateHrefs: { hreflang: string; href: string }[] = [
+  { hreflang: "uk", href: ukHref },
+  { hreflang: "en", href: enHref },
+  // `x-default` — uk як «основна» локаль для пошуковиків без явної переваги.
+  { hreflang: "x-default", href: ukHref },
+];
+const alternateOgLocales: string[] = LOCALES.filter((l) => l !== locale).map(
+  (l) => LOCALE_OG_LOCALE[l],
+);
 
 // Опційні токени верифікації пошуковців для Search Console / Bing Webmaster.
 // Якщо змінна не задана — meta-тег не рендериться.
@@ -39,7 +79,7 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
 ---
 
 <!doctype html>
-<html lang="uk">
+<html lang={LOCALE_HTML_LANG[locale]} data-locale={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -55,6 +95,33 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
           if (isDark) document.documentElement.classList.add("dark");
         } catch {
           // localStorage / matchMedia недоступні — нічого не робимо.
+        }
+      })();
+    </script>
+    {/* prettier-ignore */}
+    <script is:inline>
+      // First-visit locale heuristic (roadmap 9.1 improvement): якщо
+      // користувач ще не висловив явну преференцію (через LangSwitcher,
+      // який пише `bf_lang` у localStorage), і потрапив на UK-сторінку з
+      // браузером, що повідомляє `navigator.language` починаючи з `en`, —
+      // мовчки редіректимо на EN-мірор. Один-разовий редирект, далі
+      // користувач рулить через перемикач.
+      (function () {
+        try {
+          var path = window.location.pathname || "/";
+          if (path.indexOf("/en") === 0) return; // вже на EN — не чіпаємо.
+          var explicit = window.localStorage.getItem("bf_lang");
+          if (explicit) return; // вибір зроблено — поважаємо.
+          var lang = (navigator.language || "").toLowerCase();
+          if (lang.indexOf("en") !== 0) return; // не англомовний — лишаємось.
+          // Будуємо EN-аналог поточного шляху.
+          var target = path === "/" ? "/en/" : "/en" + path;
+          // Зберігаємо щоб редирект не повторювався у нескінченному циклі
+          // у разі, якщо EN-сторінка чомусь редіректить назад.
+          window.localStorage.setItem("bf_lang", "en");
+          window.location.replace(target + window.location.search + window.location.hash);
+        } catch {
+          // localStorage / navigator недоступні — нічого не робимо.
         }
       })();
     </script>
@@ -76,9 +143,15 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {alternateHrefs.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:locale" content="uk_UA" />
+    <meta property="og:locale" content={LOCALE_OG_LOCALE[locale]} />
+    {
+      alternateOgLocales.map((altLocale) => (
+        <meta property="og:locale:alternate" content={altLocale} />
+      ))
+    }
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
@@ -121,7 +194,7 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
     <Analytics />
   </head>
   <body class="bg-paper-50 text-ink-900 font-sans">
-    <a href="#main-content" class="skip-link">Перейти до контенту</a>
+    <a href="#main-content" class="skip-link">{t("site.skip_link")}</a>
     <Header />
     <main id="main-content" tabindex="-1" class="pb-24" data-pagefind-body>
       <slot />
