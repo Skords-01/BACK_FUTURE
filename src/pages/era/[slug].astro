@@ -8,6 +8,7 @@ import { factsForEra, groupBySubject } from "../../lib/filterFacts";
 import { ERAS } from "../../lib/eras";
 import { SITE } from "../../config/site";
 import { eraUrl, yearUrl } from "../../lib/url";
+import { factsWord, updatesCount } from "../../lib/plurals";
 
 export async function getStaticPaths() {
   return ERAS.map((era) => ({ params: { slug: era.slug } }));
@@ -27,10 +28,9 @@ const middleYear = Math.round((era.yearStart + Math.min(era.yearEnd, SITE.yearMa
 const otherEras = ERAS.filter((e) => e.id !== era.id);
 
 const yearEndLabel = era.yearEnd > SITE.yearMax ? "сьогодні" : era.yearEnd;
-const factsWord = totalCount === 1 ? "факт" : "фактів";
 // Description tuned for ~120–160 chars (Google snippet sweet spot). era.summary
 // is unique per era → SERP listing не дублюється з сусідніми сторінками.
-const description = `${era.summary} ${totalCount} ${factsWord} для випускників ${era.yearStart}–${yearEndLabel}.`;
+const description = `${era.summary} ${totalCount} ${factsWord(totalCount)} для випускників ${era.yearStart}–${yearEndLabel}.`;
 const ogImage = new URL(`/og/era-${era.slug}.png`, SITE.defaultUrl).toString();
 const homeUrl = `${SITE.defaultUrl}/`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
@@ -125,7 +125,7 @@ const breadcrumbsLd: Record<string, unknown> = {
       <p class="text-ink-700 mt-4 max-w-prose text-lg">{era.summary}</p>
       <p class="text-ink-500 dark:text-ink-400 mt-3 text-sm">
         {totalCount}
-        {totalCount === 1 ? "факт" : "фактів"} у цій ері, згруповано за предметами.
+        {factsWord(totalCount)} у цій ері, згруповано за предметами.
       </p>
     </div>
   </section>
@@ -166,8 +166,7 @@ const breadcrumbsLd: Record<string, unknown> = {
                 {g.label}
               </h2>
               <span class="text-ink-500 dark:text-ink-400 ml-auto font-mono text-xs tabular-nums">
-                {g.items.length}
-                {g.items.length === 1 ? "оновлення" : "оновлень"}
+                {g.items.length} {updatesCount(g.items.length)}
               </span>
             </header>
             <div class="grid gap-4">

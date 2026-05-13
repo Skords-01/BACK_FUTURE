@@ -3,6 +3,7 @@
 // Stamp badge, and the era-based summary sentence.
 import Stamp from "./Stamp.astro";
 import type { Era } from "../lib/eras";
+import { updatesCount, yearsWord } from "../lib/plurals";
 
 interface Props {
   year: number;
@@ -12,14 +13,8 @@ interface Props {
 }
 
 const { year, era, yearsPassed, totalCount } = Astro.props;
-const yearsPassedLabel =
-  yearsPassed % 10 === 1 && yearsPassed % 100 !== 11
-    ? "рік"
-    : yearsPassed % 10 >= 2 &&
-        yearsPassed % 10 <= 4 &&
-        (yearsPassed % 100 < 12 || yearsPassed % 100 > 14)
-      ? "роки"
-      : "років";
+const yearsPassedLabel = yearsWord(yearsPassed);
+const updatesLabel = updatesCount(totalCount);
 ---
 
 <section class="ruled-hero relative overflow-hidden pt-12 pb-10">
@@ -74,8 +69,8 @@ const yearsPassedLabel =
             totalCount > 0 && (
               <span>
                 Ти пропустив{" "}
-                <strong class="font-semibold text-[color:var(--ink)]">{totalCount}</strong>
-                {totalCount === 1 ? " оновлення" : " оновлень"}.
+                <strong class="font-semibold text-[color:var(--ink)]">{totalCount}</strong>{" "}
+                {updatesLabel}.
               </span>
             )
           }

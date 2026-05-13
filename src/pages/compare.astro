@@ -1,0 +1,1091 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { collectYearStats } from "../lib/compare";
+import { SITE, SUBJECTS } from "../config/site";
+import { factSlug } from "../lib/url";
+
+// `/compare` is fully static (Astro `output: "static"`), so query params are
+// read client-side only. Server-side we embed a per-year stats table for the
+// whole supported window — the comparison view then just picks two entries
+// out of the embedded JSON on page-load.
+
+const allFacts = await getCollection("facts");
+const epochEntries = await getCollection("epoch");
+
+interface ClientEpochItem {
+  k: string;
+  v: string;
+}
+
+interface ClientFact {
+  slug: string;
+  title: string;
+  short: string;
+  yearOfEvent: number;
+  subjectMark: string;
+  subjectLabel: string;
+  impact: "low" | "medium" | "high";
+  region: "world" | "ukraine";
+}
+
+interface ClientSubject {
+  subject: string;
+  mark: string;
+  label: string;
+  count: number;
+}
+
+interface ClientYearStats {
+  year: number;
+  eraSlug: string;
+  eraLabel: string;
+  eraColor: string;
+  eraId: 1 | 2 | 3 | 4 | 5;
+  eraName: string;
+  totalCount: number;
+  topFacts: ClientFact[];
+  subjects: ClientSubject[];
+  epoch: { year: number; items: ClientEpochItem[] };
+}
+
+const subjectMeta = new Map(SUBJECTS.map((s) => [s.id, s] as const));
+
+function nearestEpoch(year: number): { year: number; items: ClientEpochItem[] } {
+  const sorted = epochEntries.slice().sort((a, b) => {
+    const da = Math.abs(a.data.year - year);
+    const db = Math.abs(b.data.year - year);
+    return da - db || a.data.year - b.data.year;
+  });
+  const entry = sorted[0];
+  if (!entry) return { year, items: [] };
+  return {
+    year: entry.data.year,
+    items: entry.data.items.map((it) => ({ k: it.k, v: it.v })),
+  };
+}
+
+const yearStats: Record<string, ClientYearStats> = {};
+for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
+  const stats = collectYearStats(allFacts, y, 3);
+  yearStats[String(y)] = {
+    year: stats.year,
+    eraSlug: stats.era.slug,
+    eraLabel: stats.era.label,
+    eraColor: stats.era.color,
+    eraId: stats.era.id,
+    eraName: stats.era.name,
+    totalCount: stats.totalCount,
+    topFacts: stats.topFacts.map((f) => ({
+      slug: factSlug(f.id),
+      title: f.data.title,
+      short: f.data.short,
+      yearOfEvent: f.data.yearOfEvent,
+      subjectMark: subjectMeta.get(f.data.subject)?.mark ?? "—",
+      subjectLabel: subjectMeta.get(f.data.subject)?.label ?? "",
+      impact: f.data.impact ?? "medium",
+      region: f.data.region ?? "world",
+    })),
+    subjects: stats.subjects.map((s) => ({
+      subject: s.subject,
+      mark: subjectMeta.get(s.subject)?.mark ?? "—",
+      label: subjectMeta.get(s.subject)?.label ?? "",
+      count: s.count,
+    })),
+    epoch: nearestEpoch(y),
+  };
+}
+
+const years: number[] = [];
+for (let y = SITE.yearMin; y <= SITE.yearMax; y++) years.push(y);
+
+const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+const description = `Порівняй два роки випуску поруч: ера програми, кількість фактів, топ-оновлення, спільні предмети, контекст епохи. Side-by-side для років з ${SITE.yearMin} до ${SITE.yearMax}.`;
+const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
+
+const websiteLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Порівняти роки — BACK_FUTURE",
+  description,
+  url: canonical,
+  inLanguage: "uk",
+  isPartOf: { "@type": "WebSite", name: SITE.name, url: SITE.defaultUrl },
+};
+
+const breadcrumbsLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Головна", item: `${SITE.defaultUrl}/` },
+    { "@type": "ListItem", position: 2, name: "Порівняти роки", item: canonical },
+  ],
+};
+---
+
+<Base
+  title="Порівняти роки"
+  description={description}
+  ogImage={ogImage}
+  jsonLd={[websiteLd, breadcrumbsLd]}
+>
+  <div
+    id="compare-root"
+    class="container-wide py-10 sm:py-14"
+    data-mode="loading"
+    data-year-min={SITE.yearMin}
+    data-year-max={SITE.yearMax}
+  >
+    <header class="mb-8 sm:mb-12">
+      <p class="font-mono text-xs tracking-[0.18em] text-[color:var(--muted)] uppercase">
+        BACK_FUTURE · порівняння
+      </p>
+      <h1
+        id="compare-heading"
+        class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-none font-bold tracking-tight text-[color:var(--ink)]"
+        data-reveal
+      >
+        Порівняти роки
+      </h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-[color:var(--ink-2)] sm:text-lg">
+        Обери два роки випуску — і подивись, як зміщується картина: яка ера, скільки оновлень, що
+        стало вершиною часу і що було «у кишені» тоді.
+      </p>
+    </header>
+
+    <!-- FORM mode: picker for two years -->
+    <section id="compare-form" class="compare-form" aria-labelledby="form-heading">
+      <h2 id="form-heading" class="sr-only">Вибір років для порівняння</h2>
+      <form
+        id="compare-picker"
+        class="rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--card)] p-6 sm:p-8"
+        novalidate
+      >
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="flex flex-col gap-2">
+            <span class="font-mono text-xs tracking-widest text-[color:var(--muted)] uppercase">
+              Рік A
+            </span>
+            <select
+              id="year-a"
+              name="a"
+              class="h-14 rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--paper)] px-4 text-center font-mono text-2xl font-bold text-[color:var(--ink)] tabular-nums transition outline-none focus:border-[color:var(--accent)] focus:ring-2 focus:ring-[color:var(--accent-200)]"
+              required
+            >
+              {years.map((y) => <option value={String(y)}>{y}</option>)}
+            </select>
+          </label>
+          <label class="flex flex-col gap-2">
+            <span class="font-mono text-xs tracking-widest text-[color:var(--muted)] uppercase">
+              Рік B
+            </span>
+            <select
+              id="year-b"
+              name="b"
+              class="h-14 rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--paper)] px-4 text-center font-mono text-2xl font-bold text-[color:var(--ink)] tabular-nums transition outline-none focus:border-[color:var(--accent)] focus:ring-2 focus:ring-[color:var(--accent-200)]"
+              required
+            >
+              {years.map((y) => <option value={String(y)}>{y}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <p
+          id="compare-error"
+          class="mt-4 hidden text-sm text-red-600 dark:text-red-400"
+          role="alert"
+          aria-live="polite"
+        >
+        </p>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button
+            type="submit"
+            class="btn shadow-card hover:shadow-card-hover inline-flex h-12 items-center justify-center rounded-full bg-[color:var(--accent)] px-6 font-mono text-sm font-semibold tracking-wider text-white uppercase transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            Порівняти
+          </button>
+          <button
+            id="compare-random"
+            type="button"
+            class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex h-12 items-center gap-2 rounded-full border bg-white px-5 font-mono text-sm font-medium tracking-wider uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+          >
+            <span aria-hidden="true">🎲</span> Випадкова пара
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- COMPARE view: rendered client-side once params are validated -->
+    <section
+      id="compare-view"
+      class="compare-view"
+      role="region"
+      aria-labelledby="compare-view-heading"
+      aria-live="polite"
+      hidden
+    >
+      <h2 id="compare-view-heading" class="sr-only">Порівняння двох років</h2>
+
+      <div class="compare-grid grid gap-6 sm:gap-8 lg:grid-cols-2" data-mobile-nav="stack">
+        <article class="compare-col" data-side="a">
+          <header class="compare-col__head">
+            <span class="compare-col__label" data-bind="side-label">Рік A</span>
+            <h3 class="compare-col__year font-display tabular-nums" data-bind="year-display">
+              ————
+            </h3>
+            <a class="compare-col__year-link" data-bind="year-link" href="/">
+              Відкрити повний рік →
+            </a>
+          </header>
+
+          <dl class="compare-col__meta">
+            <div>
+              <dt>Ера</dt>
+              <dd>
+                <span
+                  class="compare-col__era-badge"
+                  data-bind="era-badge"
+                  style="background: var(--paper); border-color: var(--card-edge);"></span>
+              </dd>
+            </div>
+            <div>
+              <dt>Фактів пропущено</dt>
+              <dd class="compare-col__count tabular-nums" data-bind="total-count">0</dd>
+            </div>
+          </dl>
+
+          <section class="compare-col__section" aria-labelledby="top-facts-a">
+            <h4 id="top-facts-a" class="compare-col__section-title">Топ-факти</h4>
+            <ol class="compare-col__facts" data-bind="top-facts">
+              <li class="compare-col__empty" data-bind="empty-facts">Поки що тут тихо.</li>
+            </ol>
+          </section>
+
+          <section class="compare-col__section" aria-labelledby="subjects-a">
+            <h4 id="subjects-a" class="compare-col__section-title">Предмети</h4>
+            <ul class="compare-col__subjects" data-bind="subjects">
+              <li class="compare-col__empty" data-bind="empty-subjects">—</li>
+            </ul>
+          </section>
+
+          <section class="compare-col__section" aria-labelledby="epoch-a">
+            <h4 id="epoch-a" class="compare-col__section-title">
+              Контекст епохи <span class="compare-col__section-sub" data-bind="epoch-year"></span>
+            </h4>
+            <dl class="compare-col__epoch" data-bind="epoch-items">
+              <div data-bind="empty-epoch" class="compare-col__empty">Снепшот не знайдено.</div>
+            </dl>
+          </section>
+        </article>
+
+        <article class="compare-col" data-side="b">
+          <header class="compare-col__head">
+            <span class="compare-col__label" data-bind="side-label">Рік B</span>
+            <h3 class="compare-col__year font-display tabular-nums" data-bind="year-display">
+              ————
+            </h3>
+            <a class="compare-col__year-link" data-bind="year-link" href="/">
+              Відкрити повний рік →
+            </a>
+          </header>
+
+          <dl class="compare-col__meta">
+            <div>
+              <dt>Ера</dt>
+              <dd>
+                <span class="compare-col__era-badge" data-bind="era-badge"></span>
+              </dd>
+            </div>
+            <div>
+              <dt>Фактів пропущено</dt>
+              <dd class="compare-col__count tabular-nums" data-bind="total-count">0</dd>
+            </div>
+          </dl>
+
+          <section class="compare-col__section" aria-labelledby="top-facts-b">
+            <h4 id="top-facts-b" class="compare-col__section-title">Топ-факти</h4>
+            <ol class="compare-col__facts" data-bind="top-facts">
+              <li class="compare-col__empty" data-bind="empty-facts">Поки що тут тихо.</li>
+            </ol>
+          </section>
+
+          <section class="compare-col__section" aria-labelledby="subjects-b">
+            <h4 id="subjects-b" class="compare-col__section-title">Предмети</h4>
+            <ul class="compare-col__subjects" data-bind="subjects">
+              <li class="compare-col__empty" data-bind="empty-subjects">—</li>
+            </ul>
+          </section>
+
+          <section class="compare-col__section" aria-labelledby="epoch-b">
+            <h4 id="epoch-b" class="compare-col__section-title">
+              Контекст епохи <span class="compare-col__section-sub" data-bind="epoch-year"></span>
+            </h4>
+            <dl class="compare-col__epoch" data-bind="epoch-items">
+              <div data-bind="empty-epoch" class="compare-col__empty">Снепшот не знайдено.</div>
+            </dl>
+          </section>
+        </article>
+      </div>
+
+      <section
+        class="compare-common mt-10 rounded-2xl border border-dashed border-[color:var(--card-edge)] bg-[color:var(--card)]/70 p-6 sm:p-8"
+        aria-labelledby="common-subjects-heading"
+      >
+        <h3
+          id="common-subjects-heading"
+          class="font-display text-lg font-bold tracking-tight text-[color:var(--ink)]"
+        >
+          Спільні предмети
+        </h3>
+        <p class="text-ink-600 mt-1 text-sm">Предмети, у яких обидва роки мають свіжі факти.</p>
+        <div id="compare-common-list" class="mt-5 flex flex-wrap gap-2"></div>
+        <p
+          id="compare-common-empty"
+          class="text-ink-500 mt-5 hidden font-mono text-xs tracking-wider uppercase"
+        >
+          У цих років немає предметів-перетинів.
+        </p>
+      </section>
+
+      <div class="mt-10 flex flex-wrap gap-3">
+        <button
+          id="compare-swap"
+          type="button"
+          class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex h-12 items-center gap-2 rounded-full border bg-white px-5 font-mono text-sm font-medium tracking-wider uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        >
+          <span aria-hidden="true">⇄</span> Поміняти місцями
+        </button>
+        <button
+          id="compare-reset"
+          type="button"
+          class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex h-12 items-center gap-2 rounded-full border bg-white px-5 font-mono text-sm font-medium tracking-wider uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        >
+          <span aria-hidden="true">↺</span> Інша пара
+        </button>
+        <button
+          id="compare-random-2"
+          type="button"
+          class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex h-12 items-center gap-2 rounded-full border bg-white px-5 font-mono text-sm font-medium tracking-wider uppercase transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        >
+          <span aria-hidden="true">🎲</span> Випадкова пара
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Pre-rendered dataset; ~static, parsed once on load -->
+  <script
+    type="application/json"
+    id="compare-data"
+    set:html={JSON.stringify(yearStats).replace(/</g, "\\u003c")}
+  />
+</Base>
+
+<script>
+  type Side = "a" | "b";
+
+  interface ClientEpochItem {
+    k: string;
+    v: string;
+  }
+  interface ClientFact {
+    slug: string;
+    title: string;
+    short: string;
+    yearOfEvent: number;
+    subjectMark: string;
+    subjectLabel: string;
+    impact: "low" | "medium" | "high";
+    region: "world" | "ukraine";
+  }
+  interface ClientSubject {
+    subject: string;
+    mark: string;
+    label: string;
+    count: number;
+  }
+  interface ClientYearStats {
+    year: number;
+    eraSlug: string;
+    eraLabel: string;
+    eraColor: string;
+    eraId: number;
+    eraName: string;
+    totalCount: number;
+    topFacts: ClientFact[];
+    subjects: ClientSubject[];
+    epoch: { year: number; items: ClientEpochItem[] };
+  }
+
+  const root = document.getElementById("compare-root");
+  const dataScript = document.getElementById("compare-data");
+  if (!root || !dataScript) {
+    // Page not configured — bail silently.
+  } else {
+    const yearMin = Number(root.dataset.yearMin);
+    const yearMax = Number(root.dataset.yearMax);
+    const data: Record<string, ClientYearStats> = JSON.parse(dataScript.textContent ?? "{}");
+    const formEl = document.getElementById("compare-form") as HTMLElement | null;
+    const viewEl = document.getElementById("compare-view") as HTMLElement | null;
+    const pickerForm = document.getElementById("compare-picker") as HTMLFormElement | null;
+    const aSelect = document.getElementById("year-a") as HTMLSelectElement | null;
+    const bSelect = document.getElementById("year-b") as HTMLSelectElement | null;
+    const errorEl = document.getElementById("compare-error") as HTMLElement | null;
+    const headingEl = document.getElementById("compare-heading") as HTMLElement | null;
+
+    const swapBtn = document.getElementById("compare-swap");
+    const resetBtn = document.getElementById("compare-reset");
+    const randomBtn = document.getElementById("compare-random");
+    const randomBtn2 = document.getElementById("compare-random-2");
+
+    function pluralizeFacts(n: number): string {
+      const mod10 = n % 10;
+      const mod100 = n % 100;
+      if (mod10 === 1 && mod100 !== 11) return "факт";
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "факти";
+      return "фактів";
+    }
+
+    function parseYearStr(raw: string | null | undefined): number | null {
+      if (raw === null || raw === undefined) return null;
+      const t = raw.trim();
+      if (t === "") return null;
+      const n = Number(t);
+      if (!Number.isInteger(n)) return null;
+      if (n < yearMin || n > yearMax) return null;
+      return n;
+    }
+
+    function showError(msg: string): void {
+      if (!errorEl) return;
+      errorEl.textContent = msg;
+      errorEl.classList.remove("hidden");
+    }
+    function clearError(): void {
+      if (!errorEl) return;
+      errorEl.textContent = "";
+      errorEl.classList.add("hidden");
+    }
+
+    function setMode(mode: "form" | "view"): void {
+      if (!root) return;
+      root.dataset.mode = mode;
+      if (formEl) formEl.hidden = mode !== "form";
+      if (viewEl) viewEl.hidden = mode !== "view";
+    }
+
+    function colForSide(side: Side): HTMLElement | null {
+      return root!.querySelector<HTMLElement>(`.compare-col[data-side="${side}"]`);
+    }
+
+    function paintColumn(side: Side, stats: ClientYearStats): void {
+      const col = colForSide(side);
+      if (!col) return;
+
+      const yearEl = col.querySelector<HTMLElement>('[data-bind="year-display"]');
+      if (yearEl) yearEl.textContent = String(stats.year);
+
+      const linkEl = col.querySelector<HTMLAnchorElement>('[data-bind="year-link"]');
+      if (linkEl) linkEl.href = `/${stats.year}/`;
+
+      const eraBadge = col.querySelector<HTMLElement>('[data-bind="era-badge"]');
+      if (eraBadge) {
+        eraBadge.textContent = `${stats.eraLabel} · ${stats.eraName}`;
+        // Tint badge with era color while preserving readable foreground.
+        eraBadge.style.setProperty("--era-color", stats.eraColor);
+      }
+
+      const countEl = col.querySelector<HTMLElement>('[data-bind="total-count"]');
+      if (countEl) {
+        countEl.textContent = `${stats.totalCount} ${pluralizeFacts(stats.totalCount)}`;
+      }
+
+      const factsList = col.querySelector<HTMLElement>('[data-bind="top-facts"]');
+      const emptyFacts = col.querySelector<HTMLElement>('[data-bind="empty-facts"]');
+      if (factsList) {
+        // Clear previous children (but keep empty placeholder reference)
+        factsList.querySelectorAll<HTMLElement>("li.compare-fact").forEach((el) => el.remove());
+        if (stats.topFacts.length === 0) {
+          if (emptyFacts) emptyFacts.hidden = false;
+        } else {
+          if (emptyFacts) emptyFacts.hidden = true;
+          for (const fact of stats.topFacts) {
+            const li = document.createElement("li");
+            li.className = "compare-fact";
+            const isVikha = fact.impact === "high";
+            li.innerHTML = `
+              <a href="/fact/${fact.slug}/" class="compare-fact__link">
+                <p class="compare-fact__meta">
+                  <span class="compare-fact__mark" title="${escapeAttr(fact.subjectLabel)}">${escapeHtml(fact.subjectMark)}</span>
+                  <span aria-hidden="true">·</span>
+                  <span class="compare-fact__year tabular-nums">${fact.yearOfEvent}</span>
+                  ${fact.region === "ukraine" ? '<span class="compare-fact__ua">UA</span>' : ""}
+                  ${isVikha ? '<span class="compare-fact__vikha">★ Віха</span>' : ""}
+                </p>
+                <p class="compare-fact__title font-display">${escapeHtml(fact.title)}</p>
+                <p class="compare-fact__short">${escapeHtml(fact.short)}</p>
+              </a>
+            `;
+            factsList.appendChild(li);
+          }
+        }
+      }
+
+      const subjList = col.querySelector<HTMLElement>('[data-bind="subjects"]');
+      const emptySubj = col.querySelector<HTMLElement>('[data-bind="empty-subjects"]');
+      if (subjList) {
+        subjList.querySelectorAll<HTMLElement>("li.compare-subject").forEach((el) => el.remove());
+        if (stats.subjects.length === 0) {
+          if (emptySubj) emptySubj.hidden = false;
+        } else {
+          if (emptySubj) emptySubj.hidden = true;
+          for (const s of stats.subjects) {
+            const li = document.createElement("li");
+            li.className = "compare-subject";
+            li.innerHTML = `
+              <a href="/subject/${escapeAttr(s.subject)}/" class="compare-subject__link">
+                <span class="compare-subject__mark">${escapeHtml(s.mark)}</span>
+                <span class="compare-subject__label">${escapeHtml(s.label)}</span>
+                <span class="compare-subject__count tabular-nums">${s.count}</span>
+              </a>
+            `;
+            subjList.appendChild(li);
+          }
+        }
+      }
+
+      const epochYearEl = col.querySelector<HTMLElement>('[data-bind="epoch-year"]');
+      const epochList = col.querySelector<HTMLElement>('[data-bind="epoch-items"]');
+      const emptyEpoch = col.querySelector<HTMLElement>('[data-bind="empty-epoch"]');
+      if (epochYearEl) {
+        epochYearEl.textContent = stats.epoch.items.length > 0 ? `(${stats.epoch.year}-й)` : "";
+      }
+      if (epochList) {
+        epochList
+          .querySelectorAll<HTMLElement>("div.compare-epoch__item")
+          .forEach((el) => el.remove());
+        if (stats.epoch.items.length === 0) {
+          if (emptyEpoch) emptyEpoch.hidden = false;
+        } else {
+          if (emptyEpoch) emptyEpoch.hidden = true;
+          for (const item of stats.epoch.items) {
+            const div = document.createElement("div");
+            div.className = "compare-epoch__item";
+            div.innerHTML = `
+              <dt>${escapeHtml(item.k)}</dt>
+              <dd>${escapeHtml(item.v)}</dd>
+            `;
+            epochList.appendChild(div);
+          }
+        }
+      }
+    }
+
+    function escapeHtml(s: string): string {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+    function escapeAttr(s: string): string {
+      return escapeHtml(s);
+    }
+
+    function renderCommon(a: ClientYearStats, b: ClientYearStats): void {
+      const list = document.getElementById("compare-common-list");
+      const empty = document.getElementById("compare-common-empty");
+      if (!list) return;
+      list.innerHTML = "";
+      const bSet = new Set(b.subjects.map((s) => s.subject));
+      const intersection = a.subjects.filter((s) => bSet.has(s.subject));
+      if (intersection.length === 0) {
+        if (empty) empty.classList.remove("hidden");
+        return;
+      }
+      if (empty) empty.classList.add("hidden");
+      for (const s of intersection) {
+        const chip = document.createElement("a");
+        chip.href = `/subject/${s.subject}/`;
+        chip.className = "compare-common-chip";
+        chip.innerHTML = `
+          <span class="compare-common-chip__mark">${escapeHtml(s.mark)}</span>
+          <span class="compare-common-chip__label">${escapeHtml(s.label)}</span>
+        `;
+        list.appendChild(chip);
+      }
+    }
+
+    function updateMeta(yearA: number, yearB: number): void {
+      const title = `${yearA} vs ${yearB} — що змінилось | BACK_FUTURE`;
+      document.title = title;
+      if (headingEl) {
+        headingEl.textContent = `${yearA} vs ${yearB}`;
+      }
+      // Update OG meta tags so social shares of `/compare?a=…&b=…` reflect the pair.
+      const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+      if (ogTitle) ogTitle.content = title;
+      const twTitle = document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]');
+      if (twTitle) twTitle.content = title;
+      const ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+      if (ogUrl) ogUrl.content = location.href;
+      const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+      if (canonical) canonical.href = location.href;
+    }
+
+    function showPair(yearA: number, yearB: number): void {
+      const a = data[String(yearA)];
+      const b = data[String(yearB)];
+      if (!a || !b) {
+        showFormWithError(`Дані для років не знайдено.`);
+        return;
+      }
+      paintColumn("a", a);
+      paintColumn("b", b);
+      renderCommon(a, b);
+      updateMeta(yearA, yearB);
+      setMode("view");
+      clearError();
+    }
+
+    function showFormWithError(msg: string): void {
+      setMode("form");
+      showError(msg);
+    }
+
+    function pickRandomPair(): { a: number; b: number } {
+      const span = yearMax - yearMin + 1;
+      if (span < 2) return { a: yearMin, b: yearMin };
+      const a = yearMin + Math.floor(Math.random() * span);
+      let b = yearMin + Math.floor(Math.random() * (span - 1));
+      if (b >= a) b += 1;
+      return { a, b };
+    }
+
+    function applyQuery(): void {
+      const params = new URLSearchParams(location.search);
+      const aRaw = params.get("a");
+      const bRaw = params.get("b");
+
+      if (aRaw === null && bRaw === null) {
+        setMode("form");
+        clearError();
+        return;
+      }
+
+      const aNum = parseYearStr(aRaw);
+      const bNum = parseYearStr(bRaw);
+
+      // Pre-fill whatever was valid so the user only has to fix the missing half.
+      if (aSelect && aNum !== null) aSelect.value = String(aNum);
+      if (bSelect && bNum !== null) bSelect.value = String(bNum);
+
+      // Only one valid param → show form (no error), let the user pick the other.
+      if ((aNum === null) !== (bNum === null)) {
+        setMode("form");
+        clearError();
+        return;
+      }
+
+      // Both raw params present but at least one is invalid.
+      if (aNum === null || bNum === null) {
+        showFormWithError(`Невірні параметри. Введи цілі роки від ${yearMin} до ${yearMax}.`);
+        return;
+      }
+
+      if (aNum === bNum) {
+        showFormWithError("Введи два різні роки — порівнювати рік сам із собою нецікаво.");
+        return;
+      }
+
+      showPair(aNum, bNum);
+    }
+
+    function track(event: string, props: Record<string, unknown>): void {
+      try {
+        const ph = (window as Window & { posthog?: { capture?: (e: string, p: unknown) => void } })
+          .posthog;
+        if (ph && typeof ph.capture === "function") ph.capture(event, props);
+      } catch {
+        /* analytics never breaks UI */
+      }
+    }
+
+    if (pickerForm) {
+      pickerForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        clearError();
+        const a = parseYearStr(aSelect?.value);
+        const b = parseYearStr(bSelect?.value);
+        if (a === null || b === null) {
+          showError(`Введи цілі роки від ${yearMin} до ${yearMax}.`);
+          return;
+        }
+        if (a === b) {
+          showError("Введи два різні роки.");
+          return;
+        }
+        const url = `${location.pathname}?a=${a}&b=${b}`;
+        history.pushState({ a, b }, "", url);
+        track("compare_submitted", { a, b, source: "form" });
+        showPair(a, b);
+        // Scroll to top of compare-view so the user immediately sees the result.
+        document
+          .getElementById("compare-view")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    function handleRandom(source: string): void {
+      const { a, b } = pickRandomPair();
+      if (aSelect) aSelect.value = String(a);
+      if (bSelect) bSelect.value = String(b);
+      const url = `${location.pathname}?a=${a}&b=${b}`;
+      history.pushState({ a, b }, "", url);
+      track("compare_submitted", { a, b, source });
+      showPair(a, b);
+    }
+
+    randomBtn?.addEventListener("click", () => handleRandom("random-button-form"));
+    randomBtn2?.addEventListener("click", () => handleRandom("random-button-view"));
+
+    swapBtn?.addEventListener("click", () => {
+      const params = new URLSearchParams(location.search);
+      const a = parseYearStr(params.get("a"));
+      const b = parseYearStr(params.get("b"));
+      if (a === null || b === null) return;
+      const url = `${location.pathname}?a=${b}&b=${a}`;
+      history.pushState({ a: b, b: a }, "", url);
+      track("compare_swapped", { from: { a, b }, to: { a: b, b: a } });
+      if (aSelect) aSelect.value = String(b);
+      if (bSelect) bSelect.value = String(a);
+      showPair(b, a);
+    });
+
+    resetBtn?.addEventListener("click", () => {
+      history.pushState({}, "", location.pathname);
+      clearError();
+      setMode("form");
+      document
+        .getElementById("compare-form")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    // Sync to back/forward navigation.
+    window.addEventListener("popstate", () => {
+      applyQuery();
+    });
+
+    applyQuery();
+  }
+</script>
+
+<style>
+  .compare-form {
+    max-width: 720px;
+  }
+
+  .compare-view[hidden] {
+    display: none;
+  }
+
+  /* Column wrapper */
+  .compare-col {
+    border: 1px solid var(--card-edge);
+    border-radius: 16px;
+    background: var(--card);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  @media (min-width: 640px) {
+    .compare-col {
+      padding: 28px;
+    }
+  }
+
+  .compare-col__head {
+    border-bottom: 1px dashed var(--card-edge);
+    padding-bottom: 16px;
+  }
+
+  .compare-col__label {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .compare-col__year {
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    margin: 0;
+    /* SubjectMark-style: monospace digits, accent color */
+    font-family: var(--font-mono);
+  }
+
+  .compare-col__year-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 160ms ease;
+  }
+  .compare-col__year-link:hover {
+    color: var(--accent);
+  }
+
+  /* Meta dl row: era + count */
+  .compare-col__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 0;
+  }
+  .compare-col__meta dt {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .compare-col__meta dd {
+    margin: 0;
+    color: var(--ink);
+  }
+  .compare-col__era-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--era-color, var(--card-edge));
+    box-shadow: inset 0 0 0 1px var(--era-color, transparent);
+  }
+  .compare-col__count {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .compare-col__section {
+    border-top: 1px dashed var(--card-edge);
+    padding-top: 16px;
+  }
+  .compare-col__section-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px 0;
+  }
+  .compare-col__section-sub {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .compare-col__empty {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* Top facts list */
+  .compare-col__facts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .compare-fact__link {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--card-edge);
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      transform 160ms ease;
+  }
+  .compare-fact__link:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .compare-fact__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0 0 6px 0;
+  }
+  .compare-fact__mark {
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+  }
+  .compare-fact__year {
+    color: var(--ink-2, var(--ink));
+  }
+  .compare-fact__ua {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--accent-50, var(--paper));
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  .compare-fact__vikha {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  .compare-fact__title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px 0;
+  }
+  .compare-fact__short {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink-2, var(--ink));
+    margin: 0;
+  }
+
+  /* Subject list */
+  .compare-col__subjects {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .compare-subject__link {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--paper);
+    border: 1px solid var(--card-edge);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color 160ms ease;
+  }
+  .compare-subject__link:hover {
+    border-color: var(--accent);
+  }
+  .compare-subject__mark {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    min-width: 38px;
+  }
+  .compare-subject__label {
+    flex: 1;
+    font-size: 14px;
+  }
+  .compare-subject__count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Epoch snapshot */
+  .compare-col__epoch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+    margin: 0;
+  }
+  .compare-epoch__item dt {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .compare-epoch__item dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  /* Common subjects */
+  .compare-common-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--card-edge);
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 13px;
+    transition: border-color 160ms ease;
+  }
+  .compare-common-chip:hover {
+    border-color: var(--accent);
+  }
+  .compare-common-chip__mark {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  /* Reduced motion: kill subtle transforms */
+  @media (prefers-reduced-motion: reduce) {
+    .compare-fact__link,
+    .compare-fact__link:hover,
+    .compare-subject__link,
+    .compare-subject__link:hover {
+      transition: none;
+      transform: none !important;
+    }
+  }
+</style>
