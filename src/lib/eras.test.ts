@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ERAS, eraById, eraForGraduationYear, eraOf } from "./eras";
+import { SITE } from "../config/site";
+import { ERAS, eraById, eraForGraduationYear, eraOf, parseYear } from "./eras";
 
 describe("ERAS data", () => {
   it("contains exactly five eras with monotonically increasing ranges", () => {
@@ -93,5 +94,38 @@ describe("eraOf", () => {
     for (const year of [1991, 1999, 2003, 2010, 2017, 2022]) {
       expect(eraOf(year).id).toBe(eraForGraduationYear(year));
     }
+  });
+});
+
+describe("parseYear", () => {
+  it("accepts integer strings within [yearMin, yearMax]", () => {
+    expect(parseYear("2010")).toBe(2010);
+    expect(parseYear(" 2003 ")).toBe(2003);
+    expect(parseYear(String(SITE.yearMin))).toBe(SITE.yearMin);
+    expect(parseYear(String(SITE.yearMax))).toBe(SITE.yearMax);
+  });
+
+  it("accepts numeric inputs in range", () => {
+    expect(parseYear(2010)).toBe(2010);
+  });
+
+  it("rejects null, undefined, and empty strings", () => {
+    expect(parseYear(null)).toBeNull();
+    expect(parseYear(undefined)).toBeNull();
+    expect(parseYear("")).toBeNull();
+    expect(parseYear("   ")).toBeNull();
+  });
+
+  it("rejects non-integers, NaN, and garbage", () => {
+    expect(parseYear("abc")).toBeNull();
+    expect(parseYear("2010.5")).toBeNull();
+    expect(parseYear("2010abc")).toBeNull();
+    expect(parseYear(Number.NaN)).toBeNull();
+  });
+
+  it("rejects out-of-range values", () => {
+    expect(parseYear(SITE.yearMin - 1)).toBeNull();
+    expect(parseYear(SITE.yearMax + 1)).toBeNull();
+    expect(parseYear("1800")).toBeNull();
   });
 });
