@@ -2,7 +2,7 @@ import type { CollectionEntry } from "astro:content";
 import { SITE, SUBJECTS } from "../config/site";
 import { eraById, eraForGraduationYear, type Era } from "./eras";
 import { factsForEra, factsForYear, groupBySubject } from "./filterFacts";
-import { subjectsCount, updatesCount } from "./plurals";
+import { factsWord, subjectsCount, updatesCount } from "./plurals";
 
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
@@ -80,7 +80,7 @@ export function buildYearOgSvg(year: number, allFacts: CollectionEntry<"facts">[
 export function buildEraOgSvg(era: Era, allFacts: CollectionEntry<"facts">[]): string {
   const matched = factsForEra(allFacts, era.id);
   const totalCount = matched.length;
-  const factsLabel = pluralize(totalCount, ["факт", "факти", "фактів"]);
+  const factsLabel = factsWord(totalCount);
   const yearEnd = era.yearEnd > SITE.yearMax ? "сьогодні" : String(era.yearEnd);
   const headline = escapeXml(`ЕРА ${era.id} · ${era.yearStart}–${yearEnd}`);
   const title = escapeXml(era.label);
