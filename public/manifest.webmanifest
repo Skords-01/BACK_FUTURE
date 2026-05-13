@@ -1,0 +1,40 @@
+{
+  "name": "BACK_FUTURE — Що ти пропустив після випускного",
+  "short_name": "BACK_FUTURE",
+  "description": "Введи рік випуску й дізнайся, що змінилось у науці, історії й світі від тих часів — українською мовою.",
+  "lang": "uk-UA",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#b9381a",
+  "background_color": "#f3ecdc",
+  "categories": ["education", "books", "news"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

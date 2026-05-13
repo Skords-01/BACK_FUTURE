@@ -27,6 +27,18 @@ const fullTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — ${SITE
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
 const jsonLdItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
+// Реєструємо service-worker тільки в production-білді. У dev-режимі він би
+// лише плутав HMR і кеш Vite. Сам файл /sw.js пишеться `scripts/generate-sw.ts`
+// після `astro build` + `pagefind`. Тиха деградація: сайт лишається повністю
+// функціональним без SW, тому помилку реєстрації лише ковтаємо.
+const swRegistrationScript = import.meta.env.PROD
+  ? `if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("/sw.js").catch(function () {});
+  });
+}`
+  : null;
+
 // Опційні токени верифікації пошуковців для Search Console / Bing Webmaster.
 // Якщо змінна не задана — meta-тег не рендериться.
 const googleSiteVerification = import.meta.env.GOOGLE_SITE_VERIFICATION;
@@ -59,6 +71,19 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    {
+      /* Address-bar tinting on supporting browsers — paired light/dark so the
+        chrome blends with both Mineral and dark-warm-cream palettes. */
+    }
+    <meta name="theme-color" content="#f3ecdc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1c1812" media="(prefers-color-scheme: dark)" />
+    <meta name="application-name" content={SITE.name} />
+    <meta name="apple-mobile-web-app-title" content={SITE.name} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="generator" content={Astro.generator} />
     <meta name="format-detection" content="telephone=no" />
     {noindex && <meta name="robots" content="noindex,nofollow" />}
@@ -129,5 +154,6 @@ const serializeJsonLd = (data: Record<string, unknown>): string =>
     <Footer />
     <RevealObserver />
     <ScrollRestore />
+    {swRegistrationScript && <script is:inline set:html={swRegistrationScript} />}
   </body>
 </html>

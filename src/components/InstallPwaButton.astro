@@ -1,0 +1,115 @@
+---
+// Floating "Install app" chip — рендериться завжди, але показується лише після
+// `beforeinstallprompt` (Chrome/Edge/Samsung Internet). У Safari/Firefox подія
+// не існує — кнопка тихо лишається прихованою. Стан «прибрав» зберігаємо в
+// localStorage щоб не дратувати між сесіями.
+---
+
+<div
+  id="bf-install-pwa"
+  data-state="hidden"
+  class="pointer-events-none fixed right-3 bottom-3 z-40 flex items-center gap-2 rounded-full border border-[color:var(--card-edge)] bg-[color:var(--card)] px-4 py-2 text-sm font-medium opacity-0 shadow-lg shadow-black/5 transition-[transform,opacity] duration-300 ease-out data-[state=visible]:pointer-events-auto data-[state=visible]:opacity-100 sm:right-6 sm:bottom-6"
+  style="transform: translateY(8px);"
+  hidden
+>
+  <span class="text-[color:var(--ink-2)]" aria-hidden="true">📲</span>
+  <button
+    id="bf-install-pwa-accept"
+    type="button"
+    class="text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--color-accent-700)]"
+  >
+    Встановити застосунок
+  </button>
+  <button
+    id="bf-install-pwa-dismiss"
+    type="button"
+    aria-label="Сховати запрошення встановити"
+    class="text-[color:var(--muted)] hover:text-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--color-accent-700)]"
+  >
+    ✕
+  </button>
+</div>
+
+<script is:inline>
+  (function () {
+    var STORAGE_KEY = "bf_install_dismissed";
+    var host = document.getElementById("bf-install-pwa");
+    if (!host) return;
+    var accept = document.getElementById("bf-install-pwa-accept");
+    var dismiss = document.getElementById("bf-install-pwa-dismiss");
+    /** @type {any} */
+    var deferred = null;
+
+    try {
+      if (window.localStorage.getItem(STORAGE_KEY) === "1") return;
+    } catch {
+      // localStorage недоступний (приватний режим) — продовжуємо без збереження стану.
+    }
+
+    var prefersReducedMotion =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function show() {
+      host.hidden = false;
+      // Дочекатися наступного кадру щоб transition зіграв.
+      requestAnimationFrame(function () {
+        host.setAttribute("data-state", "visible");
+        if (!prefersReducedMotion) host.style.transform = "translateY(0)";
+      });
+    }
+
+    function hide(persist) {
+      host.setAttribute("data-state", "hidden");
+      host.style.transform = "translateY(8px)";
+      if (persist) {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, "1");
+        } catch {
+          // ignore quota / disabled storage
+        }
+      }
+      window.setTimeout(
+        function () {
+          host.hidden = true;
+        },
+        prefersReducedMotion ? 0 : 300,
+      );
+    }
+
+    window.addEventListener("beforeinstallprompt", function (event) {
+      event.preventDefault();
+      deferred = event;
+      show();
+    });
+
+    accept &&
+      accept.addEventListener("click", function () {
+        if (!deferred) {
+          hide(false);
+          return;
+        }
+        try {
+          deferred.prompt();
+          deferred.userChoice
+            .then(function (result) {
+              hide(result && result.outcome === "dismissed" ? false : true);
+              deferred = null;
+            })
+            .catch(function () {
+              hide(false);
+            });
+        } catch {
+          hide(false);
+        }
+      });
+
+    dismiss &&
+      dismiss.addEventListener("click", function () {
+        hide(true);
+      });
+
+    window.addEventListener("appinstalled", function () {
+      hide(true);
+    });
+  })();
+</script>

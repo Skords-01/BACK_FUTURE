@@ -5,6 +5,7 @@ import EraGrid from "../components/EraGrid.astro";
 import DensityStrip from "../components/DensityStrip.astro";
 import SubjectChips from "../components/SubjectChips.astro";
 import Presets from "../components/Presets.astro";
+import InstallPwaButton from "../components/InstallPwaButton.astro";
 import { SITE } from "../config/site";
 import { getCollection } from "astro:content";
 import { factsWord } from "../lib/plurals";
@@ -177,4 +178,5 @@ const websiteLd: Record<string, unknown> = {
       <SubjectChips />
     </section>
   </div>
+  <InstallPwaButton />
 </Base>
