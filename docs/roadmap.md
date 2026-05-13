@@ -4,7 +4,7 @@
 > Цей документ описує **технічні** PR-и (інфра, контент-схема, UX, фічі) — як їх логічно розбити, у якій послідовності й з якими залежностями.
 > Список ідей-першоджерел: [`ideas.md`](./ideas.md).
 
-Останнє оновлення: травень 2026 (після PR #133: Pagefind-пошук, `/quiz`, observability-стек (Sentry/PostHog/GSC), `userState.ts`, 5 design-effects, `ScrollRestore` стійкий на iOS/bfcache, dead-code cleanup, JetBrains Mono замість IBM Plex Mono; додано `/saved` bookmark-факти — закриває 4.4).
+Останнє оновлення: травень 2026 (після PR #133: Pagefind-пошук, `/quiz`, observability-стек (Sentry/PostHog/GSC), `userState.ts`, 5 design-effects, `ScrollRestore` стійкий на iOS/bfcache, dead-code cleanup, JetBrains Mono замість IBM Plex Mono).
 
 ---
 
@@ -28,19 +28,18 @@
 - **Глобальний `[data-reveal]`-fade-in observer:** Base.astro (PR #96) + 5 design-effects (PR #107: staggered entrance, magnetic 3D tilt, slot-machine GO, glitch reveal, DensityStrip tooltip). Усі ефекти поважають `prefers-reduced-motion`.
 - **`ScrollRestore`:** стійкий на iOS Safari і bfcache (PR #126/#127/#128) — запис позиції на `scrollend` debounce, restore через `pageshow`.
 - **`userState.ts`:** localStorage — last-visited year + read-tracking через IntersectionObserver (PR #116). Швидке повернення «До N» pill у Hero (PR #119) — закриває #4.3.
-- **Збережені факти (bookmark):** `BookmarkButton.astro` у `FactCard` і `/fact/[slug]`, сторінка `/saved/`, реактивний `★ K` лічильник у `Header`, події PostHog (`fact_saved` / `fact_unsaved` / `saved_page_view` / `saved_exported` / `saved_imported` / `saved_cleared`); export/import JSON, share через URL-hash (`/saved#a,b,c`), shortcut `S` на сторінці факту — закриває #4.4.
 - **Контент:** 11 предметів підтримуються в схемі/CMS/UI; **усі 11 заповнені — 175 фактів сумарно** (15–16 на предмет, ~30 з них високий impact — «★ Віха»).
 
 ### Лишилось зробити (узагальнено)
 
-| Напрям                     | Що бракує                                                                                                                                        |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Сторінки                   | `/compare?a=…&b=…`, `/share/[year]` (PNG-постер), `/contributors` (потребує `authors` поля), `/support` (потребує `monobankJarUrl` у `site.ts`). |
-| PWA                        | Manifest + сервіс-воркер (офлайн перегляд).                                                                                                      |
-| Спільнота                  | Action: issue з шаблону «Запропонувати факт» → draft PR. Email-дайджест (Buttondown / self-hosted).                                              |
-| Схема                      | `authors` у frontmatter, `region: country:<iso2>` (зараз тільки `world` / `ukraine`), міграція `image` на `astro:assets`.                        |
-| i18n                       | Routing (`/uk/`, `/en/`), ICU plurals у форматерах кількості, англомовний UI.                                                                    |
-| Блокувальники від власника | Реальний домен (`defaultUrl` досі плейсхолдер), Monobank банка, Twitter handle, production-авторизація Sveltia/Decap CMS.                        |
+| Напрям                     | Що бракує                                                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Сторінки                   | `/share/[year]` (PNG-постер), `/saved` (bookmark-факти), `/contributors` (потребує `authors` поля), `/support` (потребує `monobankJarUrl` у `site.ts`). |
+| PWA                        | Manifest + сервіс-воркер (офлайн перегляд).                                                                                                             |
+| Спільнота                  | Action: issue з шаблону «Запропонувати факт» → draft PR. Email-дайджест (Buttondown / self-hosted).                                                     |
+| Схема                      | `authors` у frontmatter, `region: country:<iso2>` (зараз тільки `world` / `ukraine`), міграція `image` на `astro:assets`.                               |
+| i18n                       | Routing (`/uk/`, `/en/`), ICU plurals у форматерах кількості, англомовний UI.                                                                           |
+| Блокувальники від власника | Реальний домен (`defaultUrl` досі плейсхолдер), Monobank банка, Twitter handle, production-авторизація Sveltia/Decap CMS.                               |
 
 ### Нещодавно виконано (фази 0–3)
 
@@ -144,16 +143,16 @@
 | 3.3 | Fallback-блок для років без фактів    | S      | —        | На `[year].astro` («Тут поки тихо» уже є — розширити CTA).                                                                               |
 | 3.4 | Сторінка одного факту `/fact/[slug]`  | M      | 1.4      | Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): канонічний URL, джерела, breadcrumbs, JSON-LD `Article`, share/copy.     |
 
-## Фаза 4 — Пошук і персоналізація — закрита
+## Фаза 4 — Пошук і персоналізація — частково закрита
 
-Готові: 4.1 (Pagefind), 4.2 (фільтри), 4.3 («Мій рік»), 4.4 (`/saved` bookmark-факти).
+Готові: 4.1 (Pagefind), 4.2 (фільтри), 4.3 («Мій рік»). Залишилося: 4.4 (`/saved` bookmark-факти).
 
-| #   | PR                                 | Розмір | Залежить | Опис                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| --- | ---------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 4.1 | Pagefind (build-time)              | M      | —        | Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109): `pagefind ^1.3.0`, build-script `pagefind --site dist`, `SearchDialog.astro` з lazy-load, native `<dialog>`, Cmd/Ctrl+K, `data-pagefind-body` обмежує індекс. Оновлено у [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (терміни в quotes — «голка» не матчить «гол»).                                                                                                                                                                                                                                                          |
-| 4.2 | Фільтри на сторінці року           | M      | 2.2, 2.4 | Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): `subject`, `era`, `region`, `impact`, live counts і query-параметри.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| 4.3 | «Мій рік» (persist у localStorage) | S      | —        | Done у [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116) (`src/lib/userState.ts` — last-visited year у localStorage) + [#119](https://github.com/Skords-01/BACK_FUTURE/pull/119) («Повернутись до N» pill у Hero).                                                                                                                                                                                                                                                                                                                                                                                   |
-| 4.4 | Збережені факти (bookmark)         | M      | —        | Done: `addSaved/removeSaved/isSaved/getSavedSlugs/setSavedSlugs/clearSaved` API у `src/lib/userState.ts` + `bf_saved_changed` CustomEvent; `BookmarkButton.astro` (variants: card-corner / inline pill) у `FactCard` і `/fact/[slug]`; сторінка `/saved/` з сортуванням за `updatedAt` desc, порожнім станом, bulk-clear; реактивний `★ K` лічильник у `Header`; PostHog події `fact_saved` / `fact_unsaved` / `saved_page_view` / `saved_exported` / `saved_imported` / `saved_cleared`; покращення: export/import JSON, share через URL-hash (`/saved#a,b,c`), клавіатурний шорткат `S` на сторінці факту. |
+| #   | PR                                 | Розмір | Залежить | Опис                                                                                                                                                                                                                                                                                                                                                |
+| --- | ---------------------------------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4.1 | Pagefind (build-time)              | M      | —        | Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109): `pagefind ^1.3.0`, build-script `pagefind --site dist`, `SearchDialog.astro` з lazy-load, native `<dialog>`, Cmd/Ctrl+K, `data-pagefind-body` обмежує індекс. Оновлено у [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (терміни в quotes — «голка» не матчить «гол»). |
+| 4.2 | Фільтри на сторінці року           | M      | 2.2, 2.4 | Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51): `subject`, `era`, `region`, `impact`, live counts і query-параметри.                                                                                                                                                                                                                |
+| 4.3 | «Мій рік» (persist у localStorage) | S      | —        | Done у [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116) (`src/lib/userState.ts` — last-visited year у localStorage) + [#119](https://github.com/Skords-01/BACK_FUTURE/pull/119) («Повернутись до N» pill у Hero).                                                                                                                          |
+| 4.4 | Збережені факти (bookmark)         | M      | —        | LocalStorage; невелика сторінка `/saved`.                                                                                                                                                                                                                                                                                                           |
 
 ## Фаза 5 — PWA / a11y / asset-pipeline — частково закрита
 
@@ -167,15 +166,15 @@
 
 ## Фаза 6 — Залучення — частково закрита
 
-Готові: 6.1 (шер-кнопки), 6.2 (`/timeline`), 6.4 (`/quiz`). Залишилося: 6.3 (`/compare`), 6.5 (`/share/[year]` PNG-постер).
+Готові: 6.1 (шер-кнопки), 6.2 (`/timeline`), 6.3 (`/compare`), 6.4 (`/quiz`). Залишилося: 6.5 (`/share/[year]` PNG-постер).
 
-| #   | PR                                       | Розмір | Залежить | Опис                                                                                                                                                                                                                                                                                                                            |
-| --- | ---------------------------------------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 6.1 | Шер-кнопки на `/[year]` і `/fact/[slug]` | S      | 3.4      | Telegram, X, копіювання посилання. (#2 у memory.)                                                                                                                                                                                                                                                                               |
-| 6.2 | `/timeline` — хронологія всіх фактів     | M      | —        | Done у [#93](https://github.com/Skords-01/BACK_FUTURE/pull/93) і [#97](https://github.com/Skords-01/BACK_FUTURE/pull/97) (Variant A: вертикальна вісь, era jump-strip, dark-mode contrast). (#9 у memory.)                                                                                                                      |
-| 6.3 | `/compare?a=…&b=…` — два роки поруч      | M      | —        | (Близько до #12, але рівень метаданих, не індивід. фактів.)                                                                                                                                                                                                                                                                     |
-| 6.4 | Квіз «вгадай рік відкриття»              | L      | —        | Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109) (`src/pages/quiz.astro`, 5 питань, логіка клієнтська) + [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (маска року у question card). PostHog quiz funnel (start/answer/finish/restart) у [#131](https://github.com/Skords-01/BACK_FUTURE/pull/131). |
-| 6.5 | `/share/[year]` — постер під шеринг      | M      | 1.3      | (#5 у memory.) PNG із OG-генератора + цитати.                                                                                                                                                                                                                                                                                   |
+| #   | PR                                       | Розмір | Залежить | Опис                                                                                                                                                                                                                                                                                                                                   |
+| --- | ---------------------------------------- | ------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6.1 | Шер-кнопки на `/[year]` і `/fact/[slug]` | S      | 3.4      | Telegram, X, копіювання посилання. (#2 у memory.)                                                                                                                                                                                                                                                                                      |
+| 6.2 | `/timeline` — хронологія всіх фактів     | M      | —        | Done у [#93](https://github.com/Skords-01/BACK_FUTURE/pull/93) і [#97](https://github.com/Skords-01/BACK_FUTURE/pull/97) (Variant A: вертикальна вісь, era jump-strip, dark-mode contrast). (#9 у memory.)                                                                                                                             |
+| 6.3 | `/compare?a=…&b=…` — два роки поруч      | M      | —        | Done: статична `/compare` сторінка з side-by-side колонками (era badge, лічильник фактів, топ-3 high-impact, спільні предмети, epoch snapshot з nearest fallback), форма-пікер з `?a=…&b=…` валідацією через `parseYear`, кнопки `Поміняти місцями`/`Випадкова пара`, friendly error при `a === b`, динамічні OG/meta. (#12 у memory.) |
+| 6.4 | Квіз «вгадай рік відкриття»              | L      | —        | Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109) (`src/pages/quiz.astro`, 5 питань, логіка клієнтська) + [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (маска року у question card). PostHog quiz funnel (start/answer/finish/restart) у [#131](https://github.com/Skords-01/BACK_FUTURE/pull/131).        |
+| 6.5 | `/share/[year]` — постер під шеринг      | M      | 1.3      | (#5 у memory.) PNG із OG-генератора + цитати.                                                                                                                                                                                                                                                                                          |
 
 ## Фаза 7 — Спільнота й контент-операційка
 
@@ -214,7 +213,7 @@ PR [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) закриває по
 4. **#2.5** — розширення `SUBJECTS` до 11 предметів.
 5. **#2.6** — workflow-патч для `sources[].url`.
 
-Наступні найпрактичніші задачі (після PR #133 + `/saved`): `/compare?a=…&b=…`, `/share/[year]` PNG-постер, issue `new-fact.yml` → draft PR action, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing.
+Наступні найпрактичніші задачі (після PR #133): `/share/[year]` PNG-постер, `/saved` bookmark-факти, issue `new-fact.yml` → draft PR action, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing.
 
 ---
 
