@@ -3,19 +3,11 @@ import { getCollection } from "astro:content";
 import { SITE } from "../config/site";
 import ThemeToggle from "./ThemeToggle.astro";
 import SearchDialog from "./SearchDialog.astro";
+import { factsWord } from "../lib/plurals";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const factsCount = allFacts.length;
-
-function pluralizeFacts(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "факт";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "факти";
-  return "фактів";
-}
-
-const factsLabel = pluralizeFacts(factsCount);
+const factsLabel = factsWord(factsCount);
 
 const path = Astro.url.pathname;
 function isActive(href: string): boolean {

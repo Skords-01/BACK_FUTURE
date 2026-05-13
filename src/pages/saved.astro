@@ -141,6 +141,7 @@ const description =
 <script>
   import { clearSaved, getSavedSlugs, setSavedSlugs, SAVED_CHANGED_EVENT } from "../lib/userState";
   import { EVENTS, track } from "../lib/analytics";
+  import { factsCount } from "../lib/plurals";
 
   const grid = document.getElementById("saved-grid");
   const empty = document.getElementById("saved-empty");
@@ -152,14 +153,6 @@ const description =
   const shareBtn = document.getElementById("saved-share");
   const clearBtn = document.getElementById("saved-clear");
   const importFile = document.getElementById("saved-import-file") as HTMLInputElement | null;
-
-  function pluralizeFacts(n: number): string {
-    const mod10 = n % 10;
-    const mod100 = n % 100;
-    if (mod10 === 1 && mod100 !== 11) return "факт";
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "факти";
-    return "фактів";
-  }
 
   function setStatus(message: string, isError = false): void {
     if (!(status instanceof HTMLElement)) return;
@@ -201,7 +194,7 @@ const description =
     const visible = slugs.filter((s) => elBySlug.has(s));
     const n = visible.length;
     if (count instanceof HTMLElement) {
-      count.textContent = `${n} ${pluralizeFacts(n)}`;
+      count.textContent = factsCount(n, "uk");
     }
     const hasSaved = n > 0;
     grid.classList.toggle("hidden", !hasSaved);

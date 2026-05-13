@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { SITE, SUBJECTS } from "../config/site";
 import { getCollection } from "astro:content";
+import { factsWord } from "../lib/plurals";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const factsCount = allFacts.length;
@@ -25,7 +26,7 @@ const factsCount = allFacts.length;
       {
         (
           [
-            { n: String(factsCount), l: "фактів у базі" },
+            { n: String(factsCount), l: `${factsWord(factsCount)} у базі` },
             { n: String(SUBJECTS.length), l: "навчальних предметів" },
             { n: "5", l: "навчальних епох" },
             { n: `${SITE.yearMin}–${SITE.yearMax}`, l: "роки охоплення" },
