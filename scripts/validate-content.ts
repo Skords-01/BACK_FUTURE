@@ -2,6 +2,7 @@ import path from "node:path";
 import process from "node:process";
 
 import { eras, loadFacts, subjects } from "./content-utils";
+import { isKnownRegionCode } from "../src/lib/regions";
 
 const minFactsPerSubject = 1;
 const minFactsPerEra = 5;
@@ -47,6 +48,15 @@ for (const fact of facts) {
 
   for (const eraId of fact.relevantForEras) {
     byEra.set(eraId, (byEra.get(eraId) ?? 0) + 1);
+  }
+
+  if (fact.region && fact.region.startsWith("country:")) {
+    const code = fact.region.slice("country:".length);
+    if (!isKnownRegionCode(code)) {
+      warnings.push(
+        `${relativePath}: region "country:${code}" not in known REGIONS map (src/lib/regions.ts) — flag/label will fall back to the raw code`,
+      );
+    }
   }
 
   for (const source of fact.sources) {

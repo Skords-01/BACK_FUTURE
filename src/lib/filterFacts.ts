@@ -3,11 +3,21 @@ import { ERAS, eraForGraduationYear, type EraId } from "./eras";
 import { SITE, SUBJECTS, type SubjectId } from "../config/site";
 
 export type Fact = CollectionEntry<"facts">;
-export type Region = "world" | "ukraine";
+/**
+ * Filter input for the `region` axis. Pass `"world"` / `"ukraine"` for the
+ * legacy buckets, `{ country: "<iso2>" }` to filter to a single country, or
+ * `{ countries: ["<iso2>", ...] }` to filter to multiple countries (e.g. from
+ * a multi-country URL param like `?region=cz,pl`).
+ */
+export type RegionFilter =
+  | "world"
+  | "ukraine"
+  | { country: string }
+  | { countries: readonly string[] };
 export type Impact = "low" | "medium" | "high";
 
 export interface FactFilters {
-  region?: Region;
+  region?: RegionFilter;
   era?: EraId;
   subject?: SubjectId;
   impact?: Impact;
@@ -27,8 +37,15 @@ function sortFactsAsc(a: Fact, b: Fact): number {
   return a.id.localeCompare(b.id);
 }
 
+function matchesRegion(factRegion: string | undefined, filter: RegionFilter): boolean {
+  const value = factRegion ?? "world";
+  if (filter === "world" || filter === "ukraine") return value === filter;
+  if ("country" in filter) return value === `country:${filter.country.toLowerCase()}`;
+  return filter.countries.some((c) => value === `country:${c.toLowerCase()}`);
+}
+
 function matchesFilters(fact: Fact, filters: FactFilters): boolean {
-  if (filters.region && (fact.data.region ?? "world") !== filters.region) return false;
+  if (filters.region && !matchesRegion(fact.data.region, filters.region)) return false;
   if (filters.era && !fact.data.relevantForEras.includes(filters.era)) return false;
   if (filters.subject && fact.data.subject !== filters.subject) return false;
   if (filters.impact && (fact.data.impact ?? "medium") !== filters.impact) return false;

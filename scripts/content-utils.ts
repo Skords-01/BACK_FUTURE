@@ -50,6 +50,7 @@ export interface Fact {
   sources: FactSource[];
   tags: string[];
   draft: boolean;
+  region?: string;
   body: string;
 }
 
@@ -91,6 +92,9 @@ const matterSchema = z.object({
     })
     .optional(),
   draft: z.boolean().default(false),
+  region: z
+    .union([z.literal("world"), z.literal("ukraine"), z.string().regex(/^country:[a-z]{2}$/)])
+    .optional(),
 });
 
 const erasSchema = z.array(

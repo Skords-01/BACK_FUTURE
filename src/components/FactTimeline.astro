@@ -63,6 +63,7 @@ const groups = groupBySubject(facts);
                   class="timeline__row"
                   data-reveal
                   data-fact-slug={fact.id}
+                  data-fact-region={fact.data.region ?? "world"}
                   style={`--reveal-delay: ${index * 65}ms`}
                 >
                   <div class="timeline__rail" style={`--dot-color: var(--subject-${g.subject})`}>

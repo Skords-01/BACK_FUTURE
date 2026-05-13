@@ -2,6 +2,11 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
+// Re-export the canonical region parser alongside the schema so the helper
+// lives at the same import path as the field definition. The implementation
+// (with the ISO-3166-1 code table) is in `src/lib/regions.ts`.
+export { parseRegion, type ParsedRegion } from "./lib/regions";
+
 const SUBJECT = z.enum([
   "astronomy",
   "biology",
@@ -16,7 +21,16 @@ const SUBJECT = z.enum([
   "ecology",
 ]);
 const ERA = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
-const REGION = z.enum(["world", "ukraine"]);
+// `region` accepts the legacy `world` / `ukraine` literals plus the extended
+// `country:<iso2>` form (lowercase 2-letter ISO-3166-1 alpha-2 code). The
+// discriminated union lets Zod report a clear error for each branch; the
+// runtime `parseRegion` helper in `src/lib/regions.ts` is the canonical way
+// to consume the parsed value.
+const REGION = z.union([
+  z.literal("world"),
+  z.literal("ukraine"),
+  z.string().regex(/^country:[a-z]{2}$/, "expected 'country:<iso2 lowercase>' (e.g. country:cz)"),
+]);
 const IMPACT = z.enum(["low", "medium", "high"]);
 const SOURCE_URL = z.string().refine((value) => URL.canParse(value), {
   message: "Invalid URL",

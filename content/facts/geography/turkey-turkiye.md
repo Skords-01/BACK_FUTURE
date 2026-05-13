@@ -12,6 +12,7 @@ sources:
   - title: "ICAO: Country and territory names list"
     url: "https://www.icao.int/Pages/default.aspx"
 tags: ["перейменування", "політична-карта"]
+region: "country:tr"
 draft: false
 ---
 

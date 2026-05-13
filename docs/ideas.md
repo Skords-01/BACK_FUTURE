@@ -11,7 +11,6 @@
 ### Контент: збагатити модель факту
 
 - **`authors`** — frontmatter список авторів (для `/contributors`).
-- **`region: country:<iso2>`** — наразі є тільки `world` / `ukraine`; для майбутнього розширення фільтрів за країнами (роздільно від «світу» загалом).
 - **Міграція `image` на `astro:assets`** — поки `image` поле опційне; коли заповниться — оптимізувати pipeline (5.3 у roadmap).
 
 ### UX і навігація
@@ -66,6 +65,7 @@
 
 - **`before` / `after`** — Done у [#28](https://github.com/Skords-01/BACK_FUTURE/pull/28).
 - **`region` (`world` / `ukraine`)** — Done у [#36](https://github.com/Skords-01/BACK_FUTURE/pull/36).
+- **`region: country:<iso2>`** — Done у поточному PR (Zod union + `parseRegion` helper у `src/content.config.ts`, `REGIONS`/`getRegionLabel`/`getFlag` у `src/lib/regions.ts`, flag-chip у `FactCard`, `RegionFilter.astro` з multi-country URL (`?region=cz,pl`), валідація unknown country code у `validate-content`, SEO-сторінка `/region/<iso2>/`).
 - **`updatedAt`** — Done у [#37](https://github.com/Skords-01/BACK_FUTURE/pull/37).
 - **`impact` (low / medium / high)** — Done у [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38).
 - **Розширити `SUBJECTS`** (tech, medicine, economy, culture, sport, ecology) — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) (схема/CMS/UI; контент додається окремо).
