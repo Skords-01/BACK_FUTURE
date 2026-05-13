@@ -2,7 +2,7 @@
 
 > Цей документ — «жива» довгострокова пам'ять проєкту. Тут зафіксовано все, що було спільно проговорено між власником і Devin: бачення, рішення, відкладені моменти, відкриті питання, поточний стан. Оновлюється з кожним значущим етапом. Усі майбутні сесії повинні почати читання саме з цього документа.
 
-Останнє оновлення: травень 2026 року, після PR `new-fact-action` (7.1): GitHub Action issue → draft PR з готовим `content/facts/<subject>/<slug>.md`, Zod-валідація і кириличний slugify у `scripts/issue-to-fact.ts`, `lint:workflows` через actionlint.
+Останнє оновлення: травень 2026 року, після PR #133 + 9.2: 11 предметів заповнені (175 фактів), Pagefind-пошук (Cmd/Ctrl+K) і `/quiz`-сторінка, observability-стек (Sentry, PostHog з фунелами і dashboard-as-code, GSC-верифікація) — все env-gated, `userState.ts` (last-year + read-tracking у `localStorage`), 5 design-effects (staggered entrance, magnetic 3D tilt, slot-machine GO, glitch reveal, DensityStrip tooltip), `ScrollRestore` стійкий на iOS Safari + bfcache, прибрано dead code і застарілі шрифти (Fraunces/Lora/IBM Plex Mono), JetBrains Mono замінив IBM Plex Mono як основний моно-шрифт, ICU plurals через `src/lib/plurals.ts` (`Intl.PluralRules`) — `factsCount` / `updatesCount` / `yearsAgo` із locale-параметром і кешуванням.
 
 ---
 
