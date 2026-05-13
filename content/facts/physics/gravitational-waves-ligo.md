@@ -14,6 +14,10 @@ sources:
   - title: "LIGO: Gravitational waves detected"
     url: "https://www.nsf.gov/impacts/space-time"
 tags: ["гравітація", "загальна-теорія-відносності", "чорні-діри", "LIGO"]
+authors:
+  - name: "BACK_FUTURE team"
+    url: "https://github.com/Skords-01/BACK_FUTURE"
+  - name: "SERGEANT_GROUP"
 draft: false
 ---
 
