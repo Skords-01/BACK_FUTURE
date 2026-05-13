@@ -118,7 +118,12 @@ const factsCount = allFacts.length;
       <h2 data-reveal>Як долучитись</h2>
       <p data-reveal>
         Усі матеріали у відкритому репозиторії на GitHub. Якщо ти знайшов помилку, маєш джерело для
-        нового факту або хочеш запропонувати тему — створи завдання (issue) або надішли зміни.
+        нового факту або хочеш запропонувати тему — створи завдання (issue) або надішли зміни. Якщо
+        допоміг/-ла з фактом, додай себе у frontmatter <code>authors</code> — ім'я з'явиться на сторінці
+        <a
+          href="/contributors/"
+          class="text-[color:var(--accent)] underline-offset-2 hover:underline">контриб'юторів</a
+        >.
       </p>
     </div>
 
@@ -131,6 +136,12 @@ const factsCount = allFacts.length;
         class="inline-flex items-center rounded-sm border-2 border-[color:var(--ink)] px-6 py-3 font-mono text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[color:var(--ink)] hover:text-[color:var(--paper)]"
       >
         GitHub репозиторій ↗
+      </a>
+      <a
+        href="/contributors/"
+        class="inline-flex items-center rounded-sm border-2 border-[color:var(--ink)] px-6 py-3 font-mono text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[color:var(--ink)] hover:text-[color:var(--paper)]"
+      >
+        Контриб'ютори →
       </a>
       <a
         href="/quiz/"

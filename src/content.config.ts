@@ -53,6 +53,14 @@ const facts = defineCollection({
       })
       .optional(),
     tags: z.array(z.string()).default([]),
+    authors: z
+      .array(
+        z.object({
+          name: z.string().min(1).max(80),
+          url: z.url().optional(),
+        }),
+      )
+      .optional(),
     image: z
       .object({
         src: z.string(),

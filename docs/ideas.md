@@ -2,7 +2,7 @@
 
 > Список можливих покращень для BACK_FUTURE. Це **сирі ідеї** — частина з них ще не пройшла через спільне обговорення. Робочий план PR-ів — у [`roadmap.md`](./roadmap.md).
 > 24 пункти, погоджені з власником, — у `project-memory.md`, секція 6.
-> Останнє оновлення: травень 2026 (після PR #133). Ідеї, які вже зроблено, перенесено в розділ «Зроблено» внизу — щоб новий контриб'ютор бачив, що залишилось, але міг звіритися з історією.
+> Останнє оновлення: травень 2026 (`authors` поле + `/contributors` сторінка — фаза 7.2; до того — PR #133–#136). Ідеї, які вже зроблено, перенесено в розділ «Зроблено» внизу — щоб новий контриб'ютор бачив, що залишилось, але міг звіритися з історією.
 
 ---
 
@@ -10,7 +10,6 @@
 
 ### Контент: збагатити модель факту
 
-- **`authors`** — frontmatter список авторів (для `/contributors`).
 - **`region: country:<iso2>`** — наразі є тільки `world` / `ukraine`; для майбутнього розширення фільтрів за країнами (роздільно від «світу» загалом).
 - **Міграція `image` на `astro:assets`** — поки `image` поле опційне; коли заповниться — оптимізувати pipeline (5.3 у roadmap).
 
@@ -35,7 +34,6 @@
 ### Залучення / community
 
 - **GitHub Action**: issue зі шаблону `new-fact.yml` → draft PR з готовим `.md`-фактом (7.1 у roadmap).
-- **`/contributors`** — список авторів фактів (потребує `authors` поля у frontmatter; 7.2 у roadmap).
 - **`/support`** — Monobank / Buy Me a Coffee, коли URL заповняться у `site.ts` (7.3 у roadmap).
 - **Email-дайджест** — раз на місяць нові факти, Buttondown або self-hosted (7.4 у roadmap).
 
@@ -70,6 +68,7 @@
 - **`impact` (low / medium / high)** — Done у [#38](https://github.com/Skords-01/BACK_FUTURE/pull/38).
 - **Розширити `SUBJECTS`** (tech, medicine, economy, culture, sport, ecology) — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) (схема/CMS/UI; контент додається окремо).
 - **CI-перевірка для `sources[].url`** — Done у [#49](https://github.com/Skords-01/BACK_FUTURE/pull/49) + [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) (warning-only Lychee).
+- **`authors` поле + `/contributors` сторінка** — Done (7.2 у roadmap): опційний `authors: [{ name, url? }]` у `content.config.ts`; `src/pages/contributors.astro` групує факти по автору (топ-3 cards + список), letter-circle avatar fallback, JSON-LD `Person`/`ItemList`.
 
 ### UX і навігація (зроблено)
 

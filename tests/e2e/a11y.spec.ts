@@ -19,6 +19,7 @@ const PAGES = [
   { path: "/fact/crispr-cas9/", label: "fact detail" },
   { path: "/era/1991-1995/", label: "era detail" },
   { path: "/subject/biology/", label: "subject detail" },
+  { path: "/contributors/", label: "contributors" },
 ] as const;
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];

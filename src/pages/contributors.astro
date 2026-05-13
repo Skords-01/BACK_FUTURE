@@ -1,0 +1,354 @@
+---
+/**
+ * /contributors — список авторів фактів.
+ *
+ * Збираємо всіх унікальних авторів з `frontmatter.authors[]` у non-draft
+ * фактах через `getCollection('facts')`, сортуємо за кількістю фактів
+ * (desc), з alphabetical fallback. Топ-3 — великі картки з акцентом, решта —
+ * компактний список.
+ *
+ * Якщо у жодного факту немає `authors`, рендеримо empty-state з посиланням
+ * на CONTRIBUTING (через `repoUrl`).
+ *
+ * SEO: JSON-LD `Person` (всередині `ItemList`) для топ-3 контриб'юторів, щоб
+ * search engines могли витягти структуровану інформацію без важкої сторінки.
+ */
+import Base from "../layouts/Base.astro";
+import SubjectIcon from "../components/SubjectIcon.astro";
+import { getCollection } from "astro:content";
+import { SITE, SUBJECTS, type SubjectId } from "../config/site";
+import { avatarLetter, avatarPaletteIndex, groupFactsByAuthor } from "../lib/contributors";
+import { factUrl } from "../lib/url";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const contributors = groupFactsByAuthor(allFacts);
+
+const totalContributors = contributors.length;
+const totalCreditedFacts = contributors.reduce((acc, c) => acc + c.facts.length, 0);
+const topThree = contributors.slice(0, 3);
+const rest = contributors.slice(3);
+
+const SUBJECT_LABEL = new Map<SubjectId, string>(SUBJECTS.map((s) => [s.id, s.label]));
+
+const description = totalContributors
+  ? `Автори фактів на ${SITE.name}: ${totalContributors} ${totalContributors === 1 ? "контриб'ютор" : "контриб'юторів"} → ${totalCreditedFacts} ${totalCreditedFacts === 1 ? "факт" : "фактів"}.`
+  : `Сторінка контриб'юторів ${SITE.name}. Долучайся — і твоє ім'я з'явиться поряд з фактом.`;
+
+const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
+
+// JSON-LD: основна `CollectionPage` + опц. `ItemList` з Person-елементами для
+// топ-3 контриб'юторів. Person.url рендеримо лише якщо у фронтматтері є URL.
+const collectionLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `Контриб'ютори — ${SITE.name}`,
+  description,
+  inLanguage: "uk",
+  url: canonical,
+  isPartOf: {
+    "@type": "WebSite",
+    name: SITE.name,
+    url: SITE.defaultUrl,
+  },
+};
+
+const jsonLd: Record<string, unknown>[] = [collectionLd];
+
+if (topThree.length > 0) {
+  jsonLd.push({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Топ контриб'юторів — ${SITE.name}`,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    numberOfItems: topThree.length,
+    itemListElement: topThree.map((c, i) => {
+      const person: Record<string, unknown> = {
+        "@type": "Person",
+        name: c.name,
+      };
+      if (c.url) person.url = c.url;
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        item: person,
+      };
+    }),
+  });
+}
+
+const breadcrumbsLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Головна",
+      item: `${SITE.defaultUrl}/`,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Контриб'ютори",
+      item: canonical,
+    },
+  ],
+};
+jsonLd.push(breadcrumbsLd);
+
+const contributingUrl = `${SITE.repoUrl}/blob/main/README.md#%D1%8F%D0%BA-%D0%B4%D0%BE%D0%B4%D0%B0%D1%82%D0%B8-%D1%84%D0%B0%D0%BA%D1%82`;
+const newFactIssueUrl = `${SITE.repoUrl}/issues/new?template=new-fact.yml`;
+---
+
+<Base title="Контриб'ютори" description={description} jsonLd={jsonLd}>
+  <div class="container-prose py-12">
+    <nav class="mb-4 font-mono text-xs text-[color:var(--muted)]" aria-label="Хлібні крихти">
+      <a href="/" class="underline-offset-2 hover:text-[color:var(--accent)] hover:underline">
+        ← Головна
+      </a>
+    </nav>
+
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · автори
+    </span>
+
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
+      data-reveal
+    >
+      Контриб'ютори
+    </h1>
+
+    {
+      totalContributors > 0 ? (
+        <p class="mt-3 text-lg leading-relaxed text-[color:var(--ink-2)]" data-reveal>
+          {totalContributors}{" "}
+          {totalContributors === 1
+            ? "людина допомогла"
+            : totalContributors < 5
+              ? "людини допомогли"
+              : "людей допомогли"}{" "}
+          з {totalCreditedFacts === 1 ? "одним фактом" : `${totalCreditedFacts} фактами`}. Якщо ти
+          писав/-ла факт — додай себе у frontmatter, і ім'я з'явиться тут.
+        </p>
+      ) : (
+        <p class="mt-3 text-lg leading-relaxed text-[color:var(--ink-2)]" data-reveal>
+          Контриб'юторів ще не оголошено. Якщо ти писав/-ла факт, додай себе у{" "}
+          <code class="rounded-sm bg-[color:var(--card)] px-1 py-0.5 font-mono text-[0.95em]">
+            authors
+          </code>{" "}
+          frontmatter — і твоє ім'я з'явиться тут.
+        </p>
+      )
+    }
+  </div>
+
+  {
+    topThree.length > 0 && (
+      <div class="container-prose mt-10">
+        <h2
+          class="mb-5 font-mono text-[11px] tracking-[0.18em] text-[color:var(--muted)] uppercase"
+          data-reveal
+        >
+          Найбільший внесок
+        </h2>
+        <ul
+          class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          role="list"
+          aria-label="Топ контриб'юторів за кількістю фактів"
+        >
+          {topThree.map((c, idx) => {
+            const letter = avatarLetter(c.name);
+            const palette = avatarPaletteIndex(c.name);
+            return (
+              <li
+                class="contrib-card rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-5"
+                data-reveal
+                data-palette={palette}
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    class="contrib-avatar font-display flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-extrabold text-[color:var(--ink)]"
+                    aria-hidden="true"
+                  >
+                    {letter}
+                  </span>
+                  <div class="min-w-0">
+                    <span class="font-mono text-[10px] tracking-[0.15em] text-[color:var(--accent)] uppercase">
+                      № {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    {c.url ? (
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-display block truncate text-lg font-bold tracking-tight text-[color:var(--ink)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+                      >
+                        {c.name} <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span class="font-display block truncate text-lg font-bold tracking-tight text-[color:var(--ink)]">
+                        {c.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <p class="mt-3 font-mono text-xs text-[color:var(--muted)]">
+                  {c.count} {c.count === 1 ? "факт" : c.count < 5 ? "факти" : "фактів"}
+                </p>
+
+                <ul class="mt-3 space-y-1.5 text-sm" role="list">
+                  {c.facts.slice(0, 5).map((f) => (
+                    <li class="flex gap-2 leading-snug">
+                      <span
+                        class="mt-[2px] inline-flex h-4 w-4 shrink-0 items-center justify-center text-[color:var(--muted)]"
+                        aria-hidden="true"
+                      >
+                        <SubjectIcon subject={f.subject} class="h-4 w-4" />
+                      </span>
+                      <a
+                        href={factUrl(f.slug)}
+                        class="text-[color:var(--ink-2)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+                      >
+                        {f.title}
+                      </a>
+                    </li>
+                  ))}
+                  {c.facts.length > 5 && (
+                    <li class="font-mono text-[11px] text-[color:var(--muted)]">
+                      …та ще {c.facts.length - 5}
+                    </li>
+                  )}
+                </ul>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    rest.length > 0 && (
+      <div class="container-prose mt-12">
+        <h2
+          class="mb-5 font-mono text-[11px] tracking-[0.18em] text-[color:var(--muted)] uppercase"
+          data-reveal
+        >
+          Решта контриб'юторів
+        </h2>
+        <ul
+          class="divide-y divide-[color:var(--rule)] border-y border-[color:var(--rule)]"
+          role="list"
+        >
+          {rest.map((c) => {
+            const letter = avatarLetter(c.name);
+            const palette = avatarPaletteIndex(c.name);
+            return (
+              <li class="py-3" data-reveal data-palette={palette}>
+                <div class="flex items-center gap-3">
+                  <span
+                    class="contrib-avatar contrib-avatar-sm font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base font-bold text-[color:var(--ink)]"
+                    aria-hidden="true"
+                  >
+                    {letter}
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    {c.url ? (
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-display truncate text-base font-semibold text-[color:var(--ink)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline"
+                      >
+                        {c.name} <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span class="font-display truncate text-base font-semibold text-[color:var(--ink)]">
+                        {c.name}
+                      </span>
+                    )}
+                    <p class="font-mono text-[11px] tracking-wider text-[color:var(--muted)] uppercase">
+                      {c.count} {c.count === 1 ? "факт" : c.count < 5 ? "факти" : "фактів"}
+                      {c.facts[0] && (
+                        <>
+                          {" · "}
+                          {SUBJECT_LABEL.get(c.facts[0].subject) ?? c.facts[0].subject}
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )
+  }
+
+  <!-- CTA: how to become a contributor -->
+  <div class="container-prose mt-14 mb-12">
+    <div
+      class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--paper-2)] p-6 sm:p-8"
+      data-reveal
+    >
+      <h2 class="font-display text-xl font-bold text-[color:var(--ink)]">Стати контриб'ютором</h2>
+      <p class="mt-2 leading-relaxed text-[color:var(--ink-2)]">
+        Знаєш факт, який варто додати? Запропонуй його через GitHub issue або відкрий PR. У
+        frontmatter додай блок <code
+          class="rounded-sm bg-[color:var(--card)] px-1 py-0.5 font-mono text-[0.95em]"
+          >authors</code
+        > зі своїм ім'ям (і опц. посиланням на профіль) — і твоє ім'я з'явиться тут.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href={newFactIssueUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center rounded-sm border-2 border-[color:var(--accent)] px-5 py-2.5 font-mono text-sm font-semibold text-[color:var(--accent)] transition hover:bg-[color:var(--accent)] hover:text-[#fff7ec]"
+        >
+          Запропонувати факт ↗
+        </a>
+        <a
+          href={contributingUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center rounded-sm border-2 border-[color:var(--ink)] px-5 py-2.5 font-mono text-sm font-semibold text-[color:var(--ink)] transition hover:bg-[color:var(--ink)] hover:text-[color:var(--paper)]"
+        >
+          Як додати факт ↗
+        </a>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  /*
+   * Avatar fallback colors — 6-token palette driven by [data-palette] on the
+   * card/list-row wrapper. We use the existing accent/ink/paper-2 tokens
+   * mixed via `color-mix` so the palette stays in sync with the theme system
+   * (light + dark) without adding new design tokens.
+   *
+   * Background uses ~16% accent-tinted alpha; foreground inherits --ink.
+   */
+  [data-palette="0"] .contrib-avatar {
+    background: color-mix(in oklab, var(--accent) 16%, var(--paper-2));
+  }
+  [data-palette="1"] .contrib-avatar {
+    background: color-mix(in oklab, var(--ink) 12%, var(--paper-2));
+  }
+  [data-palette="2"] .contrib-avatar {
+    background: color-mix(in oklab, var(--accent) 22%, var(--paper));
+  }
+  [data-palette="3"] .contrib-avatar {
+    background: color-mix(in oklab, var(--ink) 18%, var(--paper));
+  }
+  [data-palette="4"] .contrib-avatar {
+    background: color-mix(in oklab, var(--accent) 12%, var(--card));
+  }
+  [data-palette="5"] .contrib-avatar {
+    background: color-mix(in oklab, var(--ink) 8%, var(--card));
+  }
+</style>

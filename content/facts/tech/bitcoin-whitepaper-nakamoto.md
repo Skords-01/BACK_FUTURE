@@ -16,6 +16,9 @@ sources:
   - title: "IEEE Spectrum: The mystery of Satoshi Nakamoto"
     url: "https://spectrum.ieee.org/satoshi-nakamoto"
 tags: ["криптовалюта", "blockchain", "Bitcoin", "P2P"]
+authors:
+  - name: "BACK_FUTURE team"
+    url: "https://github.com/Skords-01/BACK_FUTURE"
 draft: false
 ---
 
