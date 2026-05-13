@@ -12,6 +12,7 @@ sources:
   - title: "Reuters: Czech Republic shortens its name to Czechia"
     url: "https://www.reuters.com/article/us-czech-name-change/czech-republic-formally-shortens-its-name-idUSKCN0XK0HU"
 tags: ["перейменування", "політична-карта", "європа"]
+region: "country:cz"
 draft: false
 ---
 

@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import YearHero from "../components/YearHero.astro";
 import ThenAside from "../components/ThenAside.astro";
 import SubjectFilters from "../components/SubjectFilters.astro";
+import RegionFilter from "../components/RegionFilter.astro";
 import FactTimeline from "../components/FactTimeline.astro";
 import YearNav from "../components/YearNav.astro";
 import ShareBlock from "../components/ShareBlock.astro";
@@ -89,6 +90,10 @@ const subjectCounts = SUBJECTS.map((s) => ({
   id: s.id,
   count: matched.filter((f) => f.data.subject === s.id).length,
 }));
+
+// Raw region values for the RegionFilter chip bar (so it can derive both the
+// "Україна" and "Країна → <iso2>" counts without re-reading the facts).
+const regionsPresent = matched.map((f) => f.data.region);
 ---
 
 <Base
@@ -108,6 +113,7 @@ const subjectCounts = SUBJECTS.map((s) => ({
     totalCount > 0 ? (
       <>
         <SubjectFilters counts={subjectCounts} />
+        <RegionFilter regionsPresent={regionsPresent} totalCount={totalCount} />
         <FactTimeline facts={matched} fromYear={year} />
       </>
     ) : (

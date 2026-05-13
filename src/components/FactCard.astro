@@ -3,6 +3,7 @@ import type { Fact } from "../lib/filterFacts";
 import { formatUkShortDate, isoDate } from "../lib/format";
 import { factSlug, factUrl } from "../lib/url";
 import { SUBJECTS } from "../config/site";
+import { getFlag, getRegionLabel, parseRegion } from "../lib/regions";
 
 interface Props {
   fact: Fact;
@@ -37,6 +38,10 @@ const subject = SUBJECTS.find((s) => s.id === fact.data.subject);
 const mark = subject?.mark ?? "—";
 const quote = fact.data.quote;
 const isVikha = fact.data.impact === "high";
+const region = parseRegion(fact.data.region);
+const countryLabel =
+  region.kind === "country" ? (getRegionLabel(region.code) ?? region.code.toUpperCase()) : null;
+const countryFlag = region.kind === "country" ? getFlag(region.code) : null;
 ---
 
 <article
@@ -44,6 +49,7 @@ const isVikha = fact.data.impact === "high";
   data-fact-id={fact.id}
   data-fact-subject={fact.data.subject}
   data-fact-year={fact.data.yearOfEvent}
+  data-fact-region={fact.data.region ?? "world"}
   class:list={[
     "fact-card group shadow-card hover:shadow-card-hover relative isolate overflow-hidden rounded-2xl border border-[color:var(--card-edge)] bg-[color:var(--card)] px-5 py-6 transition hover:-translate-y-0.5 sm:px-7 sm:py-7",
     isVikha && "vikha-card",
@@ -81,12 +87,24 @@ const isVikha = fact.data.impact === "high";
         )
       }
       {
-        fact.data.region === "ukraine" && (
+        region.kind === "ukraine" && (
           <span
             class="border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-800 dark:bg-accent-900/30 dark:text-accent-200 ml-1 inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider uppercase"
             title="Український внесок"
           >
             UA
+          </span>
+        )
+      }
+      {
+        countryFlag && countryLabel && (
+          <span
+            class="border-ink-200 bg-paper-50 text-ink-700 dark:border-ink-700 dark:bg-paper-100/5 dark:text-ink-200 ml-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] font-medium tracking-wider uppercase"
+            title={`Регіон: ${countryLabel}`}
+            aria-label={`Регіон: ${countryLabel}`}
+          >
+            <span aria-hidden="true">{countryFlag}</span>
+            <span>{countryLabel}</span>
           </span>
         )
       }

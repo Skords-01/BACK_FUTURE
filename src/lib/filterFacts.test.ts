@@ -16,6 +16,7 @@ interface FactStub {
   yearOfEvent: number;
   relevantForEras: ReadonlyArray<1 | 2 | 3 | 4 | 5>;
   draft?: boolean;
+  region?: string;
 }
 
 /**
@@ -35,6 +36,7 @@ function makeFact(stub: FactStub): Fact {
       sources: [{ title: "src", url: "https://example.com" }],
       tags: [],
       draft: stub.draft ?? false,
+      region: stub.region,
     },
   } as unknown as Fact;
 }
@@ -303,5 +305,76 @@ describe("sampleFacts", () => {
     ];
     expect(sampleFacts(facts, 0)).toEqual([]);
     expect(sampleFacts(facts, -3)).toEqual([]);
+  });
+});
+
+describe("factsForYear region filter", () => {
+  const facts = [
+    makeFact({
+      id: "w",
+      subject: "physics",
+      yearOfEvent: 2010,
+      relevantForEras: [3, 4, 5],
+      region: "world",
+    }),
+    makeFact({
+      id: "ua",
+      subject: "physics",
+      yearOfEvent: 2011,
+      relevantForEras: [3, 4, 5],
+      region: "ukraine",
+    }),
+    makeFact({
+      id: "cz",
+      subject: "physics",
+      yearOfEvent: 2012,
+      relevantForEras: [3, 4, 5],
+      region: "country:cz",
+    }),
+    makeFact({
+      id: "pl",
+      subject: "physics",
+      yearOfEvent: 2013,
+      relevantForEras: [3, 4, 5],
+      region: "country:pl",
+    }),
+  ];
+
+  // 2005 → era 3 (2004-2010); we filter for facts with year >= 2005, all qualify.
+  it("filters by world / ukraine literal", () => {
+    expect(factsForYear(facts, 2005, { region: "world" }).map((f) => f.id)).toEqual(["w"]);
+    expect(factsForYear(facts, 2005, { region: "ukraine" }).map((f) => f.id)).toEqual(["ua"]);
+  });
+
+  it("filters by single country", () => {
+    expect(factsForYear(facts, 2005, { region: { country: "cz" } }).map((f) => f.id)).toEqual([
+      "cz",
+    ]);
+  });
+
+  it("filters by multiple countries (multi-country URL form)", () => {
+    expect(
+      factsForYear(facts, 2005, { region: { countries: ["cz", "pl"] } }).map((f) => f.id),
+    ).toEqual(["cz", "pl"]);
+  });
+
+  it("country filter is case-insensitive", () => {
+    expect(factsForYear(facts, 2005, { region: { country: "CZ" } }).map((f) => f.id)).toEqual([
+      "cz",
+    ]);
+  });
+
+  it("treats undefined region on a fact as 'world'", () => {
+    const withMissing = [
+      makeFact({
+        id: "noregion",
+        subject: "physics",
+        yearOfEvent: 2010,
+        relevantForEras: [3, 4, 5],
+      }),
+    ];
+    expect(factsForYear(withMissing, 2005, { region: "world" }).map((f) => f.id)).toEqual([
+      "noregion",
+    ]);
   });
 });

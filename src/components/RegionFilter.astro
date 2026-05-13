@@ -1,0 +1,360 @@
+---
+// RegionFilter — chip group for filtering the fact timeline by `region`.
+//
+// UI: "🌍 Усе" / "🇺🇦 Україна" / "Країна ▾" dropdown of ISO-3166-1 alpha-2
+// country regions present in the current page. State is mirrored to the
+// `?region=` URL search param (e.g. `?region=world`, `?region=ukraine`,
+// `?region=cz`, or comma-separated `?region=cz,pl`) so share-links survive.
+// Subject filter uses the URL hash, so the two coexist cleanly.
+import { COUNTRY_REGIONS, getFlag, getRegionLabel } from "../lib/regions";
+import { parseRegion } from "../lib/regions";
+
+interface Props {
+  /** Raw `region` values (or undefined → "world") from the current page's facts. */
+  regionsPresent: ReadonlyArray<string | undefined>;
+  /** Total number of facts on the current page; used for the "Усе" count. */
+  totalCount: number;
+}
+
+const { regionsPresent, totalCount } = Astro.props;
+
+const ukraineCount = regionsPresent.filter((r) => r === "ukraine").length;
+const worldCount = regionsPresent.filter((r) => !r || r === "world").length;
+
+// Collect unique ISO codes present + their counts. We use parseRegion so
+// malformed values (which should already be rejected by Zod) degrade quietly.
+const countryCounts = new Map<string, number>();
+for (const raw of regionsPresent) {
+  const parsed = parseRegion(raw);
+  if (parsed.kind !== "country") continue;
+  countryCounts.set(parsed.code, (countryCounts.get(parsed.code) ?? 0) + 1);
+}
+
+const presentCountries = COUNTRY_REGIONS.filter((c) => countryCounts.has(c.code)).map((c) => ({
+  code: c.code,
+  label: c.label,
+  flag: getFlag(c.code),
+  count: countryCounts.get(c.code) ?? 0,
+}));
+
+const hasAny = ukraineCount > 0 || presentCountries.length > 0;
+---
+
+{
+  hasAny && (
+    <div
+      class="border-b border-[color:var(--rule)] bg-[color:var(--paper)]/90"
+      id="region-filter-bar"
+    >
+      <div class="container-wide">
+        <div class="scrollbar-none flex items-center gap-1.5 overflow-x-auto py-2">
+          <span class="text-ink-500 dark:text-ink-400 mr-1 font-mono text-[11px] tracking-wider uppercase">
+            Регіон:
+          </span>
+          <button
+            type="button"
+            class="region-chip is-active font-mono text-xs"
+            data-region-filter="all"
+            aria-pressed="true"
+            aria-label={`Показати всі регіони (${totalCount})`}
+          >
+            <span aria-hidden="true">🌍</span>
+            <span>Усе</span>
+            <span class="region-chip__count">{totalCount}</span>
+          </button>
+          {worldCount > 0 && (
+            <button
+              type="button"
+              class="region-chip font-mono text-xs"
+              data-region-filter="world"
+              aria-pressed="false"
+              aria-label={`Світ (${worldCount})`}
+            >
+              <span aria-hidden="true">🌐</span>
+              <span>Світ</span>
+              <span class="region-chip__count">{worldCount}</span>
+            </button>
+          )}
+          {ukraineCount > 0 && (
+            <button
+              type="button"
+              class="region-chip font-mono text-xs"
+              data-region-filter="ukraine"
+              aria-pressed="false"
+              aria-label={`Україна (${ukraineCount})`}
+            >
+              <span aria-hidden="true">🇺🇦</span>
+              <span>Україна</span>
+              <span class="region-chip__count">{ukraineCount}</span>
+            </button>
+          )}
+          {presentCountries.length > 0 && (
+            <details class="region-dropdown">
+              <summary class="region-chip font-mono text-xs" aria-haspopup="listbox">
+                <span aria-hidden="true">🏳️</span>
+                <span>Країна</span>
+                <span aria-hidden="true">▾</span>
+              </summary>
+              <div class="region-dropdown__menu" role="listbox" aria-label="Виберіть країну">
+                {presentCountries.map((c) => {
+                  const label = getRegionLabel(c.code) ?? c.code.toUpperCase();
+                  return (
+                    <button
+                      type="button"
+                      class="region-dropdown__item font-mono text-xs"
+                      data-region-filter={`country:${c.code}`}
+                      role="option"
+                      aria-selected="false"
+                      aria-label={`${label} (${c.count})`}
+                    >
+                      <span aria-hidden="true">{c.flag}</span>
+                      <span>{label}</span>
+                      <span class="region-chip__count">{c.count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </details>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .region-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--card-edge);
+    background: var(--card);
+    color: var(--ink-2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    min-height: 32px;
+  }
+  .region-chip:hover,
+  .region-chip.is-active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--card));
+  }
+  .region-chip__count {
+    font-size: 10px;
+    opacity: 0.7;
+  }
+  .region-dropdown {
+    position: relative;
+  }
+  .region-dropdown > summary {
+    list-style: none;
+  }
+  .region-dropdown > summary::-webkit-details-marker {
+    display: none;
+  }
+  .region-dropdown__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 2px;
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--card-edge);
+    background: var(--card);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  @media (max-width: 640px) {
+    .region-dropdown__menu {
+      grid-template-columns: 1fr;
+      min-width: 220px;
+    }
+  }
+  .region-dropdown__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    min-height: 36px;
+  }
+  .region-dropdown__item:hover,
+  .region-dropdown__item.is-active {
+    background: color-mix(in srgb, var(--accent) 10%, var(--card));
+    color: var(--accent);
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .region-chip {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Region filter — toggles visibility of `.timeline__row[data-fact-region]`
+  // and `.fact-card[data-fact-region]` based on the active filter. State is
+  // mirrored to the `?region=` URL search param.
+  //
+  // Supported param values:
+  //   `world`          — only world-region facts
+  //   `ukraine`        — only Ukraine-region facts
+  //   `<iso2>`         — only one country (e.g. `cz`)
+  //   `<iso2>,<iso2>…` — multiple countries
+  //
+  // Subject-section visibility is also recomputed so empty sections collapse.
+
+  type Filter =
+    | { kind: "all" }
+    | { kind: "world" }
+    | { kind: "ukraine" }
+    | { kind: "countries"; codes: string[] };
+
+  function parseFilterFromUrl(): Filter {
+    const params = new URLSearchParams(location.search);
+    const raw = params.get("region");
+    if (!raw) return { kind: "all" };
+    if (raw === "world") return { kind: "world" };
+    if (raw === "ukraine") return { kind: "ukraine" };
+    const codes = raw
+      .split(",")
+      .map((c) => c.trim().toLowerCase())
+      .filter((c) => /^[a-z]{2}$/.test(c));
+    if (codes.length === 0) return { kind: "all" };
+    return { kind: "countries", codes };
+  }
+
+  function filterToParam(f: Filter): string | null {
+    if (f.kind === "all") return null;
+    if (f.kind === "world") return "world";
+    if (f.kind === "ukraine") return "ukraine";
+    return f.codes.join(",");
+  }
+
+  function matchesFilter(rowRegion: string, filter: Filter): boolean {
+    if (filter.kind === "all") return true;
+    if (filter.kind === "world") return rowRegion === "world";
+    if (filter.kind === "ukraine") return rowRegion === "ukraine";
+    return filter.codes.some((c) => rowRegion === `country:${c}`);
+  }
+
+  function initRegionFilter() {
+    const bar = document.getElementById("region-filter-bar");
+    if (!bar) return;
+    // Local alias so the closure-captured narrowing survives across the
+    // hoisted helper functions below (TS otherwise widens back to `null`).
+    const barEl: HTMLElement = bar;
+
+    const rows = Array.from(document.querySelectorAll<HTMLElement>("[data-fact-region]"));
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-timeline-subject]"));
+    const chips = Array.from(barEl.querySelectorAll<HTMLButtonElement>("[data-region-filter]"));
+
+    function apply(filter: Filter) {
+      // 1. Hide/show rows
+      rows.forEach((el) => {
+        const region = el.dataset.factRegion ?? "world";
+        const visible = matchesFilter(region, filter);
+        // `.timeline__row` controls timeline rail spacing; `.fact-card` is
+        // rendered elsewhere too (e.g. /all, /era/[slug]). Hide both forms
+        // without disturbing the layout invariants of either.
+        if (el.classList.contains("timeline__row") || el.classList.contains("fact-card")) {
+          el.hidden = !visible;
+        }
+      });
+
+      // 2. Collapse subject sections that have no visible rows
+      sections.forEach((sec) => {
+        const visibleRow = sec.querySelector<HTMLElement>(
+          ".timeline__row:not([hidden]), .fact-card:not([hidden])",
+        );
+        sec.hidden = !visibleRow;
+      });
+
+      // 3. Update aria-pressed / .is-active on chips
+      const paramValue = filterToParam(filter);
+      const activeKey = paramValue ?? "all";
+      chips.forEach((chip) => {
+        const value = chip.dataset.regionFilter ?? "";
+        const isActive =
+          (filter.kind === "all" && value === "all") ||
+          (filter.kind === "world" && value === "world") ||
+          (filter.kind === "ukraine" && value === "ukraine") ||
+          (filter.kind === "countries" &&
+            value.startsWith("country:") &&
+            filter.codes.includes(value.slice("country:".length)));
+        chip.classList.toggle("is-active", isActive);
+        if (chip.tagName === "BUTTON") chip.setAttribute("aria-pressed", String(isActive));
+        if (chip.getAttribute("role") === "option")
+          chip.setAttribute("aria-selected", String(isActive));
+      });
+
+      // Close the dropdown on selection (visual nicety)
+      const details = barEl.querySelector("details.region-dropdown");
+      if (details && activeKey !== "all") {
+        const summary = details.querySelector("summary");
+        const anyCountryActive = filter.kind === "countries";
+        summary?.classList.toggle("is-active", anyCountryActive);
+      }
+    }
+
+    function setFilter(filter: Filter, push: boolean) {
+      const param = filterToParam(filter);
+      const params = new URLSearchParams(location.search);
+      if (param === null) params.delete("region");
+      else params.set("region", param);
+      const qs = params.toString();
+      const newUrl = `${location.pathname}${qs ? "?" + qs : ""}${location.hash}`;
+      if (push) history.replaceState(null, "", newUrl);
+      apply(filter);
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const value = chip.dataset.regionFilter ?? "";
+        if (value === "all") {
+          setFilter({ kind: "all" }, true);
+        } else if (value === "world") {
+          setFilter({ kind: "world" }, true);
+        } else if (value === "ukraine") {
+          setFilter({ kind: "ukraine" }, true);
+        } else if (value.startsWith("country:")) {
+          const code = value.slice("country:".length);
+          // Single-country selection from dropdown — replace any previous filter
+          setFilter({ kind: "countries", codes: [code] }, true);
+          const details = barEl.querySelector<HTMLDetailsElement>("details.region-dropdown");
+          if (details) details.open = false;
+        }
+      });
+    });
+
+    apply(parseFilterFromUrl());
+
+    window.addEventListener("popstate", () => apply(parseFilterFromUrl()));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initRegionFilter);
+  } else {
+    initRegionFilter();
+  }
+</script>
