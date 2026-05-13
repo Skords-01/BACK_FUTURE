@@ -27,6 +27,14 @@ export const EVENTS = {
   shareClicked: "share_clicked",
   shareSucceeded: "share_succeeded",
 
+  // Saved facts (bookmarks)
+  factSaved: "fact_saved",
+  factUnsaved: "fact_unsaved",
+  savedPageView: "saved_page_view",
+  savedExported: "saved_exported",
+  savedImported: "saved_imported",
+  savedCleared: "saved_cleared",
+
   // Support
   supportClicked: "support_clicked",
 

@@ -1,0 +1,179 @@
+---
+/**
+ * Bookmark toggle for an individual fact. Client-side button that persists
+ * the saved-set in localStorage via `src/lib/userState.ts` and emits the
+ * `bf_saved_changed` CustomEvent so siblings (header counter, /saved page,
+ * other instances of the same button on cards/lists) react instantly.
+ *
+ * Rendered as inline SVG to avoid an extra request. A11y: native `<button>`,
+ * `aria-pressed` reflects current state, `aria-label` swaps between
+ * "Зберегти факт" / "Видалити з збережених".
+ */
+import { factSlug } from "../lib/url";
+
+interface Props {
+  /** Either the full fact id (`subject/slug`) or the bare slug. */
+  factId: string;
+  /**
+   * Visual variant. `card` is a small floating chip suitable for FactCard's
+   * top-right corner. `inline` is a pill that sits in a button row alongside
+   * share buttons on `/fact/[slug]`.
+   */
+  variant?: "card" | "inline";
+  /** Extra classes appended to the button (e.g. positioning utilities). */
+  class?: string;
+}
+
+const { factId, variant = "card", class: extraClass = "" } = Astro.props;
+const slug = factSlug(factId);
+
+const baseClass =
+  variant === "inline"
+    ? "bookmark-btn bookmark-btn--inline border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+    : "bookmark-btn bookmark-btn--card border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border bg-white/90 backdrop-blur transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]/85";
+---
+
+<button
+  type="button"
+  class:list={[baseClass, extraClass]}
+  data-bookmark-btn
+  data-slug={slug}
+  aria-pressed="false"
+  aria-label="Зберегти факт"
+  title="Зберегти факт"
+>
+  <svg
+    class="bookmark-btn__icon h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4V4z"></path>
+  </svg>
+  {variant === "inline" && <span class="bookmark-btn__label">Зберегти</span>}
+</button>
+
+<style>
+  .bookmark-btn[aria-pressed="true"] {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  .bookmark-btn[aria-pressed="true"] .bookmark-btn__icon {
+    fill: currentColor;
+  }
+  .bookmark-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  /* Subtle press animation; honors prefers-reduced-motion via media query */
+  @media (prefers-reduced-motion: no-preference) {
+    .bookmark-btn--animating .bookmark-btn__icon {
+      animation: bf-bookmark-pop 220ms ease-out;
+    }
+  }
+  @keyframes bf-bookmark-pop {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.18);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+</style>
+
+<script>
+  import {
+    addSaved,
+    removeSaved,
+    isSaved,
+    SAVED_CHANGED_EVENT,
+    type SavedChangedDetail,
+  } from "../lib/userState";
+  import { EVENTS, track } from "../lib/analytics";
+
+  const SAVED_LABEL = "Видалити з збережених";
+  const UNSAVED_LABEL = "Зберегти факт";
+
+  function sync(btn: HTMLButtonElement): void {
+    const slug = btn.dataset.slug;
+    if (!slug) return;
+    const saved = isSaved(slug);
+    btn.setAttribute("aria-pressed", saved ? "true" : "false");
+    const label = saved ? SAVED_LABEL : UNSAVED_LABEL;
+    btn.setAttribute("aria-label", label);
+    btn.setAttribute("title", label);
+    const labelEl = btn.querySelector(".bookmark-btn__label");
+    if (labelEl) labelEl.textContent = saved ? "Збережено" : "Зберегти";
+  }
+
+  function syncAll(): void {
+    document
+      .querySelectorAll<HTMLButtonElement>("button[data-bookmark-btn]")
+      .forEach((btn) => sync(btn));
+  }
+
+  // Idempotent init — runs both on initial load and after Astro view
+  // transitions (which re-mount the document body but keep window state).
+  function init(): void {
+    syncAll();
+    document.addEventListener(
+      "click",
+      (e) => {
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        const btn = target.closest<HTMLButtonElement>("button[data-bookmark-btn]");
+        if (!btn) return;
+        const slug = btn.dataset.slug;
+        if (!slug) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const wasSaved = isSaved(slug);
+        if (wasSaved) {
+          removeSaved(slug);
+          track(EVENTS.factUnsaved, { fact_slug: slug, source: "button" });
+        } else {
+          addSaved(slug);
+          track(EVENTS.factSaved, { fact_slug: slug, source: "button" });
+        }
+        btn.classList.add("bookmark-btn--animating");
+        window.setTimeout(() => btn.classList.remove("bookmark-btn--animating"), 240);
+      },
+      { capture: true },
+    );
+
+    window.addEventListener(SAVED_CHANGED_EVENT, (e) => {
+      const detail = (e as CustomEvent<SavedChangedDetail>).detail;
+      if (!detail) {
+        syncAll();
+        return;
+      }
+      if (detail.slug) {
+        document
+          .querySelectorAll<HTMLButtonElement>(
+            `button[data-bookmark-btn][data-slug="${detail.slug}"]`,
+          )
+          .forEach((btn) => sync(btn));
+      } else {
+        syncAll();
+      }
+    });
+
+    // Cross-tab sync: storage events fire when another tab mutates state.
+    window.addEventListener("storage", (e) => {
+      if (e.key === "bf_user_state") syncAll();
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+</script>
