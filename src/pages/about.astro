@@ -2,13 +2,15 @@
 import Base from "../layouts/Base.astro";
 import { SITE, SUBJECTS } from "../config/site";
 import { getCollection } from "astro:content";
+import { FAQ_ITEMS, buildFaqJsonLd } from "../lib/faq";
 import { factsWord } from "../lib/plurals";
 
 const allFacts = await getCollection("facts", ({ data }) => !data.draft);
 const factsCount = allFacts.length;
+const faqJsonLd = buildFaqJsonLd(FAQ_ITEMS);
 ---
 
-<Base title="Про проєкт">
+<Base title="Про проєкт" jsonLd={faqJsonLd}>
   <div class="container-prose pt-16">
     <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
       {SITE.name} · про нас
@@ -122,6 +124,50 @@ const factsCount = allFacts.length;
         нового факту або хочеш запропонувати тему — створи завдання (issue) або надішли зміни.
       </p>
     </div>
+
+    <!-- FAQ -->
+    <section
+      id="faq"
+      aria-labelledby="faq-heading"
+      class="mt-16 scroll-mt-24"
+      data-testid="about-faq"
+    >
+      <header data-reveal>
+        <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+          {SITE.name} · поширені запитання
+        </span>
+        <h2
+          id="faq-heading"
+          class="font-display mt-2 text-2xl font-extrabold tracking-tight text-[color:var(--ink)] sm:text-3xl"
+        >
+          Поширені запитання
+        </h2>
+        <p class="mt-2 text-[color:var(--ink-2)]">
+          Якщо чогось бракує — створи issue в репозиторії, і ми додамо.
+        </p>
+      </header>
+
+      <ul class="mt-6 grid gap-3" role="list">
+        {
+          FAQ_ITEMS.map((item) => (
+            <li class="rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)]">
+              <details class="group">
+                <summary class="font-display flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-semibold text-[color:var(--ink)] [&::-webkit-details-marker]:hidden">
+                  <span>{item.q}</span>
+                  <span
+                    class="font-mono text-lg leading-none text-[color:var(--accent)] transition-transform group-open:rotate-45 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <div class="px-5 pt-1 pb-5 text-[color:var(--ink-2)]">{item.a}</div>
+              </details>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
 
     <!-- CTAs -->
     <div class="mt-6 flex flex-wrap gap-3" data-reveal>

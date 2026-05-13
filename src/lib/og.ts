@@ -1,8 +1,8 @@
 import type { CollectionEntry } from "astro:content";
 import { SITE, SUBJECTS } from "../config/site";
-import { eraById, eraForGraduationYear } from "./eras";
-import { factsForYear, groupBySubject } from "./filterFacts";
-import { subjectsCount, updatesCount } from "./plurals";
+import { eraById, eraForGraduationYear, type Era } from "./eras";
+import { factsForEra, factsForYear, groupBySubject } from "./filterFacts";
+import { factsWord, subjectsCount, updatesCount } from "./plurals";
 
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
@@ -71,6 +71,65 @@ export function buildYearOgSvg(year: number, allFacts: CollectionEntry<"facts">[
   <text x="120" y="450" fill="#67675f" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="2">${stats}</text>
   ${pillsSvg}
 </svg>`;
+}
+
+/**
+ * Era OG card: бренд + лейбл ери + діапазон років + лічильник фактів.
+ * Викликається з `src/pages/og/era-[slug].png.ts` під час білда.
+ */
+export function buildEraOgSvg(era: Era, allFacts: CollectionEntry<"facts">[]): string {
+  const matched = factsForEra(allFacts, era.id);
+  const totalCount = matched.length;
+  const factsLabel = factsWord(totalCount);
+  const yearEnd = era.yearEnd > SITE.yearMax ? "сьогодні" : String(era.yearEnd);
+  const headline = escapeXml(`ЕРА ${era.id} · ${era.yearStart}–${yearEnd}`);
+  const title = escapeXml(era.label);
+  const summary = escapeXml(era.summary);
+  const stats =
+    totalCount > 0
+      ? escapeXml(`${totalCount} ${factsLabel} в цій ері`)
+      : escapeXml("Сайт постійно поповнюється");
+  // Wrap summary into roughly 60-char lines so it doesn't overflow at 34px.
+  const summaryLines = wrapText(summary, 60).slice(0, 2);
+  const summarySvg = summaryLines
+    .map(
+      (line, i) =>
+        `<text x="120" y="${405 + i * 44}" fill="#3a3a35" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="500">${line}</text>`,
+    )
+    .join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_WIDTH}" height="${OG_HEIGHT}" viewBox="0 0 ${OG_WIDTH} ${OG_HEIGHT}">
+  <rect width="${OG_WIDTH}" height="${OG_HEIGHT}" fill="#f7f7f5"/>
+  <path d="M0 96h1200M0 192h1200M0 288h1200M0 384h1200M0 480h1200M0 576h1200" stroke="#1e3a8a" stroke-opacity=".08" stroke-width="3"/>
+  <rect x="72" y="72" width="1056" height="486" rx="40" fill="#ffffff" stroke="#d6d6d2" stroke-width="2"/>
+  <text x="120" y="160" fill="#1e3a8a" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="6">BACK_FUTURE</text>
+  <text x="120" y="240" fill="${escapeXml(era.color)}" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="4">${headline}</text>
+  <text x="120" y="330" fill="#16161a" font-family="Manrope, Inter, Arial, sans-serif" font-size="64" font-weight="800">${title}</text>
+  ${summarySvg}
+  <text x="120" y="540" fill="#67675f" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="2">${stats}</text>
+</svg>`;
+}
+
+/**
+ * Naive word-wrap для SVG-тексту: розбиває рядок по словах, поки сума довжин
+ * не перевищить `maxCharsPerLine`. Достатньо для коротких українських самарі.
+ */
+function wrapText(text: string, maxCharsPerLine: number): string[] {
+  if (!text) return [];
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const candidate = current.length === 0 ? word : `${current} ${word}`;
+    if (candidate.length > maxCharsPerLine && current.length > 0) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current.length > 0) lines.push(current);
+  return lines;
 }
 
 export function buildDefaultOgSvg(): string {

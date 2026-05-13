@@ -23,8 +23,7 @@
 
 ### SEO і шеринг
 
-- **JSON-LD `FAQPage`** — для секції FAQ на about (`Article` + `BreadcrumbList` уже є після PR #31).
-- **Перевірка мета-тегів** для `/era/[slug]` і `/fact/[slug]` після PR #51 — впевнитися, що OG/Twitter картки коректно резолвляться у популярних соцмережах.
+<!-- Лишилось: усе наявне зроблено. Нові ідеї додавати тут. -->
 
 ### PWA
 
@@ -100,6 +99,7 @@
 - **OG як PNG** — Done у [#43](https://github.com/Skords-01/BACK_FUTURE/pull/43) (через `@resvg/resvg-js`).
 - **JSON-LD `Article` + `BreadcrumbList`** — Done у [#31](https://github.com/Skords-01/BACK_FUTURE/pull/31).
 - **Шер-кнопки (Telegram, X, copy, native share)** — Done у [#21](https://github.com/Skords-01/BACK_FUTURE/pull/21).
+- **JSON-LD `FAQPage` на /about** + **перевірка мета-тегів для `/era/[slug]` і `/fact/[slug]`** — Done у [#137](https://github.com/Skords-01/BACK_FUTURE/pull/137): `src/lib/faq.ts` як SSOT для FAQ, видима `<details>`-секція + інлайн `FAQPage` JSON-LD; `Base.astro` тепер бере `ogType` (`website` / `article`) і додає `link rel="sitemap"`; era/fact сторінки виставляють `og:type=article`; era-сторінки отримали власні `/og/era-<slug>.{png,svg}` ендпоінти + опис у 70–160 символів.
 
 ### Пошук і персоналізація (зроблено)
 
