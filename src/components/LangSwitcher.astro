@@ -1,0 +1,84 @@
+---
+// Перемикач локалі: показує посилання на еквівалентну сторінку в іншій
+// локалі (UK ↔ EN). Поточна локаль виділена як active, з `aria-current`.
+//
+// Зберігає вибір користувача в `localStorage` (`bf_lang`) — використовується
+// auto-redirect-скриптом у `Base.astro` як «прийняте рішення», після якого
+// автоматичний редирект більше не повторюється.
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  LOCALE_LABELS,
+  LOCALE_FULL_LABELS,
+  type Locale,
+} from "../i18n/ui";
+import { getT, toLocale } from "../i18n/t";
+
+interface Props {
+  variant?: "header" | "footer";
+}
+const { variant = "header" } = Astro.props;
+
+const pathname = Astro.url.pathname;
+const enPrefix = "/en";
+const isEnPath = pathname === enPrefix || pathname.startsWith(`${enPrefix}/`);
+const astroLocale = toLocale(Astro.currentLocale);
+const currentLocale: Locale = astroLocale === "en" || isEnPath ? "en" : DEFAULT_LOCALE;
+const t = getT(currentLocale);
+
+// Канонічний UK-шлях (спільний для обох локалей) → з нього будуємо лінки.
+const ukPath: string = isEnPath ? pathname.slice(enPrefix.length) || "/" : pathname;
+const enPath: string = ukPath === "/" ? `${enPrefix}/` : `${enPrefix}${ukPath}`;
+
+function hrefFor(locale: Locale): string {
+  return locale === "uk" ? ukPath : enPath;
+}
+---
+
+<nav
+  class:list={[
+    "lang-switcher inline-flex items-center gap-1",
+    variant === "footer" ? "lang-switcher--footer" : "lang-switcher--header",
+  ]}
+  aria-label={t("lang.switch")}
+  data-current-locale={currentLocale}
+>
+  {
+    LOCALES.map((loc) => {
+      const active = loc === currentLocale;
+      return (
+        <a
+          class:list={[
+            "lang-switcher__link inline-flex h-8 min-w-10 items-center justify-center rounded-full border px-2 font-mono text-[11px] tracking-[0.08em] uppercase tabular-nums transition",
+            active
+              ? "border-accent-700 bg-accent-50 text-accent-700 dark:border-accent-400 dark:bg-accent-900/40 dark:text-accent-200"
+              : "border-ink-200 text-ink-700 hover:border-accent-700 hover:text-accent-700 dark:text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 dark:border-[color:var(--card-edge)]",
+          ]}
+          href={hrefFor(loc)}
+          hreflang={loc}
+          lang={loc}
+          aria-label={LOCALE_FULL_LABELS[loc]}
+          aria-current={active ? "true" : undefined}
+          data-lang-choice={loc}
+        >
+          {LOCALE_LABELS[loc]}
+        </a>
+      );
+    })
+  }
+</nav>
+
+<script is:inline>
+  // Запам'ятовуємо явний вибір користувача — auto-redirect більше не
+  // спрацьовує після того, як юзер натиснув посилання вручну.
+  document.querySelectorAll("[data-lang-choice]").forEach((el) => {
+    el.addEventListener("click", () => {
+      try {
+        const lang = el.getAttribute("data-lang-choice");
+        if (lang) window.localStorage.setItem("bf_lang", lang);
+      } catch {
+        // localStorage недоступний — нічого страшного.
+      }
+    });
+  });
+</script>

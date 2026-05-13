@@ -1,0 +1,125 @@
+---
+// `/en/` — structural scaffold of the English homepage (roadmap 9.1).
+//
+// Why minimal: this PR establishes routing, `<html lang>`, `hreflang`, and
+// the language switcher only. The fact content remains in Ukrainian by
+// design — the dedicated translation phase is roadmap 9.3. We keep the
+// homepage shell English-first so users (and crawlers) that follow the
+// `/en/` route see a coherent shell, not a half-translated Ukrainian page.
+import Base from "../../layouts/Base.astro";
+import { SITE } from "../../config/site";
+import { getCollection } from "astro:content";
+import { getT } from "../../i18n/t";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const totalFacts = allFacts.length;
+const t = getT("en");
+
+const websiteLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE.name,
+  alternateName: t("site.tagline"),
+  url: new URL("/en/", SITE.defaultUrl).toString(),
+  description: SITE.description,
+  inLanguage: "en",
+  publisher: {
+    "@type": "Organization",
+    name: SITE.name,
+    url: SITE.defaultUrl,
+  },
+};
+
+const ENGLISH_HOMEPAGE_DESCRIPTION = `${SITE.name} — what you missed after graduation. An English shell over a Ukrainian fact base (${totalFacts} facts since 1991).`;
+---
+
+<Base title={t("site.tagline")} description={ENGLISH_HOMEPAGE_DESCRIPTION} jsonLd={websiteLd}>
+  <div class="container-prose pt-16 pb-24">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · en
+    </span>
+
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
+      data-reveal
+    >
+      What you missed after graduation
+    </h1>
+
+    <p class="mt-5 max-w-prose text-lg leading-relaxed text-[color:var(--ink-2)]">
+      Pick the year you finished school — get a curated feed of what changed in science, history,
+      and the world since then. Built around the Ukrainian curriculum, but the structural shell is
+      now available in English.
+    </p>
+
+    <div
+      class="mt-10 rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-5 text-sm leading-relaxed text-[color:var(--ink-2)]"
+      role="note"
+      aria-label={t("scaffold.banner.title")}
+    >
+      <strong class="font-display block text-base font-semibold text-[color:var(--ink)]">
+        {t("scaffold.banner.title")}
+      </strong>
+      <p class="mt-1">{t("scaffold.banner.body")}</p>
+      <p class="mt-3">
+        <a
+          href="/"
+          class="font-mono text-xs tracking-[0.08em] text-[color:var(--accent)] uppercase underline-offset-2 hover:underline"
+        >
+          → Read the Ukrainian (full) version
+        </a>
+      </p>
+    </div>
+
+    <section class="mt-12 grid gap-4 sm:grid-cols-3">
+      <a
+        href="/en/timeline/"
+        class="block rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-5 transition hover:border-[color:var(--accent)]"
+      >
+        <span class="font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+          01
+        </span>
+        <strong
+          class="font-display mt-2 block text-xl font-semibold tracking-tight text-[color:var(--ink)]"
+        >
+          {t("nav.timeline")}
+        </strong>
+        <p class="mt-1 text-sm text-[color:var(--ink-2)]">
+          Vertical timeline of every fact, 1991 → today.
+        </p>
+      </a>
+      <a
+        href="/en/all/"
+        class="block rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-5 transition hover:border-[color:var(--accent)]"
+      >
+        <span class="font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+          02
+        </span>
+        <strong
+          class="font-display mt-2 block text-xl font-semibold tracking-tight text-[color:var(--ink)]"
+        >
+          {t("nav.all")}
+        </strong>
+        <p class="mt-1 text-sm text-[color:var(--ink-2)]">
+          {totalFacts} facts indexed, filterable by subject and era.
+        </p>
+      </a>
+      <a
+        href="/en/quiz/"
+        class="block rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-5 transition hover:border-[color:var(--accent)]"
+      >
+        <span class="font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
+          03
+        </span>
+        <strong
+          class="font-display mt-2 block text-xl font-semibold tracking-tight text-[color:var(--ink)]"
+        >
+          {t("nav.quiz")}
+        </strong>
+        <p class="mt-1 text-sm text-[color:var(--ink-2)]">
+          Guess the year — short, five questions.
+        </p>
+      </a>
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,52 @@
+---
+// /en/quiz/ — scaffold. The full quiz logic lives in `/quiz/` (UK). Here we
+// surface the concept in English and link out to the working version.
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { SITE } from "../../config/site";
+import { getT } from "../../i18n/t";
+
+const allFacts = await getCollection("facts", ({ data }) => !data.draft);
+const t = getT("en");
+const totalFacts = allFacts.length;
+---
+
+<Base title={t("page.quiz.title")}>
+  <div class="container-prose pt-16 pb-20">
+    <span class="font-mono text-[11px] tracking-[0.14em] text-[color:var(--muted)] uppercase">
+      {SITE.name} · quiz
+    </span>
+    <h1
+      class="font-display mt-3 text-[clamp(2rem,5vw,3.5rem)] leading-tight font-extrabold tracking-[-0.03em] text-[color:var(--ink)]"
+    >
+      Guess the year
+    </h1>
+    <p class="mt-5 max-w-prose text-lg leading-relaxed text-[color:var(--ink-2)]">
+      Five facts, five guesses. The closer your answer to the actual year, the higher the score.
+      Question content is currently in Ukrainian — the English shell only frames the game.
+    </p>
+
+    <div
+      class="mt-8 rounded-sm border border-l-4 border-[color:var(--card-edge)] border-l-[color:var(--accent)] bg-[color:var(--card)] p-5 text-sm leading-relaxed text-[color:var(--ink-2)]"
+      role="note"
+    >
+      <strong class="font-display block text-base font-semibold text-[color:var(--ink)]">
+        {t("scaffold.banner.title")}
+      </strong>
+      <p class="mt-1">{t("scaffold.banner.body")}</p>
+    </div>
+
+    <p class="mt-10 text-sm text-[color:var(--muted)]">
+      Pool size: {totalFacts} facts.
+    </p>
+
+    <div class="mt-6">
+      <a
+        href="/quiz/"
+        class="inline-flex items-center gap-2 rounded-sm border border-[color:var(--accent)] bg-transparent px-5 py-3 font-mono text-sm font-semibold tracking-[0.08em] text-[color:var(--accent)] uppercase transition hover:bg-[color:var(--accent)] hover:text-white"
+      >
+        Play the Ukrainian quiz →
+      </a>
+    </div>
+  </div>
+</Base>

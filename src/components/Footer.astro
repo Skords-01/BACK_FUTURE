@@ -1,6 +1,34 @@
 ---
 import { SITE } from "../config/site";
+import LangSwitcher from "./LangSwitcher.astro";
+import { DEFAULT_LOCALE, type Locale } from "../i18n/ui";
+import { getT, toLocale } from "../i18n/t";
+
 const year = new Date().getFullYear();
+const path = Astro.url.pathname;
+const enPrefix = "/en";
+const isEnPath = path === enPrefix || path.startsWith(`${enPrefix}/`);
+const astroLocale = toLocale(Astro.currentLocale);
+const locale: Locale = astroLocale === "en" || isEnPath ? "en" : DEFAULT_LOCALE;
+const t = getT(locale);
+const prefix = locale === "en" ? enPrefix : "";
+
+// Локалезалежний підпис «бренд / навігація / підтримка». Tagline беремо
+// зі словника на EN-боці (UK-tagline вже сидить у `SITE.tagline`).
+const footerTagline = locale === "en" ? t("site.tagline") : SITE.tagline;
+const supportTitle = locale === "en" ? "Support" : "Підтримати";
+const supportBody =
+  locale === "en"
+    ? "The project is free and ad-free. If you like it — buy us a coffee."
+    : "Проєкт безкоштовний і без реклами. Якщо подобається — пригости кавою.";
+const monoLabel = locale === "en" ? "monobank · jar →" : "monobank · банка →";
+const githubAria =
+  locale === "en" ? "GitHub — opens in a new tab" : "GitHub — відкривається в новій вкладці";
+const footerNavAria = locale === "en" ? "Site navigation" : "Навігація сайту";
+const sergeantAria =
+  locale === "en"
+    ? "SERGEANT_GROUP — the brand that unites the project's products"
+    : "SERGEANT_GROUP — бренд, що об'єднує продукти проєкту";
 ---
 
 <footer class="border-t border-[color:var(--rule)] bg-[color:var(--paper-2)]">
@@ -12,12 +40,12 @@ const year = new Date().getFullYear();
           {SITE.name}
         </p>
         <p class="mt-2 text-sm leading-relaxed text-[color:var(--ink-2)]">
-          {SITE.tagline}
+          {footerTagline}
         </p>
 
         <div
           class="mt-5 flex items-center gap-3 rounded-sm border border-[color:var(--card-edge)] bg-[color:var(--card)] p-3"
-          aria-label="SERGEANT_GROUP — бренд, що об'єднує продукти проєкту"
+          aria-label={sergeantAria}
         >
           <img
             src="/brand/sergeant-group.svg"
@@ -30,7 +58,7 @@ const year = new Date().getFullYear();
           />
           <div class="leading-tight">
             <p class="font-mono text-[11px] tracking-[0.18em] text-[color:var(--muted)] uppercase">
-              частина
+              {t("footer.part_of")}
             </p>
             <p class="font-display text-sm font-bold tracking-[0.04em] text-[color:var(--ink)]">
               SERGEANT_GROUP
@@ -39,56 +67,60 @@ const year = new Date().getFullYear();
         </div>
 
         <p class="mt-4 font-mono text-xs text-[color:var(--muted)]">
-          © {year} · Зроблено в Україні
+          © {year} · {t("footer.made_in_ua")}
         </p>
+
+        <div class="mt-5">
+          <LangSwitcher variant="footer" />
+        </div>
       </div>
 
       <!-- Project column -->
-      <nav aria-label="Навігація сайту">
+      <nav aria-label={footerNavAria}>
         <h2
           class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase"
         >
-          Навігація
+          {t("footer.nav")}
         </h2>
         <ul class="space-y-2 text-sm">
           <li>
             <a
-              href="/timeline/"
+              href={`${prefix}/timeline/`}
               class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
-              Хронологія
+              {t("nav.timeline")}
             </a>
           </li>
           <li>
             <a
-              href="/quiz/"
+              href={`${prefix}/quiz/`}
               class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
-              Квіз
+              {t("nav.quiz")}
             </a>
           </li>
           <li>
             <a
-              href="/all/"
+              href={`${prefix}/all/`}
               class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
-              Усі факти
+              {t("nav.all")}
             </a>
           </li>
           <li>
             <a
-              href="/metodologia/"
+              href={`${prefix}/metodologia/`}
               class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
-              Методологія
+              {t("nav.metodologia")}
             </a>
           </li>
           <li>
             <a
-              href="/about/"
+              href={`${prefix}/about/`}
               class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
-              Про проєкт
+              {t("nav.about")}
             </a>
           </li>
           <li>
@@ -115,7 +147,7 @@ const year = new Date().getFullYear();
               href={SITE.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="GitHub — відкривається в новій вкладці"
+              aria-label={githubAria}
               class="text-[color:var(--ink-2)] underline-offset-2 transition hover:text-[color:var(--accent)] hover:underline"
             >
               GitHub <span aria-hidden="true">↗</span>
@@ -129,10 +161,10 @@ const year = new Date().getFullYear();
         <h2
           class="mb-3 font-mono text-[10px] tracking-[0.18em] text-[color:var(--muted)] uppercase"
         >
-          Підтримати
+          {supportTitle}
         </h2>
         <p class="mb-4 text-sm leading-relaxed text-[color:var(--ink-2)]">
-          Проєкт безкоштовний і без реклами. Якщо подобається — пригости кавою.
+          {supportBody}
         </p>
         {
           SITE.monobankJarUrl && (
@@ -142,7 +174,7 @@ const year = new Date().getFullYear();
               rel="noopener noreferrer"
               class="inline-flex items-center gap-2 rounded-sm border border-[color:var(--accent)] bg-transparent px-4 py-2.5 font-mono text-sm font-semibold text-[color:var(--accent)] transition hover:bg-[color:var(--accent)] hover:text-white"
             >
-              monobank · банка →
+              {monoLabel}
             </a>
           )
         }
