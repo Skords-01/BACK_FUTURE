@@ -26,11 +26,12 @@ const totalCount = items.length;
 const middleYear = Math.round((era.yearStart + Math.min(era.yearEnd, SITE.yearMax)) / 2);
 const otherEras = ERAS.filter((e) => e.id !== era.id);
 
-const description = `${era.label}: факти, релевантні випускникам ${era.yearStart}–${Math.min(
-  era.yearEnd,
-  SITE.yearMax,
-)} років. ${totalCount} ${totalCount === 1 ? "факт" : "фактів"} на ${SITE.name}.`;
-const ogImage = new URL("/og/default.png", SITE.defaultUrl).toString();
+const yearEndLabel = era.yearEnd > SITE.yearMax ? "сьогодні" : era.yearEnd;
+const factsWord = totalCount === 1 ? "факт" : "фактів";
+// Description tuned for ~120–160 chars (Google snippet sweet spot). era.summary
+// is unique per era → SERP listing не дублюється з сусідніми сторінками.
+const description = `${era.summary} ${totalCount} ${factsWord} для випускників ${era.yearStart}–${yearEndLabel}.`;
+const ogImage = new URL(`/og/era-${era.slug}.png`, SITE.defaultUrl).toString();
 const homeUrl = `${SITE.defaultUrl}/`;
 const canonical = new URL(Astro.url.pathname, SITE.defaultUrl).toString();
 
@@ -72,6 +73,7 @@ const breadcrumbsLd: Record<string, unknown> = {
   title={era.label}
   description={description}
   ogImage={ogImage}
+  ogType="article"
   jsonLd={[collectionLd, breadcrumbsLd]}
 >
   <section class="ruled-hero">

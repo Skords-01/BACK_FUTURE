@@ -4,7 +4,7 @@
 > Цей документ описує **технічні** PR-и (інфра, контент-схема, UX, фічі) — як їх логічно розбити, у якій послідовності й з якими залежностями.
 > Список ідей-першоджерел: [`ideas.md`](./ideas.md).
 
-Останнє оновлення: травень 2026 (після PR #133: Pagefind-пошук, `/quiz`, observability-стек (Sentry/PostHog/GSC), `userState.ts`, 5 design-effects, `ScrollRestore` стійкий на iOS/bfcache, dead-code cleanup, JetBrains Mono замість IBM Plex Mono).
+Останнє оновлення: травень 2026 (після PR #137: JSON-LD `FAQPage` на /about, `og:type=article` + власні `/og/era-<slug>.png` для era-сторінок, `link rel="sitemap"` у Base head; PR #133: Pagefind-пошук, `/quiz`, observability-стек (Sentry/PostHog/GSC), `userState.ts`, 5 design-effects, `ScrollRestore` стійкий на iOS/bfcache, dead-code cleanup, JetBrains Mono замість IBM Plex Mono).
 
 ---
 
@@ -15,9 +15,9 @@
 - **CI:** `.github/workflows/ci.yml` — install / lint / typecheck / validate-content / build / Playwright smoke (вкл. axe-аудит через `@axe-core/playwright`) / Lighthouse audit. Окремо `link-check.yml` і `deploy.yml`.
 - **Контент-валідація:** `npm run validate:content` (tone, sources, draft guard); `npm run coverage:content` (звіт по предметах і ерах).
 - **Дизайн:** «3+1» (Mineral + Schoolbook акценти), токени в `tailwind.config.mjs`, глобальний `Header`/`Footer`. `/themes.astro` — дев-лабораторія тем, у проді redirect → 404 (PR #116).
-- **SEO:** RSS (`src/pages/rss.xml.ts`), sitemap (`@astrojs/sitemap`), robots.txt, canonical/OG/Twitter мета у `Base.astro`, GSC verification meta (env-gated, PR #117).
+- **SEO:** RSS (`src/pages/rss.xml.ts`), sitemap (`@astrojs/sitemap`) + `link rel="sitemap"` у Base head, robots.txt, canonical/OG/Twitter мета у `Base.astro` з опційним `ogType` (`website` / `article`), GSC verification meta (env-gated, PR #117). JSON-LD `FAQPage` на `/about` через `src/lib/faq.ts` (PR #137).
 - **Сторінки:** `/[year]` з фільтрами, `/subject/[id]`, `/era/[slug]`, `/fact/[slug]`, `/timeline`, `/quiz`, `/all`, `/about`, `/metodologia`, `/themes`.
-- **OG-зображення:** SVG + PNG ендпоінти `/og/[year].{svg,png}` і `/og/default.{svg,png}` (PR #43; PNG через `@resvg/resvg-js`). Inline OG-preview card у ShareBlock (PR #101).
+- **OG-зображення:** SVG + PNG ендпоінти `/og/[year].{svg,png}`, `/og/era-[slug].{svg,png}` (PR #137) і `/og/default.{svg,png}` (PR #43; PNG через `@resvg/resvg-js`). Inline OG-preview card у ShareBlock (PR #101).
 - **Пошук:** Pagefind build-time індекс (PR #109): `SearchDialog` з lazy-load `/pagefind/pagefind-ui.{js,css}`, native `<dialog>`, Cmd/Ctrl+K, `data-pagefind-body` обмежує індекс.
 - **Аналітика / observability:** Plausible / Umami / **PostHog** через env (PR #44 + #117); PostHog інструментація подій + фунелів + dashboard-as-code (PR #131/#132). **Sentry** error tracking (PR #117 + #122). Без env — нульовий runtime. Доки у [`docs/analytics.md`](./analytics.md).
 - **GitHub-операційка:** `CODEOWNERS`, `dependabot.yml` (з груповими правилами після PR #41), шаблони issues, `PULL_REQUEST_TEMPLATE.md`.
@@ -212,7 +212,7 @@ PR [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) закриває по
 4. **#2.5** — розширення `SUBJECTS` до 11 предметів.
 5. **#2.6** — workflow-патч для `sources[].url`.
 
-Наступні найпрактичніші задачі (після PR #133): `/compare?a=…&b=…`, `/share/[year]` PNG-постер, `/saved` bookmark-факти, issue `new-fact.yml` → draft PR action, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing.
+Наступні найпрактичніші задачі (після PR #137): `/compare?a=…&b=…`, `/share/[year]` PNG-постер, `/saved` bookmark-факти, issue `new-fact.yml` → draft PR action, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing.
 
 ---
 
