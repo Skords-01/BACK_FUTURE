@@ -150,15 +150,30 @@ export function buildDefaultOgSvg(): string {
  *
  * `font.loadSystemFonts: true` змушує resvg сканити локальні шрифти. На
  * GitHub Actions це шрифти Ubuntu (DejaVu / Noto) — вони покривають кирилицю.
+ *
+ * Resvg може мовчки не рендерити дуже великі `text`-елементи, якщо
+ * `defaultFontFamily` потрапляє на serif-fallback (Inter / Manrope не
+ * встановлено системно). Для постерів передаємо явну sans-сімʼю, яку гарантовано
+ * має Ubuntu (DejaVu / Liberation).
  */
-export async function svgToPng(svg: string): Promise<Uint8Array> {
+export interface SvgToPngOptions {
+  width?: number;
+  defaultFontFamily?: string;
+}
+
+export async function svgToPng(
+  svg: string,
+  widthOrOptions: number | SvgToPngOptions = OG_WIDTH,
+): Promise<Uint8Array> {
+  const opts: SvgToPngOptions =
+    typeof widthOrOptions === "number" ? { width: widthOrOptions } : widthOrOptions;
   const { Resvg } = await import("@resvg/resvg-js");
   const resvg = new Resvg(svg, {
-    fitTo: { mode: "width", value: OG_WIDTH },
+    fitTo: { mode: "width", value: opts.width ?? OG_WIDTH },
     background: "#f7f7f5",
     font: {
       loadSystemFonts: true,
-      defaultFontFamily: "Inter",
+      defaultFontFamily: opts.defaultFontFamily ?? "Inter",
     },
   });
   return resvg.render().asPng();

@@ -2,7 +2,7 @@
 
 > Цей документ — «жива» довгострокова пам'ять проєкту. Тут зафіксовано все, що було спільно проговорено між власником і Devin: бачення, рішення, відкладені моменти, відкриті питання, поточний стан. Оновлюється з кожним значущим етапом. Усі майбутні сесії повинні почати читання саме з цього документа.
 
-Останнє оновлення: травень 2026 року, після PR #133 + 9.2: 11 предметів заповнені (175 фактів), Pagefind-пошук (Cmd/Ctrl+K) і `/quiz`-сторінка, observability-стек (Sentry, PostHog з фунелами і dashboard-as-code, GSC-верифікація) — все env-gated, `userState.ts` (last-year + read-tracking у `localStorage`), 5 design-effects (staggered entrance, magnetic 3D tilt, slot-machine GO, glitch reveal, DensityStrip tooltip), `ScrollRestore` стійкий на iOS Safari + bfcache, прибрано dead code і застарілі шрифти (Fraunces/Lora/IBM Plex Mono), JetBrains Mono замінив IBM Plex Mono як основний моно-шрифт, ICU plurals через `src/lib/plurals.ts` (`Intl.PluralRules`) — `factsCount` / `updatesCount` / `yearsAgo` із locale-параметром і кешуванням.
+Останнє оновлення: травень 2026 року — закрито roadmap 6.5: `/share/[year]` PNG-постер (1080×1920 для Stories) із preview-сторінкою, download / native share / copy-link / Telegram-X-Facebook intents, лінк «Завантажити постер» у `ShareBlock`, deterministic top-quote (high-impact + id-tie-break), empty-year fallback. До цього: закрите roadmap 9.2 (ICU plurals через `src/lib/plurals.ts` із `Intl.PluralRules`), PR #133 і вся історія нижче.
 
 ---
 

@@ -1,0 +1,277 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import { SITE } from "../../config/site";
+import { eraOf } from "../../lib/eras";
+import { factsForYear } from "../../lib/filterFacts";
+import { computeSharePosterParts } from "../../lib/share";
+
+export async function getStaticPaths() {
+  const years: { params: { year: string } }[] = [];
+  for (let y = SITE.yearMin; y <= SITE.yearMax; y++) {
+    years.push({ params: { year: String(y) } });
+  }
+  return years;
+}
+
+const { year: yearStr } = Astro.params;
+const year = Number(yearStr);
+if (!Number.isInteger(year) || year < SITE.yearMin || year > SITE.yearMax) {
+  return Astro.redirect("/");
+}
+
+const allFacts = await getCollection("facts");
+const matched = factsForYear(allFacts, year);
+const era = eraOf(year);
+const parts = computeSharePosterParts(year, allFacts);
+
+const posterUrl = `/share/${year}.png`;
+const posterAbsoluteUrl = new URL(posterUrl, SITE.defaultUrl).toString();
+const yearPageUrl = new URL(`/${year}/`, SITE.defaultUrl).toString();
+const yearPageEncoded = encodeURIComponent(yearPageUrl);
+
+function pluralize(n: number, forms: [string, string, string]): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return forms[0];
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return forms[1];
+  return forms[2];
+}
+const updatesLabel = pluralize(matched.length, ["оновлення", "оновлення", "оновлень"]);
+
+const messageBase =
+  parts.totalCount > 0
+    ? `Випустився ${year}-го. З тих пір пропустив ${parts.totalCount} ${updatesLabel} у науці й історії.`
+    : `Як змінились наука й історія від випуску ${year}-го?`;
+const message = `${messageBase} ${SITE.tagline} — ${SITE.name}.`;
+const messageEncoded = encodeURIComponent(message);
+
+const title = `Постер «Випуск ${year}»`;
+const description = `Завантаж і поділись постером випуску ${year}-го у Instagram Stories, Telegram чи X. ${SITE.name}.`;
+
+const shareIntents = [
+  {
+    id: "telegram",
+    label: "Telegram",
+    href: `https://t.me/share/url?url=${yearPageEncoded}&text=${messageEncoded}`,
+  },
+  {
+    id: "twitter",
+    label: "X / Twitter",
+    href: `https://twitter.com/intent/tweet?url=${yearPageEncoded}&text=${messageEncoded}`,
+  },
+  {
+    id: "facebook",
+    label: "Facebook",
+    href: `https://www.facebook.com/sharer/sharer.php?u=${yearPageEncoded}`,
+  },
+];
+
+const downloadFilename = `back-future-${year}.png`;
+---
+
+<Base title={title} description={description} ogImage={posterAbsoluteUrl}>
+  <section class="container-prose mt-12">
+    <p class="text-ink-500 dark:text-ink-400 font-mono text-xs tracking-widest uppercase">
+      <a
+        href={`/${year}/`}
+        class="hover:text-accent-700 dark:hover:text-accent-300 underline-offset-4 hover:underline"
+      >
+        ← До сторінки випуску {year}
+      </a>
+    </p>
+    <h1 class="font-display text-ink-900 mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">
+      Постер «Випуск {year}»
+    </h1>
+    <p class="text-ink-600 dark:text-ink-300 mt-3 max-w-prose text-base sm:text-lg">
+      Готовий постер у вертикальному форматі для Stories — {
+        parts.totalCount > 0 ? `${parts.totalCount} ${updatesLabel}` : "контент додається"
+      }, {era.label}. Завантаж PNG і поділись.
+    </p>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div
+        class="border-ink-100 dark:border-ink-700 dark:bg-ink-900 mx-auto w-full max-w-md overflow-hidden rounded-3xl border bg-white shadow-sm"
+      >
+        <div class="bg-paper-100 dark:bg-ink-800 aspect-[1080/1920] w-full overflow-hidden">
+          <img
+            src={posterUrl}
+            alt={`Постер для випуску ${year}-го: ${era.label}, ${parts.totalCount} ${updatesLabel}`}
+            width="1080"
+            height="1920"
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col gap-3"
+        id="share-poster-actions"
+        data-share-url={yearPageUrl}
+        data-share-text={message}
+        data-poster-url={posterAbsoluteUrl}
+      >
+        <a
+          href={posterUrl}
+          download={downloadFilename}
+          id="poster-download-btn"
+          class="bg-accent-700 hover:bg-accent-800 text-paper-50 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-base font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          <span aria-hidden="true">⬇</span>
+          Завантажити PNG
+        </a>
+        <button
+          id="poster-native-btn"
+          type="button"
+          hidden
+          class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-12 items-center justify-center gap-2 rounded-full border bg-white px-5 py-3 text-base font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        >
+          <span aria-hidden="true">↗</span>
+          Поділитись…
+        </button>
+        <button
+          id="poster-copy-btn"
+          type="button"
+          class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-12 items-center justify-center gap-2 rounded-full border bg-white px-5 py-3 text-base font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+        >
+          <span aria-hidden="true">⎘</span>
+          <span data-state="idle">Скопіювати посилання</span>
+        </button>
+        <p
+          id="poster-status"
+          class="text-ink-500 dark:text-ink-400 hidden text-sm"
+          role="status"
+          aria-live="polite"
+        >
+        </p>
+
+        <div class="border-ink-100 dark:border-ink-700 mt-2 border-t pt-4">
+          <p class="text-ink-500 dark:text-ink-400 font-mono text-[11px] tracking-widest uppercase">
+            Поділись на платформі
+          </p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            {
+              shareIntents.map((t) => (
+                <a
+                  href={t.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-share-target={t.id}
+                  class="border-ink-200 hover:border-accent-700 hover:text-accent-700 text-ink-700 dark:hover:border-accent-400 dark:hover:text-accent-300 inline-flex min-h-11 items-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-medium transition dark:border-[color:var(--card-edge)] dark:bg-[color:var(--card)]"
+                >
+                  <span aria-hidden="true">↗</span>
+                  {t.label}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 text-sm">
+      <p class="text-ink-500 dark:text-ink-400">
+        Формат постера — 1080×1920 (вертикальний, оптимальний для Instagram / Telegram Stories і
+        WhatsApp Status). Для горизонтального превʼю у X / Facebook використовується{" "}
+        <a
+          href={`/og/${year}.png`}
+          class="hover:text-accent-700 dark:hover:text-accent-300 underline underline-offset-4"
+        >
+          /og/{year}.png
+        </a>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script is:inline>
+  (function () {
+    const root = document.getElementById("share-poster-actions");
+    if (!root) return;
+    const url = root.dataset.shareUrl ?? "";
+    const text = root.dataset.shareText ?? "";
+    const posterUrl = root.dataset.posterUrl ?? "";
+
+    function track(event, props) {
+      try {
+        const ph = window.posthog;
+        if (ph && typeof ph.capture === "function") ph.capture(event, props);
+      } catch {
+        /* analytics never breaks UI */
+      }
+    }
+
+    const status = document.getElementById("poster-status");
+    function showStatus(msg) {
+      if (!status) return;
+      status.textContent = msg;
+      status.classList.remove("hidden");
+      window.setTimeout(function () {
+        if (status.textContent === msg) {
+          status.classList.add("hidden");
+        }
+      }, 2500);
+    }
+
+    const downloadBtn = document.getElementById("poster-download-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener(
+        "click",
+        function () {
+          track("poster_downloaded", { url: posterUrl });
+        },
+        { passive: true },
+      );
+    }
+
+    root.querySelectorAll("a[data-share-target]").forEach(function (a) {
+      a.addEventListener(
+        "click",
+        function () {
+          track("share_clicked", { target: a.dataset.shareTarget, surface: "poster" });
+        },
+        { passive: true },
+      );
+    });
+
+    const nativeBtn = document.getElementById("poster-native-btn");
+    if (nativeBtn && typeof navigator.share === "function") {
+      nativeBtn.hidden = false;
+      nativeBtn.addEventListener("click", function () {
+        track("share_clicked", { target: "native", surface: "poster" });
+        navigator.share({ title: document.title, text: text, url: url }).catch(function () {
+          /* user cancelled — no-op */
+        });
+      });
+    }
+
+    const copyBtn = document.getElementById("poster-copy-btn");
+    if (copyBtn instanceof HTMLButtonElement) {
+      const labelSpan = copyBtn.querySelector("[data-state]");
+      copyBtn.addEventListener("click", function () {
+        track("share_clicked", { target: "copy", surface: "poster" });
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          showStatus("Скопіюй вручну: " + url);
+          return;
+        }
+        navigator.clipboard
+          .writeText(url)
+          .then(function () {
+            if (labelSpan) {
+              labelSpan.textContent = "Скопійовано!";
+              labelSpan.setAttribute("data-state", "ok");
+              window.setTimeout(function () {
+                labelSpan.textContent = "Скопіювати посилання";
+                labelSpan.setAttribute("data-state", "idle");
+              }, 1800);
+            }
+          })
+          .catch(function () {
+            showStatus("Не вдалося скопіювати. Скопіюй вручну: " + url);
+          });
+      });
+    }
+  })();
+</script>
