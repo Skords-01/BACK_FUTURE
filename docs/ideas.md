@@ -28,10 +28,6 @@
 - **JSON-LD `FAQPage`** — для секції FAQ на about (`Article` + `BreadcrumbList` уже є після PR #31).
 - **Перевірка мета-тегів** для `/era/[slug]` і `/fact/[slug]` після PR #51 — впевнитися, що OG/Twitter картки коректно резолвляться у популярних соцмережах.
 
-### PWA
-
-- **Manifest + service-worker** для офлайн-перегляду (5.1 у roadmap).
-
 ### Залучення / community
 
 - **GitHub Action**: issue зі шаблону `new-fact.yml` → draft PR з готовим `.md`-фактом (7.1 у roadmap).
@@ -105,6 +101,10 @@
 
 - **Фільтри на сторінці року** (subject / era / region / impact) — Done у [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51).
 - **Pagefind — build-time повнотекстовий пошук** — Done у [#109](https://github.com/Skords-01/BACK_FUTURE/pull/109) (`SearchDialog` з lazy-load, native `<dialog>`, Cmd/Ctrl+K) + [#111](https://github.com/Skords-01/BACK_FUTURE/pull/111) (терміни в quotes).
+
+### PWA (зроблено)
+
+- **Manifest + service-worker** (роадмап 5.1) — Done: `public/manifest.webmanifest`, `scripts/generate-sw.ts` пише `dist/sw.js` (cache-first для static, network-first для HTML, `/offline/` fallback), version прив’язана до sha256-хешів ввіх precache-файлів, `/pagefind/` виключений, `<InstallPwaButton />` на головній реагує на `beforeinstallprompt`. Доки в `docs/architecture.md` (розділ PWA).
 - **Read-tracking відвіданих фактів** — Done у [#116](https://github.com/Skords-01/BACK_FUTURE/pull/116) (IntersectionObserver → `localStorage` через `userState.ts`).
 
 ### Тех-борг (зроблено)

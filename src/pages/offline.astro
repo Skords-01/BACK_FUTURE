@@ -1,0 +1,52 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE } from "../config/site";
+---
+
+<Base title="Офлайн" description={`${SITE.name} — поки немає з'єднання з мережею.`} noindex>
+  <section class="mx-auto max-w-prose px-6 py-20 text-center">
+    <p class="text-accent-700 font-mono text-xs tracking-widest uppercase">Офлайн режим</p>
+    <h1 class="font-display text-ink-900 mt-3 text-4xl leading-tight font-extrabold">
+      Ти зараз без мережі
+    </h1>
+    <p class="text-ink-700 mt-5 text-lg">
+      Цю сторінку не вдалося завантажити. Якщо ти вже відкривав інші роки чи факти раніше — браузер
+      може показати їх із кешу. Інакше — повернись, коли з'явиться інтернет.
+    </p>
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
+      <button
+        type="button"
+        id="offline-retry"
+        class="bg-accent-700 hover:bg-accent-800 focus-visible:ring-accent-300 inline-flex items-center gap-2 rounded-md px-5 py-3 font-medium text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+      >
+        Спробувати ще раз
+      </button>
+      <a
+        href="/"
+        class="text-ink-700 hover:text-ink-900 border-ink-200 hover:border-ink-400 inline-flex items-center gap-2 rounded-md border px-5 py-3 font-medium transition-colors"
+      >
+        На головну
+      </a>
+    </div>
+    <p class="text-ink-500 mt-12 font-mono text-xs">
+      {SITE.name}
+    </p>
+  </section>
+  <script is:inline>
+    // Кнопка «Спробувати ще раз» намагається перезавантажити останню сторінку,
+    // на яку користувач збирався, інакше — просто перезавантажує цю.
+    document.getElementById("offline-retry")?.addEventListener("click", () => {
+      try {
+        if (navigator.onLine) {
+          window.location.reload();
+        } else {
+          // Без мережі reload теж приведе нас сюди — почекаємо, але дамо
+          // негайний візуальний фідбек, щоб користувач бачив, що ми реагуємо.
+          window.location.reload();
+        }
+      } catch {
+        window.location.reload();
+      }
+    });
+  </script>
+</Base>

@@ -4,7 +4,7 @@
 > Цей документ описує **технічні** PR-и (інфра, контент-схема, UX, фічі) — як їх логічно розбити, у якій послідовності й з якими залежностями.
 > Список ідей-першоджерел: [`ideas.md`](./ideas.md).
 
-Останнє оновлення: травень 2026 (після PR #133: Pagefind-пошук, `/quiz`, observability-стек (Sentry/PostHog/GSC), `userState.ts`, 5 design-effects, `ScrollRestore` стійкий на iOS/bfcache, dead-code cleanup, JetBrains Mono замість IBM Plex Mono).
+Останнє оновлення: травень 2026 (після PR #133 + PWA manifest + service-worker, roadmap 5.1).
 
 ---
 
@@ -35,7 +35,6 @@
 | Напрям                     | Що бракує                                                                                                                                                                   |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Сторінки                   | `/compare?a=…&b=…`, `/share/[year]` (PNG-постер), `/saved` (bookmark-факти), `/contributors` (потребує `authors` поля), `/support` (потребує `monobankJarUrl` у `site.ts`). |
-| PWA                        | Manifest + сервіс-воркер (офлайн перегляд).                                                                                                                                 |
 | Спільнота                  | Action: issue з шаблону «Запропонувати факт» → draft PR. Email-дайджест (Buttondown / self-hosted).                                                                         |
 | Схема                      | `authors` у frontmatter, `region: country:<iso2>` (зараз тільки `world` / `ukraine`), міграція `image` на `astro:assets`.                                                   |
 | i18n                       | Routing (`/uk/`, `/en/`), ICU plurals у форматерах кількості, англомовний UI.                                                                                               |
@@ -155,13 +154,13 @@
 
 ## Фаза 5 — PWA / a11y / asset-pipeline — частково закрита
 
-Готово: 5.2 (axe-аудит). Залишилося: 5.1 (PWA manifest + service-worker), 5.3 (`astro:assets` для зображень).
+Готово: 5.1 (PWA manifest + service-worker), 5.2 (axe-аудит). Залишилося: 5.3 (`astro:assets` для зображень).
 
-| #   | PR                                             | Розмір | Залежить | Опис                                                                                                                                                                                            |
-| --- | ---------------------------------------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 5.1 | PWA manifest + service-worker                  | M      | —        | Офлайн-перегляд закешованих сторінок.                                                                                                                                                           |
-| 5.2 | axe-аудит у CI + фікси                         | M      | —        | Done: `tests/e2e/a11y.spec.ts` використовує `@axe-core/playwright`; запускається в стандартному e2e-флоу. h1 a11y фікс на `[year]` у [#105](https://github.com/Skords-01/BACK_FUTURE/pull/105). |
-| 5.3 | Перехід на `astro:assets` для зображень фактів | S      | 2.x      | Поки `image` поле опційне; коли заповниться — оптимізувати pipeline.                                                                                                                            |
+| #   | PR                                             | Розмір | Залежить | Опис                                                                                                                                                                                                                                                                                                                             |
+| --- | ---------------------------------------------- | ------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5.1 | PWA manifest + service-worker                  | M      | —        | Done: `public/manifest.webmanifest`, `scripts/generate-sw.ts` пише `dist/sw.js` (cache-first для static, network-first для HTML, `/offline/` fallback); precache version з sha256-хешів файлів, `/pagefind/` виключений, env-gated реєстрація в `Base.astro`, `<InstallPwaButton />` на головній. Доки в `docs/architecture.md`. |
+| 5.2 | axe-аудит у CI + фікси                         | M      | —        | Done: `tests/e2e/a11y.spec.ts` використовує `@axe-core/playwright`; запускається в стандартному e2e-флоу. h1 a11y фікс на `[year]` у [#105](https://github.com/Skords-01/BACK_FUTURE/pull/105).                                                                                                                                  |
+| 5.3 | Перехід на `astro:assets` для зображень фактів | S      | 2.x      | Поки `image` поле опційне; коли заповниться — оптимізувати pipeline.                                                                                                                                                                                                                                                             |
 
 ## Фаза 6 — Залучення — частково закрита
 
@@ -212,7 +211,7 @@ PR [#51](https://github.com/Skords-01/BACK_FUTURE/pull/51) закриває по
 4. **#2.5** — розширення `SUBJECTS` до 11 предметів.
 5. **#2.6** — workflow-патч для `sources[].url`.
 
-Наступні найпрактичніші задачі (після PR #133): `/compare?a=…&b=…`, `/share/[year]` PNG-постер, `/saved` bookmark-факти, issue `new-fact.yml` → draft PR action, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), PWA manifest + service-worker, i18n routing.
+Наступні найпрактичніші задачі (після закриття 5.1 PWA): `/compare?a=…&b=…`, `/share/[year]` PNG-постер, `/saved` bookmark-факти, issue `new-fact.yml` → draft PR action, `/contributors` (потребує `authors` поля у frontmatter) + `/support` (потребує `monobankJarUrl` у `site.ts`), i18n routing.
 
 ---
 
