@@ -43,7 +43,7 @@
     "@astrojs/check": "0.9.9",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
-    "@sentry/astro": "^10.52.0",
+    "@sentry/astro": "^10.53.1",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.1",
     "tailwindcss": "^4.3.0",
